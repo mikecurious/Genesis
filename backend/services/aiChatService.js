@@ -43,7 +43,7 @@ class AIChatService {
             filters.bathrooms = parseInt(bathroomMatch[1]);
         }
 
-        // Detect property type
+        // Detect property type - use word boundaries to avoid partial matches
         const propertyTypes = {
             'apartment': ['apartment', 'flat'],
             'house': ['house', 'home'],
@@ -56,7 +56,11 @@ class AIChatService {
         };
 
         for (const [type, keywords] of Object.entries(propertyTypes)) {
-            if (keywords.some(keyword => queryLower.includes(keyword))) {
+            // Use word boundary regex to match whole words only
+            if (keywords.some(keyword => {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+                return regex.test(queryLower);
+            })) {
                 filters.propertyType = type;
                 break;
             }
