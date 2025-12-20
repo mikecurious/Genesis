@@ -17,6 +17,7 @@ import { ImageViewer } from "./components/ImageViewer";
 import { GoogleSignInModal } from "./components/GoogleSignInModal";
 import { InteractionPage } from "./components/interaction/InteractionPage";
 import { PropertyExplorerPage } from "./components/PropertyExplorerPage";
+import { AIPropertySearch } from "./components/AIPropertySearch";
 import { FeaturePaymentModal } from "./components/modals/FeaturePaymentModal";
 import { AddTenantModal } from "./components/modals/AddTenantModal";
 import { LiveAudioHandler } from "./components/LiveAudioHandler";
@@ -53,6 +54,7 @@ type View =
   | "dashboard"
   | "interaction"
   | "propertyExplorer"
+  | "aiPropertySearch"
   | "signIn";
 type Theme = "light" | "dark";
 
@@ -918,6 +920,8 @@ const App: React.FC = () => {
             }}
           />
         );
+      case "aiPropertySearch":
+        return <AIPropertySearch />;
       case "dashboard":
         if (!isUserLoggedIn || !currentUser) {
           handleSetView(
@@ -1039,6 +1043,7 @@ const App: React.FC = () => {
             onHomeClick={() => handleSetView("chat")}
             onFeaturesClick={() => handleSetView("features")}
             onDashboardClick={() => handleSetView("dashboard")}
+            onAISearchClick={() => handleSetView("aiPropertySearch")}
             onLogout={handleLogout}
             conversations={conversations}
             currentConversationId={currentConversationId}

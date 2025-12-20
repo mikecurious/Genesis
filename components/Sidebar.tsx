@@ -14,6 +14,7 @@ interface SidebarProps {
   onHomeClick: () => void;
   onFeaturesClick: () => void;
   onDashboardClick: () => void;
+  onAISearchClick?: () => void;
   onLogout: () => void;
   conversations: Record<string, Conversation>;
   currentConversationId: string | null;
@@ -35,15 +36,16 @@ const ConversationItem: React.FC<{ children: React.ReactNode; onClick: () => voi
   </button>
 );
 
-export const Sidebar: React.FC<SidebarProps> = ({ 
-  isOpen, 
-  setIsOpen, 
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  setIsOpen,
   isUserLoggedIn,
   currentUser,
-  chatUser, 
-  onHomeClick, 
-  onFeaturesClick, 
+  chatUser,
+  onHomeClick,
+  onFeaturesClick,
   onDashboardClick,
+  onAISearchClick,
   onLogout,
   conversations,
   currentConversationId,
@@ -78,6 +80,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <nav className="p-4 space-y-2">
             <NavItem onClick={onNewChat}>New Chat</NavItem>
+            {onAISearchClick && (
+              <NavItem onClick={onAISearchClick}>
+                <span className="flex items-center gap-2">
+                  🔍 AI Property Search
+                  <span className="text-xs bg-indigo-500 text-white px-2 py-0.5 rounded-full">Database</span>
+                </span>
+              </NavItem>
+            )}
             <NavItem onClick={onFeaturesClick}>Features</NavItem>
             {isUserLoggedIn && currentUser?.role !== UserRole.Tenant && <NavItem onClick={onDashboardClick}>Dashboard</NavItem>}
             {isUserLoggedIn && currentUser?.role === UserRole.Tenant && <NavItem onClick={onDashboardClick}>My Dashboard</NavItem>}
