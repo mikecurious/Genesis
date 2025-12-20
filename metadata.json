@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of MyGF AI Real Estate Platform",
+  "description": "An intelligent real estate platform with an AI-powered chat interface to help users find property listings.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}

@@ -1,0 +1,354 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { type Listing, type Message, Role } from '../types';
+import { ChatMessage } from './ChatMessage';
+import { ChatInput } from './ChatInput';
+import { LeadCaptureForm } from './LeadCaptureForm';
+import { generateInitialPitch, generateInteractionResponse } from '../services/geminiService';
+
+interface PropertyExplorerPageProps {
+    property: Listing;
+    onBack: () => void;
+    messages?: Message[]; // Shared messages from App.tsx
+    onSendMessage?: (propertyId: string, message: Message) => void; // Sync to dashboard
+}
+
+export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
+    property,
+    onBack,
+    messages: sharedMessages = [],
+    onSendMessage
+}) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [zoomLevel, setZoomLevel] = useState(1);
+    const [localMessages, setLocalMessages] = useState<Message[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showLeadForm, setShowLeadForm] = useState(false);
+    const [dealType, setDealType] = useState<'purchase' | 'rental' | 'viewing'>('viewing');
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLImageElement>(null);
+
+    // Use shared messages if available, otherwise use local
+    const messages = sharedMessages.length > 0 ? sharedMessages : localMessages;
+
+    const images = property.imageUrls && property.imageUrls.length > 0
+        ? property.imageUrls
+        : ['/placeholder-property.jpg'];
+
+    // Initialize sales pitch
+    useEffect(() => {
+        if (messages.length === 0) {
+            const initializePitch = async () => {
+                setIsLoading(true);
+                try {
+                    const initialPitch = await generateInitialPitch(property);
+                    const pitchMessage = { ...initialPitch, id: `pitch_${Date.now()}` };
+
+                    if (onSendMessage) {
+                        onSendMessage(property.id, pitchMessage);
+                    } else {
+                        setLocalMessages([pitchMessage]);
+                    }
+                } catch (error) {
+                    console.error('Failed to generate initial pitch:', error);
+                    const fallbackMessage: Message = {
+                        id: 'fallback',
+                        role: Role.MODEL,
+                        text: `Welcome! I'm excited to show you this amazing property: ${property.title}. What would you like to know about it?`
+                    };
+
+                    if (onSendMessage) {
+                        onSendMessage(property.id, fallbackMessage);
+                    } else {
+                        setLocalMessages([fallbackMessage]);
+                    }
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            initializePitch();
+        }
+    }, [property, messages.length, onSendMessage]);
+
+    // Auto-scroll chat
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const handleSendMessage = async (text: string) => {
+        if (!text.trim() || isLoading) return;
+
+        const userMessage: Message = {
+            id: Date.now().toString(),
+            role: Role.USER,
+            text,
+        };
+
+        // Add user message
+        if (onSendMessage) {
+            onSendMessage(property.id, userMessage);
+        } else {
+            setLocalMessages(prev => [...prev, userMessage]);
+        }
+
+        setIsLoading(true);
+
+        try {
+            const aiResponse = await generateInteractionResponse(text, property, messages);
+
+            // Check for deal closure
+            if (aiResponse.metadata?.dealClosure && aiResponse.metadata.dealType) {
+                setDealType(aiResponse.metadata.dealType);
+                setShowLeadForm(true);
+            }
+
+            // Add AI response
+            if (onSendMessage) {
+                onSendMessage(property.id, aiResponse);
+            } else {
+                setLocalMessages(prev => [...prev, aiResponse]);
+            }
+        } catch (error) {
+            console.error('Error generating response:', error);
+            const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: Role.MODEL,
+                text: "I apologize, I'm having trouble responding right now. Please try again.",
+            };
+
+            if (onSendMessage) {
+                onSendMessage(property.id, errorMessage);
+            } else {
+                setLocalMessages(prev => [...prev, errorMessage]);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleLeadSubmit = async (leadData: any) => {
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    propertyId: property.id,
+                    client: leadData.client,
+                    dealType: leadData.dealType,
+                    conversationHistory: messages
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit lead');
+            }
+
+            const result = await response.json();
+
+            // Show success message
+            const successMessage: Message = {
+                id: `success_${Date.now()}`,
+                role: Role.MODEL,
+                text: `🎉 Thank you! Your ${dealType} request has been submitted successfully. The property owner will contact you shortly at ${leadData.client.whatsappNumber}. We've also sent a confirmation to ${leadData.client.email}.`,
+                isSystemMessage: true
+            };
+
+            if (onSendMessage) {
+                onSendMessage(property.id, successMessage);
+            } else {
+                setLocalMessages(prev => [...prev, successMessage]);
+            }
+
+            setShowLeadForm(false);
+        } catch (error: any) {
+            throw new Error(error.message || 'Failed to submit lead');
+        }
+    };
+
+    const handlePrevImage = () => {
+        setCurrentImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+        setZoomLevel(1);
+    };
+
+    const handleNextImage = () => {
+        setCurrentImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+        setZoomLevel(1);
+    };
+
+    const handleZoomIn = () => {
+        setZoomLevel(prev => Math.min(prev + 0.5, 3));
+        setIsZoomed(true);
+    };
+
+    const handleZoomOut = () => {
+        setZoomLevel(prev => Math.max(prev - 0.5, 1));
+        if (zoomLevel <= 1.5) setIsZoomed(false);
+    };
+
+    const handleResetZoom = () => {
+        setZoomLevel(1);
+        setIsZoomed(false);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-50 dark:bg-black z-50 flex flex-col">
+            {/* Header */}
+            <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                <button
+                    onClick={onBack}
+                    className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to Chat
+                    transform: `scale(${zoomLevel})`,
+                    cursor: isZoomed ? 'move' : 'default'
+                            }}
+                        />
+
+                    {/* Navigation Arrows */}
+                    {images.length > 1 && (
+                        <>
+                            <button
+                                onClick={handlePrevImage}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={handleNextImage}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </>
+                    )}
+
+                    {/* Zoom Controls */}
+                    <div className="absolute bottom-4 right-4 flex gap-2">
+                        <button
+                            onClick={handleZoomOut}
+                            disabled={zoomLevel <= 1}
+                            className="bg-black/50 hover:bg-black/70 disabled:opacity-30 text-white p-2 rounded-lg transition-all"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={handleResetZoom}
+                            className="bg-black/50 hover:bg-black/70 text-white px-3 py-2 rounded-lg transition-all text-sm font-medium"
+                        >
+                            {Math.round(zoomLevel * 100)}%
+                        </button>
+                        <button
+                            onClick={handleZoomIn}
+                            disabled={zoomLevel >= 3}
+                            className="bg-black/50 hover:bg-black/70 disabled:opacity-30 text-white p-2 rounded-lg transition-all"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Image Counter */}
+                    <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                        {currentImageIndex + 1} / {images.length}
+                    </div>
+                </div>
+
+                {/* Thumbnail Strip */}
+                {images.length > 1 && (
+                    <div className="bg-gray-900 p-4 flex gap-2 overflow-x-auto">
+                        {images.map((img, index) => (
+                            <button
+                                key={index}
+                                onClick={() => {
+                                    setCurrentImageIndex(index);
+                                    setZoomLevel(1);
+                                }}
+                                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
+                                    ? 'border-indigo-500 scale-105'
+                                    : 'border-transparent opacity-60 hover:opacity-100'
+                                    }`}
+                            >
+                                <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
+                )}
+        </div>
+
+                {/* Right Panel: Chat with Property Advisor */ }
+    <div className="w-full md:w-2/5 flex flex-col bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+        {/* Chat Header */}
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 md:px-6 py-4 border-b border-indigo-600">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 className="font-bold text-white text-base md:text-lg">Your Property Advisor</h3>
+                    <p className="text-xs md:text-sm text-indigo-100">Here to answer all your questions</p>
+                </div>
+            </div>
+        </div>
+
+        {/* Chat Messages */}
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 custom-scrollbar bg-white dark:bg-gray-900">
+            {messages.map(msg => (
+                <ChatMessage
+                    key={msg.id}
+                    message={msg}
+                    onConnect={() => { }}
+                    onOpenImageViewer={() => { }}
+                />
+            ))}
+            {isLoading && (
+                <ChatMessage
+                    message={{ id: 'loading', role: Role.MODEL, text: '...' }}
+                    isLoading={true}
+                />
+            )}
+        </div>
+
+        {/* Chat Input */}
+        <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 bg-white dark:bg-gray-900">
+            <ChatInput
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+                placeholder="Ask me anything..."
+            />
+        </div>
+    </div>
+            </div >
+
+    {/* Lead Capture Form Modal */ }
+{
+    showLeadForm && (
+        <LeadCaptureForm
+            propertyId={property.id}
+            propertyTitle={property.title}
+            dealType={dealType}
+            conversationHistory={messages}
+            onSubmit={handleLeadSubmit}
+            onCancel={() => setShowLeadForm(false)}
+        />
+    )
+}
+        </div >
+    );
+};
