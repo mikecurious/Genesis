@@ -1,9 +1,7 @@
 import { Listing, User, UserRole } from '../types';
 
-// Use relative URL to leverage Vite's proxy configuration
-// In development: Vite proxy forwards /api to http://localhost:5000/api
-// In production: This will use the same domain as the frontend
-const API_URL = '/api';
+// Use VITE_API_URL environment variable for backend API calls
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 // Helper to get auth header
 const getAuthHeader = () => {
