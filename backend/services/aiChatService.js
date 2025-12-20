@@ -122,15 +122,11 @@ class AIChatService {
                 mongoFilter.propertyType = filters.propertyType;
             }
 
-            // Use word boundary regex for precise location matching
+            // Use case-insensitive regex for location matching
             if (filters.location) {
-                const locationPattern = filters.location
-                    .split(',')
-                    .map(loc => loc.trim())
-                    .filter(loc => loc.length > 0)
-                    .map(loc => `\\b${loc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
-                    .join('|');
-
+                // Simple case-insensitive match - location field is "Westlands, Nairobi" format
+                // So searching for "westlands" or "nairobi" will match
+                const locationPattern = filters.location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 mongoFilter.location = { $regex: locationPattern, $options: 'i' };
             }
 
