@@ -50,20 +50,20 @@ export const generatePropertyResponse = async (
     listings: Listing[]
 ): Promise<Message> => {
     try {
-        // SMART QUERY INTEGRATION: Use smart search API for intelligent matching
-        const { smartPropertySearch } = await import('./propertyQueryService');
+        // USE BACKEND AI CHAT SERVICE: Integrated database search with NLP
+        const { sendChatMessage } = await import('./aiChatService');
 
         try {
-            const smartResult = await smartPropertySearch(prompt, {}, 10);
-            console.log('Smart search result:', smartResult);
+            const aiResult = await sendChatMessage(prompt);
+            console.log('AI chat search result:', aiResult);
 
-            if (smartResult.success && smartResult.data && smartResult.data.length > 0) {
-                // Return smart search results with match scores
+            if (aiResult.success && aiResult.properties && aiResult.properties.length > 0) {
+                // Return AI chat results from database
                 return {
                     id: Date.now().toString(),
                     role: Role.MODEL,
-                    text: smartResult.message || `Great news! I found ${smartResult.data.length} properties that match your needs! 🎉`,
-                    properties: smartResult.data.map((p: any) => ({
+                    text: aiResult.message || `Great news! I found ${aiResult.properties.length} properties that match your needs! 🎉`,
+                    properties: aiResult.properties.map((p: any) => ({
                         ...p,
                         id: p._id || p.id,
                         title: p.title,
@@ -76,19 +76,20 @@ export const generatePropertyResponse = async (
                     })),
                 };
             }
-            
-            // If no results from smart search, return a helpful message
-            if (smartResult.success && (!smartResult.data || smartResult.data.length === 0)) {
+
+            // If no results from AI chat, return the AI's message
+            if (aiResult.success) {
                 return {
                     id: Date.now().toString(),
                     role: Role.MODEL,
-                    text: `I searched our database but couldn't find any properties matching "${prompt}". Try searching for a different location or property type! 🏠`,
+                    text: aiResult.message || `I searched our database but couldn't find any properties matching "${prompt}". Try searching for a different location or property type! 🏠`,
                     properties: [],
+                    suggestions: aiResult.suggestions,
                 };
             }
-        } catch (smartSearchError) {
-            console.error('Smart search error:', smartSearchError);
-            // Fall through to AI-based matching with local listings
+        } catch (aiSearchError) {
+            console.error('AI chat search error:', aiSearchError);
+            // Fall through to local matching fallback
         }
 
         // Fallback: AI-based property matching
