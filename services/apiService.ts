@@ -46,49 +46,49 @@ api.interceptors.response.use(
 // Auth Service
 export const authService = {
     register: async (userData: { name: string; email: string; password: string; phone: string }) => {
-        return api.post('/auth/register', userData);
+        return api.post('/api/auth/register', userData);
     },
     verify: async (data: { email: string; otp: string }) => {
-        return api.post('/auth/verify', data);
+        return api.post('/api/auth/verify', data);
     },
     setupAccount: async (data: { role: string; plan: string }, token: string) => {
-        return api.put('/auth/setup', data, {
+        return api.put('/api/auth/setup', data, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
     },
     signup: async (userData: any) => {
-        return api.post('/auth/signup', userData);
+        return api.post('/api/auth/signup', userData);
     },
     login: async (credentials: { email: string; password: string }) => {
-        return api.post('/auth/login', credentials);
+        return api.post('/api/auth/login', credentials);
     },
     getMe: async () => {
-        return api.get('/auth/me');
+        return api.get('/api/auth/me');
     },
     googleSignIn: async (credential: string) => {
-        return api.post('/auth/google', { credential });
+        return api.post('/api/auth/google', { credential });
     },
 };
 
 // User Service
 export const userService = {
     getTenants: async () => {
-        return api.get('/users/tenants');
+        return api.get('/api/users/tenants');
     },
     inviteTenant: async (tenantData: any) => {
-        return api.post('/users/invite-tenant', tenantData);
+        return api.post('/api/users/invite-tenant', tenantData);
     },
     updateProfile: async (userId: string, updates: Partial<User>) => {
-        return api.put(`/users/${userId}`, updates);
+        return api.put(`/api/users/${userId}`, updates);
     },
 };
 
 // Property Service
 export const propertyService = {
     getProperties: async () => {
-        return api.get('/properties');
+        return api.get('/api/properties');
     },
     createProperty: async (propertyData: any) => {
         const formData = new FormData();
@@ -107,23 +107,23 @@ export const propertyService = {
             });
         }
 
-        return api.post('/properties', formData);
+        return api.post('/api/properties', formData);
     },
     updateProperty: async (propertyId: string, updates: Partial<Omit<Listing, 'id' | 'imageUrls'>>) => {
-        return api.put(`/properties/${propertyId}`, updates);
+        return api.put(`/api/properties/${propertyId}`, updates);
     },
     deleteProperty: async (propertyId: string) => {
-        return api.delete(`/properties/${propertyId}`);
+        return api.delete(`/api/properties/${propertyId}`);
     },
 };
 
 // Maintenance Service
 export const maintenanceService = {
     getRequests: async () => {
-        return api.get('/maintenance');
+        return api.get('/api/maintenance');
     },
     createRequest: async (requestData: { description: string }) => {
-        return api.post('/maintenance', requestData);
+        return api.post('/api/maintenance', requestData);
     },
 };
 
@@ -134,19 +134,19 @@ export const leadService = {
         if (filters?.status) params.append('status', filters.status);
         if (filters?.dealType) params.append('dealType', filters.dealType);
 
-        return api.get(`/leads?${params.toString()}`);
+        return api.get(`/api/leads?${params.toString()}`);
     },
     getLeadById: async (leadId: string) => {
-        return api.get(`/leads/${leadId}`);
+        return api.get(`/api/leads/${leadId}`);
     },
     updateLead: async (leadId: string, updates: { status?: string; notes?: string }) => {
-        return api.put(`/leads/${leadId}`, updates);
+        return api.put(`/api/leads/${leadId}`, updates);
     },
     deleteLead: async (leadId: string) => {
-        return api.delete(`/leads/${leadId}`);
+        return api.delete(`/api/leads/${leadId}`);
     },
     getLeadStats: async () => {
-        return api.get('/leads/stats');
+        return api.get('/api/leads/stats');
     },
 };
 
