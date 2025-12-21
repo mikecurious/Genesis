@@ -17,6 +17,7 @@ import { ImageViewer } from "./components/ImageViewer";
 import { GoogleSignInModal } from "./components/GoogleSignInModal";
 import { InteractionPage } from "./components/interaction/InteractionPage";
 import { PropertyExplorerPage } from "./components/PropertyExplorerPage";
+import { PropertyAgentPage } from "./components/PropertyAgentPage";
 import { AIPropertySearch } from "./components/AIPropertySearch";
 import { FeaturePaymentModal } from "./components/modals/FeaturePaymentModal";
 import { AddTenantModal } from "./components/modals/AddTenantModal";
@@ -54,6 +55,7 @@ type View =
   | "dashboard"
   | "interaction"
   | "propertyExplorer"
+  | "propertyAgent"
   | "aiPropertySearch"
   | "signIn";
 type Theme = "light" | "dark";
@@ -117,6 +119,13 @@ const App: React.FC = () => {
   >(null);
   const activeExplorerProperty =
     listings.find((l) => l.id === activeExplorerPropertyId) || null;
+
+  // State for Property Agent Page
+  const [activeAgentPropertyId, setActiveAgentPropertyId] = useState<
+    string | null
+  >(null);
+  const activeAgentProperty =
+    listings.find((l) => l.id === activeAgentPropertyId) || null;
 
   // State for premium feature payment modal
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -430,37 +439,10 @@ const App: React.FC = () => {
 
   const handleConnect = useCallback(
     async (property: Listing) => {
-      setActiveInteractionPropertyId(property.id);
-      setCurrentView("interaction");
-      if (
-        !interactionChats[property.id] ||
-        interactionChats[property.id].length === 0
-      ) {
-        setIsLoading(true);
-        try {
-          const initialPitch = await generateInitialPitch(property);
-          setInteractionChats((prev) => ({
-            ...prev,
-            [property.id]: [initialPitch],
-          }));
-        } catch (error) {
-          console.error("Failed to generate initial pitch:", error);
-          setInteractionChats((prev) => ({
-            ...prev,
-            [property.id]: [
-              {
-                id: "error_pitch",
-                role: Role.MODEL,
-                text: "Hello! I can answer any questions you have about this property.",
-              },
-            ],
-          }));
-        } finally {
-          setIsLoading(false);
-        }
-      }
+      setActiveAgentPropertyId(property.id);
+      setCurrentView("propertyAgent");
     },
-    [interactionChats]
+    []
   );
 
   const handleExploreProperty = useCallback((property: Listing) => {
@@ -852,6 +834,7 @@ const App: React.FC = () => {
     setCurrentView(view);
     setIsSidebarOpen(false);
     if (view !== "interaction") setActiveInteractionPropertyId(null);
+    if (view !== "propertyAgent") setActiveAgentPropertyId(null);
   };
 
   const renderView = () => {
@@ -917,6 +900,49 @@ const App: React.FC = () => {
                 ...prev,
                 [propertyId]: [...(prev[propertyId] || []), message],
               }));
+            }}
+          />
+        );
+      case "propertyAgent":
+        if (!activeAgentProperty) {
+          handleSetView("chat");
+          return null;
+        }
+        return (
+          <PropertyAgentPage
+            property={activeAgentProperty}
+            onBack={() => handleSetView("chat")}
+            onChatWithAI={async () => {
+              // Transition to interaction page with AI chat
+              setActiveInteractionPropertyId(activeAgentProperty.id);
+              setCurrentView("interaction");
+              if (
+                !interactionChats[activeAgentProperty.id] ||
+                interactionChats[activeAgentProperty.id].length === 0
+              ) {
+                setIsLoading(true);
+                try {
+                  const initialPitch = await generateInitialPitch(activeAgentProperty);
+                  setInteractionChats((prev) => ({
+                    ...prev,
+                    [activeAgentProperty.id]: [initialPitch],
+                  }));
+                } catch (error) {
+                  console.error("Failed to generate initial pitch:", error);
+                  setInteractionChats((prev) => ({
+                    ...prev,
+                    [activeAgentProperty.id]: [
+                      {
+                        id: "error_pitch",
+                        role: Role.MODEL,
+                        text: "Hello! I can answer any questions you have about this property.",
+                      },
+                    ],
+                  }));
+                } finally {
+                  setIsLoading(false);
+                }
+              }
             }}
           />
         );

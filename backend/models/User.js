@@ -170,6 +170,45 @@ const UserSchema = new mongoose.Schema({
         }
     },
     // ---------------------------------
+    // -- Agent Profile Fields --
+    agentProfile: {
+        profileImage: {
+            type: String,
+            default: null
+        },
+        bio: {
+            type: String,
+            maxlength: 500
+        },
+        specializations: [{
+            type: String,
+            enum: ['Residential Sales', 'Residential Rentals', 'Commercial Sales', 'Commercial Rentals', 'Land Sales', 'Property Management', 'Investment Properties', 'Luxury Properties']
+        }],
+        yearsOfExperience: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        serviceAreas: [String], // Locations/areas they serve
+        languages: [String], // Languages they speak
+        certifications: [String],
+        achievements: [String], // Awards, top performer, etc.
+        rating: {
+            type: Number,
+            default: 5.0,
+            min: 0,
+            max: 5
+        },
+        totalDeals: {
+            type: Number,
+            default: 0
+        },
+        companyCertification: {
+            type: String,
+            default: null
+        }
+    },
+    // ---------------------------------
     createdAt: {
         type: Date,
         default: Date.now,

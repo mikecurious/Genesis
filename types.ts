@@ -99,6 +99,19 @@ export interface User {
     completedSurveys?: number;
     location?: string;
   };
+  agentProfile?: {
+    profileImage?: string;
+    bio?: string;
+    specializations?: string[];
+    yearsOfExperience?: number;
+    serviceAreas?: string[];
+    languages?: string[];
+    certifications?: string[];
+    achievements?: string[];
+    rating?: number;
+    totalDeals?: number;
+    companyCertification?: string;
+  };
 }
 
 // For users signing in with Google to search

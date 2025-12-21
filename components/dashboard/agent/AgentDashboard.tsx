@@ -4,6 +4,7 @@ import { AgentListingManager } from './AgentListingManager';
 import { AgentClientChat } from './AgentClientChat';
 import { AgentMarketing } from './AgentMarketing';
 import { AgentAiSettings } from './AgentAiSettings';
+import { AgentProfileSettings } from './AgentProfileSettings';
 import { ListingForm } from '../ListingForm';
 import { FeaturePaymentModal } from '../../modals/FeaturePaymentModal';
 import { DashboardSidebar, type DashboardSection } from '../DashboardSidebar';
@@ -146,6 +147,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 );
             case 'ai-settings':
                 return <AgentAiSettings />;
+            case 'profile':
+                return user ? (
+                    <AgentProfileSettings user={user} />
+                ) : (
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                        <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
+                    </div>
+                );
             case 'settings':
                 return user ? (
                     <ProfileSettings user={user} onUpdate={(updatedUser) => {

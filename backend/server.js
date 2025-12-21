@@ -61,6 +61,7 @@ app.use('/api/analytics', require('./routes/analytics')); // Analytics routes
 app.use('/api/verification', require('./routes/verification')); // Verification Center routes
 app.use('/api/surveyor', require('./routes/surveyor')); // Surveyor routes
 app.use('/api/survey-requests', require('./routes/surveyRequests')); // Survey request routes
+app.use('/api/agent', require('./routes/agent')); // Agent profile routes
 app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for property search
 
 // Custom Error Handler Middleware
