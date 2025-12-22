@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 const path = require('path');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -11,6 +13,10 @@ const websocketService = require('./services/websocketService');
 
 // Load env vars
 dotenv.config({ path: __dirname + '/.env' });
+
+// Validate environment variables
+const validateEnv = require('./config/validateEnv');
+validateEnv();
 
 // Connect to database
 connectDB();
@@ -22,17 +28,24 @@ const server = http.createServer(app);
 websocketService.initialize(server);
 
 // Middleware
+// CORS configuration - allow frontend URL from environment or default to localhost
+const allowedOrigins = process.env.FRONTEND_URL
+    ? [process.env.FRONTEND_URL]
+    : ["http://localhost:3000", "http://localhost:3001"];
+
 app.use(cors({
-    origin: [
-        process.env.FRONTEND_URL || "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3000"
-    ],
+    origin: allowedOrigins,
     credentials: true
-})); // Enable CORS with multiple origins
+}));
 app.use(helmet()); // Set security headers
 app.use(express.json()); // Body parser for JSON
 app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded data
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

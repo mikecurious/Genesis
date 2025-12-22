@@ -12,12 +12,12 @@ class EmailService {
     initialize() {
         // Use Nodemailer with Gmail or custom SMTP
         this.transporter = nodemailer.createTransporter({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: false, // true for 465, false for other ports
+            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+            port: parseInt(process.env.EMAIL_PORT || '587'),
+            secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
             }
         });
 
@@ -89,7 +89,7 @@ class EmailService {
 
         try {
             await this.transporter.sendMail({
-                from: `"MyGF AI" <${process.env.SMTP_USER}>`,
+                from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: ownerEmail,
                 subject: `New ${dealTypeLabels[lead.dealType]} - ${property.title}`,
                 html: emailHtml
@@ -146,7 +146,7 @@ class EmailService {
 
         try {
             await this.transporter.sendMail({
-                from: `"MyGF AI" <${process.env.SMTP_USER}>`,
+                from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: userEmail,
                 subject: 'Welcome to MyGF AI! 🎉',
                 html: emailHtml
@@ -198,7 +198,7 @@ class EmailService {
 
         try {
             await this.transporter.sendMail({
-                from: `"MyGF AI" <${process.env.SMTP_USER}>`,
+                from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: ownerEmail,
                 subject: `Property Published: ${property.title}`,
                 html: emailHtml
