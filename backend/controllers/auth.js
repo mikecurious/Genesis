@@ -27,14 +27,51 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     await user.save();
 
-    // In a real application, you would send the `verificationToken` via email or SMS.
-    // For this simulation, we log it to the console.
-    console.log(`--- ACCOUNT VERIFICATION ---`);
-    console.log(`User: ${email}`);
-    console.log(`OTP: ${verificationToken}`);
-    console.log(`--------------------------`);
+    // Send verification email
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4F46E5;">Welcome to MyGF AI!</h2>
+            <p>Hello ${name},</p>
+            <p>Thank you for registering. Please use the verification code below to verify your account:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <span style="font-size: 32px; font-weight: bold; color: #4F46E5; letter-spacing: 5px;">${verificationToken}</span>
+                </div>
+            </div>
+            <p>This code will expire in 1 hour.</p>
+            <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                If you didn't create an account, please ignore this email.
+            </p>
+        </div>
+    `;
 
-    res.status(201).json({ success: true, message: 'Registration successful. Please check your email/SMS for a verification code.' });
+    try {
+        const sendEmail = require('../config/email');
+        await sendEmail({
+            email: user.email,
+            subject: 'Verify Your Account - MyGF AI',
+            html
+        });
+
+        console.log(`✅ Verification email sent to ${email}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Registration successful. Please check your email for a verification code.'
+        });
+    } catch (error) {
+        console.error('Email sending error:', error);
+        // Still allow registration even if email fails
+        console.log(`--- ACCOUNT VERIFICATION (Email Failed) ---`);
+        console.log(`User: ${email}`);
+        console.log(`OTP: ${verificationToken}`);
+        console.log(`--------------------------`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Registration successful. Verification code: ' + verificationToken
+        });
+    }
 });
 
 // @desc    Verify user account
