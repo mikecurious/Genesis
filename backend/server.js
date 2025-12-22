@@ -6,10 +6,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const morgan = require('morgan');
 const path = require('path');
 const connectDB = require('./config/db');
 const { errorHandler } = require('./middleware/errorHandler');
 const websocketService = require('./services/websocketService');
+const logger = require('./config/logger');
 
 // Load env vars
 dotenv.config({ path: __dirname + '/.env' });
@@ -17,6 +19,9 @@ dotenv.config({ path: __dirname + '/.env' });
 // Validate environment variables
 const validateEnv = require('./config/validateEnv');
 validateEnv();
+
+// Log startup
+logger.info('Starting Genesis Backend Server...');
 
 // Connect to database
 connectDB();
@@ -38,6 +43,14 @@ app.use(cors({
     credentials: true
 }));
 app.use(helmet()); // Set security headers
+
+// Request logging
+if (process.env.NODE_ENV === 'production') {
+    app.use(morgan('combined', { stream: logger.stream }));
+} else {
+    app.use(morgan('dev'));
+}
+
 app.use(express.json()); // Body parser for JSON
 app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded data
 
@@ -50,14 +63,87 @@ app.use(xss());
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({
+// Enhanced health check endpoint
+app.get('/api/health', async (req, res) => {
+    const health = {
         success: true,
-        message: 'Backend server is running!',
         timestamp: new Date().toISOString(),
-        database: 'Connected to MongoDB Atlas'
-    });
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV,
+        services: {}
+    };
+
+    // Check database connection
+    try {
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState === 1) {
+            health.services.database = {
+                status: 'healthy',
+                type: 'MongoDB Atlas',
+                connected: true
+            };
+        } else {
+            health.services.database = {
+                status: 'unhealthy',
+                connected: false,
+                readyState: mongoose.connection.readyState
+            };
+            health.success = false;
+        }
+    } catch (error) {
+        health.services.database = {
+            status: 'unhealthy',
+            error: error.message
+        };
+        health.success = false;
+    }
+
+    // Check email service (basic check)
+    try {
+        if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+            health.services.email = {
+                status: 'configured',
+                host: process.env.EMAIL_HOST
+            };
+        } else {
+            health.services.email = {
+                status: 'not_configured'
+            };
+        }
+    } catch (error) {
+        health.services.email = {
+            status: 'error',
+            error: error.message
+        };
+    }
+
+    // Check WebSocket service
+    try {
+        const onlineUsers = websocketService.getOnlineUsersCount();
+        health.services.websocket = {
+            status: 'healthy',
+            onlineUsers: onlineUsers
+        };
+    } catch (error) {
+        health.services.websocket = {
+            status: 'error',
+            error: error.message
+        };
+    }
+
+    // Check API services configuration
+    health.services.gemini = {
+        status: process.env.GEMINI_API_KEY ? 'configured' : 'not_configured'
+    };
+
+    health.services.cloudinary = {
+        status: (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY)
+            ? 'configured'
+            : 'not_configured'
+    };
+
+    const statusCode = health.success ? 200 : 503;
+    res.status(statusCode).json(health);
 });
 
 // API Routes
@@ -83,11 +169,29 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
+server.listen(PORT, () => {
+    logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    logger.info(`Health check available at: http://localhost:${PORT}/api/health`);
+});
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`);
+    logger.error('Unhandled Promise Rejection:', { error: err.message, stack: err.stack });
     // Close server & exit process
     server.close(() => process.exit(1));
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    logger.error('Uncaught Exception:', { error: err.message, stack: err.stack });
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, shutting down gracefully...');
+    server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+    });
 });
