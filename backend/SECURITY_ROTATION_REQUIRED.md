@@ -8,8 +8,8 @@ The following credentials were exposed in our conversation and **MUST** be rotat
 
 ## 1. MongoDB Database Password
 
-**Status**: 🔴 EXPOSED
-**Current**: `My_Genesis` (username: `Genesis`)
+**Status**: 🔴 EXPOSED (credentials removed from this file for security)
+**Action Required**: Reset MongoDB password immediately
 **Risk**: Database access, data breach
 
 ### How to Rotate:
@@ -25,15 +25,15 @@ The following credentials were exposed in our conversation and **MUST** be rotat
 6. Update password in MongoDB Atlas
 7. Update `MONGO_URI` in `backend/.env`:
    ```
-   mongodb+srv://Genesis:NEW_PASSWORD_HERE@genesis.lq4ltrm.mongodb.net/genesis-db?retryWrites=true&w=majority&appName=Genesis
+   mongodb+srv://<username>:<new-password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
    ```
 
 ---
 
 ## 2. Gmail App Password
 
-**Status**: 🔴 EXPOSED
-**Current**: `xvvr glty thca pdbi`
+**Status**: 🔴 EXPOSED (credentials removed from this file for security)
+**Action Required**: Revoke and create new Gmail app password
 **Risk**: Email access, spam, phishing
 
 ### How to Rotate:
@@ -51,8 +51,8 @@ The following credentials were exposed in our conversation and **MUST** be rotat
 
 ## 3. Gemini API Key
 
-**Status**: 🔴 EXPOSED
-**Current**: `AIzaSyDQykLOQ6TMWAYNfaA5xmk_8BnfLPG_hxs`
+**Status**: 🔴 EXPOSED (credentials removed from this file for security)
+**Action Required**: Delete old key and create new Gemini API key
 **Risk**: API quota abuse, costs
 
 ### How to Rotate:

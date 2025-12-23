@@ -1,4 +1,5 @@
 services:
+  # Backend API Service
   - type: web
     name: mygf-ai-backend
     env: node
@@ -36,3 +37,15 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
+
+  # Frontend Static Site (if deploying to Render instead of Firebase)
+  - type: web
+    name: mygf-ai-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_ENV
+        value: production

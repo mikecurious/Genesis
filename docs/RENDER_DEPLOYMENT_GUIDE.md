@@ -33,10 +33,10 @@ Go to your service's **Environment** tab and set these values:
 
 ```bash
 # Database (CRITICAL - Get from backend/.env)
-MONGO_URI=mongodb+srv://Genesis:My_Genesis@genesis.lq4ltrm.mongodb.net/mygf-ai?appName=Genesis
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
 
-# JWT Secret (CRITICAL - Get from backend/.env)
-JWT_SECRET=N74xxKQRLIp82oJKbO23b91w8JrgziCkAwZGj8HSiFNh
+# JWT Secret (CRITICAL - Generate a new one with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+JWT_SECRET=<your-generated-jwt-secret-here>
 
 # Cloudinary (Optional - for image uploads)
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
