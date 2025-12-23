@@ -22,21 +22,14 @@ Genesis/
 │   ├── routes/       # API routes
 │   ├── services/     # Business logic
 │   ├── scripts/      # Utility scripts
-│   ├── logs/         # Application logs (NOT in git)
+│   ├── docs/         # Backend & deployment documentation
 │   ├── .env         # Backend environment variables (NOT in git)
 │   ├── .env.example # Backend environment template
 │   └── package.json # Backend dependencies
 │
-├── docs/             # Documentation
-│   ├── DEPLOYMENT_AUDIT_REPORT.md
-│   ├── SECURITY_SUMMARY.md
-│   ├── QUICK_FIXES.md
-│   └── ... (other docs)
-│
-├── .github/          # GitHub configuration
-│   └── SECURITY.md  # Security policy
-│
-└── .gitignore       # Git ignore rules
+├── render.yaml       # Render deployment configuration
+├── .gitignore       # Git ignore rules
+└── README.md        # This file
 ```
 
 ## 🚀 Quick Start
@@ -117,20 +110,20 @@ See `frontend/.env.example` for required variables:
 
 ## 📚 Documentation
 
-All documentation is in the `docs/` folder:
+All documentation is in the `backend/docs/` folder:
 
-- **Security**: `docs/SECURITY_SUMMARY.md`
-- **Deployment**: `docs/DEPLOYMENT_AUDIT_REPORT.md`
-- **Quick Fixes**: `docs/QUICK_FIXES.md`
+- **Security**: `backend/docs/SECURITY_SUMMARY.md`
+- **Deployment**: `backend/docs/RENDER_DEPLOYMENT_GUIDE.md`
+- **Security Actions**: `backend/SECURITY_ACTION_REQUIRED.md`
 - **Improvements**: `backend/README_IMPROVEMENTS.md`
 
 ## 🔒 Security
 
 **IMPORTANT**: Before deploying to production:
 
-1. Read: `docs/SECURITY_SUMMARY.md`
-2. Rotate credentials: `backend/SECURITY_ROTATION_REQUIRED.md`
-3. Follow checklist: `docs/SECURITY_CHECKLIST.md`
+1. **Read**: `backend/SECURITY_ACTION_REQUIRED.md` (CRITICAL)
+2. **Rotate credentials**: Follow the rotation guide
+3. **Security checklist**: `backend/docs/SECURITY_CHECKLIST.md`
 
 ## 🧪 Testing
 
@@ -177,7 +170,7 @@ npm run preview
 4. Set environment variables from `frontend/.env`
 5. Deploy
 
-See `docs/DEPLOYMENT_AUDIT_REPORT.md` for detailed instructions.
+See `backend/docs/RENDER_DEPLOYMENT_GUIDE.md` for detailed deployment instructions.
 
 ## 📊 Features
 
@@ -223,7 +216,7 @@ Private - All rights reserved
 ## 🆘 Support
 
 For issues or questions:
-- Check `docs/` folder
+- Check `backend/docs/` folder for documentation
 - Open an issue on GitHub
 - Email: mikkohbrayoh@gmail.com
 
