@@ -13,6 +13,7 @@ import { OwnerDashboard } from "./components/dashboard/owner/OwnerDashboard";
 import { CombinedDashboard } from "./components/dashboard/combined/CombinedDashboard";
 import { TenantDashboard } from "./components/dashboard/tenant/TenantDashboard";
 import { SurveyorDashboard } from "./components/surveyor/SurveyorDashboard";
+import { AdminDashboard } from "./components/dashboard/admin/AdminDashboard";
 import { ImageViewer } from "./components/ImageViewer";
 import { GoogleSignInModal } from "./components/GoogleSignInModal";
 import { InteractionPage } from "./components/interaction/InteractionPage";
@@ -1079,6 +1080,12 @@ const App: React.FC = () => {
               <SurveyorDashboard
                 user={currentUser}
                 onLogout={handleLogout}
+              />
+            );
+          case UserRole.Admin:
+            return (
+              <AdminDashboard
+                user={currentUser}
               />
             );
           default:

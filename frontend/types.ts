@@ -60,10 +60,11 @@ export enum UserRole {
   PropertyOwner = 'Property Owner',
   Tenant = 'Tenant',
   Surveyor = 'Surveyor',
+  Admin = 'Admin',
 }
 
 // Role type that matches backend database values
-export type UserRoleType = 'tenant' | 'agent' | 'seller' | 'landlord' | 'Agent' | 'Landlord' | 'Property Seller' | 'Property Owner' | 'Tenant' | 'Surveyor';
+export type UserRoleType = 'tenant' | 'agent' | 'seller' | 'landlord' | 'Agent' | 'Landlord' | 'Property Seller' | 'Property Owner' | 'Tenant' | 'Surveyor' | 'Admin';
 
 export interface User {
   id: string;
