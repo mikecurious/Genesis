@@ -70,6 +70,12 @@ export const authService = {
     googleSignIn: async (credential: string) => {
         return api.post('/api/auth/google', { credential });
     },
+    forgotPassword: async (email: string) => {
+        return api.post('/api/auth/forgot-password', { email });
+    },
+    resetPassword: async (token: string, newPassword: string) => {
+        return api.post('/api/auth/reset-password', { token, newPassword });
+    },
 };
 
 // User Service

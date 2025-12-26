@@ -22,6 +22,8 @@ import { AIPropertySearch } from "./components/AIPropertySearch";
 import { FeaturePaymentModal } from "./components/modals/FeaturePaymentModal";
 import { AddTenantModal } from "./components/modals/AddTenantModal";
 import { LiveAudioHandler } from "./components/LiveAudioHandler";
+import { ForgotPassword } from "./components/signin/ForgotPassword";
+import { ResetPassword } from "./components/signin/ResetPassword";
 import {
   type Message,
   Role,
@@ -57,7 +59,9 @@ type View =
   | "propertyExplorer"
   | "propertyAgent"
   | "aiPropertySearch"
-  | "signIn";
+  | "signIn"
+  | "forgotPassword"
+  | "resetPassword";
 type Theme = "light" | "dark";
 
 const App: React.FC = () => {
@@ -98,6 +102,9 @@ const App: React.FC = () => {
   const [currentConversationId, setCurrentConversationId] = useState<
     string | null
   >(null);
+
+  // State for password reset
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
   // State for dedicated Interaction Page
   const [interactionChats, setInteractionChats] = useState<
@@ -224,6 +231,19 @@ const App: React.FC = () => {
       fetchAndSetProperties();
     };
     checkLoggedInStatus();
+  }, []);
+
+  // Check for reset token in URL parameters on app load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+      setResetToken(token);
+      handleSetView('resetPassword');
+      // Clean up URL bar (remove token from query params)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
@@ -821,6 +841,39 @@ const App: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = async (email: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      await authService.forgotPassword(email);
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || 'Failed to send reset email.';
+      setAuthError(errorMsg);
+      throw new Error(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (token: string, newPassword: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const response = await authService.resetPassword(token, newPassword);
+      const { token: newToken, user } = response.data;
+      localStorage.setItem("token", newToken);
+      setCurrentUser(user);
+      setIsUserLoggedIn(true);
+      setTimeout(() => handleSetView("dashboard"), 1500);
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || 'Failed to reset password.';
+      setAuthError(errorMsg);
+      throw new Error(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSetView = (view: View) => {
     // If user is logged in but payment is inactive, don't let them navigate away
     if (
@@ -846,6 +899,28 @@ const App: React.FC = () => {
             onGoToSignIn={() => handleSetView("signIn")}
           />
         );
+      case "forgotPassword":
+        return (
+          <ForgotPassword
+            onBackToLogin={() => handleSetView("signIn")}
+            onSubmit={handleForgotPassword}
+          />
+        );
+      case "resetPassword":
+        if (!resetToken) {
+          handleSetView("signIn");
+          return null;
+        }
+        return (
+          <ResetPassword
+            token={resetToken}
+            onBackToLogin={() => {
+              setResetToken(null);
+              handleSetView("signIn");
+            }}
+            onSubmit={handleResetPassword}
+          />
+        );
       case "signIn":
         if (
           isUserLoggedIn &&
@@ -863,7 +938,7 @@ const App: React.FC = () => {
             onSignIn={handleSignIn}
             onGoToSignup={() => handleSetView("signup")}
             onDemoSignIn={handleDemoSignIn}
-            onForgotPassword={() => alert("Forgot Password feature coming soon!")}
+            onForgotPassword={() => handleSetView("forgotPassword")}
             isLoading={isLoading}
             error={authError}
           />
