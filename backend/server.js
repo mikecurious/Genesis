@@ -29,6 +29,9 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// Trust proxy - required for rate limiting and IP detection behind reverse proxies (Render, Heroku, etc.)
+app.set('trust proxy', 1);
+
 // Initialize WebSocket service
 websocketService.initialize(server);
 
