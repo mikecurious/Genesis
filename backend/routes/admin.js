@@ -7,7 +7,12 @@ const {
     getAllProperties,
     getAllLeads,
     updateUser,
-    deleteUser
+    deleteUser,
+    suspendUser,
+    reactivateUser,
+    moderateProperty,
+    deleteProperty,
+    getActivityLogs
 } = require('../controllers/admin');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/authorize');
@@ -20,15 +25,20 @@ router.use(authorize('Admin'));
 
 // Analytics & Dashboard
 router.get('/analytics', getAnalytics);
+router.get('/activity', getActivityLogs);
 
 // User Management
 router.get('/users', getUsers);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
+router.post('/users/:id/suspend', suspendUser);
+router.post('/users/:id/reactivate', reactivateUser);
 
 // Property & Lead Management
 router.get('/properties', getAllProperties);
 router.get('/leads', getAllLeads);
+router.post('/properties/:id/moderate', moderateProperty);
+router.delete('/properties/:id', deleteProperty);
 
 // System Operations
 router.post('/announcements', sendAnnouncement);

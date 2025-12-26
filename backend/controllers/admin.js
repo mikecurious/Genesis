@@ -261,3 +261,185 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc    Suspend user account
+// @route   POST /api/admin/users/:id/suspend
+// @access  Private (Admin)
+exports.suspendUser = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'User not found'
+        });
+    }
+
+    // Don't allow suspending admin accounts
+    if (user.role === 'Admin') {
+        return res.status(403).json({
+            success: false,
+            message: 'Cannot suspend admin accounts'
+        });
+    }
+
+    // Check if already suspended
+    if (user.accountStatus === 'suspended') {
+        return res.status(400).json({
+            success: false,
+            message: 'User is already suspended'
+        });
+    }
+
+    user.accountStatus = 'suspended';
+    user.suspendedAt = new Date();
+    user.suspensionReason = reason || 'Suspended by admin';
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'User suspended successfully',
+        data: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            accountStatus: user.accountStatus,
+            suspensionReason: user.suspensionReason
+        }
+    });
+});
+
+// @desc    Reactivate suspended user account
+// @route   POST /api/admin/users/:id/reactivate
+// @access  Private (Admin)
+exports.reactivateUser = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'User not found'
+        });
+    }
+
+    user.accountStatus = 'active';
+    user.suspendedAt = null;
+    user.suspensionReason = null;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'User reactivated successfully',
+        data: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            accountStatus: user.accountStatus
+        }
+    });
+});
+
+// @desc    Moderate property (approve, reject, flag)
+// @route   POST /api/admin/properties/:id/moderate
+// @access  Private (Admin)
+exports.moderateProperty = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const { action, note } = req.body; // action: 'approve', 'reject', 'flag'
+
+    if (!['approve', 'reject', 'flag'].includes(action)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid action. Must be approve, reject, or flag'
+        });
+    }
+
+    const property = await Property.findById(id).populate('createdBy', 'name email');
+    if (!property) {
+        return res.status(404).json({
+            success: false,
+            message: 'Property not found'
+        });
+    }
+
+    const statusMap = {
+        'approve': 'approved',
+        'reject': 'rejected',
+        'flag': 'flagged'
+    };
+
+    property.moderationStatus = statusMap[action];
+    property.moderatedBy = req.user.id;
+    property.moderatedAt = new Date();
+    property.moderationNote = note || null;
+
+    // If rejected, also set status to inactive
+    if (action === 'reject') {
+        property.status = 'sold'; // Using 'sold' as inactive placeholder
+    }
+
+    await property.save();
+
+    res.status(200).json({
+        success: true,
+        message: `Property ${action}ed successfully`,
+        data: {
+            id: property._id,
+            title: property.title,
+            moderationStatus: property.moderationStatus,
+            moderationNote: property.moderationNote,
+            owner: property.createdBy
+        }
+    });
+});
+
+// @desc    Delete property
+// @route   DELETE /api/admin/properties/:id
+// @access  Private (Admin)
+exports.deleteProperty = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const property = await Property.findById(id);
+    if (!property) {
+        return res.status(404).json({
+            success: false,
+            message: 'Property not found'
+        });
+    }
+
+    await property.deleteOne();
+
+    res.status(200).json({
+        success: true,
+        message: 'Property deleted successfully'
+    });
+});
+
+// @desc    Get system activity logs (recent actions)
+// @route   GET /api/admin/activity
+// @access  Private (Admin)
+exports.getActivityLogs = asyncHandler(async (req, res, next) => {
+    // Get recent moderated properties
+    const recentModerations = await Property.find({ moderatedBy: { $ne: null } })
+        .sort({ moderatedAt: -1 })
+        .limit(20)
+        .populate('moderatedBy', 'name email')
+        .populate('createdBy', 'name email')
+        .select('title moderationStatus moderatedAt moderationNote');
+
+    // Get recent suspended users
+    const recentSuspensions = await User.find({ accountStatus: 'suspended' })
+        .sort({ suspendedAt: -1 })
+        .limit(20)
+        .select('name email accountStatus suspendedAt suspensionReason');
+
+    res.status(200).json({
+        success: true,
+        data: {
+            moderations: recentModerations,
+            suspensions: recentSuspensions
+        }
+    });
+});
+

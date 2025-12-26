@@ -43,6 +43,24 @@ const PropertySchema = new mongoose.Schema({
         enum: ['active', 'sold', 'rented'],
         default: 'active',
     },
+    moderationStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected', 'flagged'],
+        default: 'approved', // Auto-approve by default, admin can flag later
+    },
+    moderatedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        default: null,
+    },
+    moderatedAt: {
+        type: Date,
+        default: null,
+    },
+    moderationNote: {
+        type: String,
+        default: null,
+    },
     boosted: {
         type: Boolean,
         default: false,

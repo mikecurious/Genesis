@@ -128,6 +128,23 @@ exports.login = asyncHandler(async (req, res, next) => {
         return res.status(401).json({ success: false, message: 'Account not verified. Please check your email.' });
     }
 
+    // Check if account is suspended
+    if (user.accountStatus === 'suspended') {
+        return res.status(403).json({
+            success: false,
+            message: 'Your account has been suspended.',
+            reason: user.suspensionReason || 'Account suspended by administrator'
+        });
+    }
+
+    // Check if account is deactivated
+    if (user.accountStatus === 'deactivated') {
+        return res.status(403).json({
+            success: false,
+            message: 'Your account has been deactivated. Please contact support.'
+        });
+    }
+
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
