@@ -13,13 +13,27 @@ const ToggleSwitch: React.FC<{ label: string; enabled: boolean; onChange: (enabl
     </div>
 );
 
-export const AgentAiSettings: React.FC = () => {
-    const [followUp, setFollowUp] = useState(true);
-    const [reminders, setReminders] = useState(true);
+interface AgentAiSettingsProps {
+    automationEnabled?: boolean;
+    voiceFeatureEnabled?: boolean;
+    onAutomationChange?: (enabled: boolean) => void;
+    onVoiceFeatureChange?: (enabled: boolean) => void;
+}
+
+export const AgentAiSettings: React.FC<AgentAiSettingsProps> = ({
+    automationEnabled = false,
+    voiceFeatureEnabled = false,
+    onAutomationChange,
+    onVoiceFeatureChange
+}) => {
     const [whatsAppNumber, setWhatsAppNumber] = useState('');
 
     const handleActivateVoice = () => {
         alert("Redirecting to payment gateway to activate AI Voice for Client. This is a premium feature.");
+        // Simulate payment success
+        if (onVoiceFeatureChange) {
+            onVoiceFeatureChange(true);
+        }
     };
 
     return (
@@ -29,8 +43,14 @@ export const AgentAiSettings: React.FC = () => {
                 <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Automation Settings</h2>
                     <div className="space-y-4">
-                        <ToggleSwitch label="AI Client Follow-up" enabled={followUp} onChange={setFollowUp} />
-                        <ToggleSwitch label="AI Booking Reminders" enabled={reminders} onChange={setReminders} />
+                        <ToggleSwitch
+                            label="AI Client Follow-up & Booking Reminders"
+                            enabled={automationEnabled}
+                            onChange={(enabled) => onAutomationChange && onAutomationChange(enabled)}
+                        />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Enable AI-powered automation for client follow-ups and booking reminders. This unlocks the Automation Center features.
+                        </p>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6">

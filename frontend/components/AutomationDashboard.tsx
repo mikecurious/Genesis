@@ -5,6 +5,7 @@ interface AutomationDashboardProps {
     user: User;
     automationEnabled?: boolean;      // From AI Settings "AI Client Follow-up"
     voiceFeatureEnabled?: boolean;    // From AI Settings "AI Voice" premium
+    onNavigateToSettings?: () => void; // Callback to navigate to AI Settings
 }
 
 interface AutomationSettings {
@@ -81,7 +82,7 @@ const AutomationCard: React.FC<{
     );
 };
 
-export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, automationEnabled = false, voiceFeatureEnabled = false }) => {
+export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, automationEnabled = false, voiceFeatureEnabled = false, onNavigateToSettings }) => {
     const [settings, setSettings] = useState<AutomationSettings>({});
     const [isSaving, setIsSaving] = useState(false);
 
@@ -156,8 +157,11 @@ export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, 
                             </p>
                             <button
                                 onClick={() => {
-                                    // TODO: Navigate to AI Settings
-                                    console.log('Navigate to AI Settings');
+                                    if (onNavigateToSettings) {
+                                        onNavigateToSettings();
+                                    } else {
+                                        console.log('Navigate to AI Settings - no handler provided');
+                                    }
                                 }}
                                 className="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
                             >

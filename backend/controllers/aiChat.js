@@ -99,64 +99,45 @@ exports.processMessage = asyncHandler(async (req, res) => {
 
     const messageLower = message.toLowerCase().trim();
 
-    // Handle greetings
-    const greetingPatterns = ['hello', 'hi', 'hey', 'greetings', 'good morning', 'good afternoon', 'good evening'];
-    if (greetingPatterns.some(pattern => messageLower.includes(pattern))) {
-        const greeting = aiChatService.getGreeting();
+    // Check if it's a greeting
+    const greetings = ['hi', 'hello', 'hey', 'greetings'];
+    if (greetings.some(g => messageLower === g || messageLower.startsWith(g + ' '))) {
         return res.status(200).json({
             success: true,
-            message: greeting,
-            type: 'greeting',
-            suggestions: [
-                "Show me apartments for rent in Westlands",
-                "I want to buy a 3-bedroom house in Karen",
-                "Find me affordable properties under 50,000 KSh",
-                "What properties do you have in Kilimani?"
-            ]
+            message: aiChatService.getGreeting(),
+            properties: []
         });
     }
 
-    // Handle help requests
-    const helpPatterns = ['help', 'what can you do', 'how does this work', 'guide'];
-    if (helpPatterns.some(pattern => messageLower.includes(pattern))) {
-        return res.status(200).json({
-            success: true,
-            message: "I can help you find properties in Kenya! Here's what I can do:\n\n" +
-                     "🏠 Search for properties to buy or rent\n" +
-                     "🔍 Filter by bedrooms, bathrooms, location, and price\n" +
-                     "📍 Find properties in specific areas\n" +
-                     "💰 Show properties within your budget\n\n" +
-                     "Just tell me what you're looking for in plain English!",
-            type: 'help',
-            suggestions: [
-                "Show me 2-bedroom apartments in Kilimani",
-                "I want to buy a house in Westlands",
-                "Find rental properties under 60,000 KSh",
-                "What's available in Karen?"
-            ]
-        });
-    }
-
-    // Handle thank you messages
-    const thankPatterns = ['thank', 'thanks', 'appreciate'];
-    if (thankPatterns.some(pattern => messageLower.includes(pattern))) {
-        return res.status(200).json({
-            success: true,
-            message: "You're welcome! Let me know if you need help finding more properties.",
-            type: 'acknowledgment',
-            suggestions: [
-                "Search for different properties",
-                "Refine my search",
-                "Show me luxury properties"
-            ]
-        });
-    }
-
-    // Default to property search
+    // Otherwise, search for properties
     const result = await aiChatService.searchProperties(message, userId);
+    res.status(200).json(result);
+});
+
+// @desc    Generate AI response for tenant management
+// @route   POST /api/ai-chat/tenant-management
+// @access  Public (will be protected later)
+exports.tenantManagement = asyncHandler(async (req, res) => {
+    const { command, tenants } = req.body;
+
+    if (!command || typeof command !== 'string' || command.trim().length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Please provide a command'
+        });
+    }
+
+    if (!Array.isArray(tenants)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Tenants must be an array'
+        });
+    }
+
+    const response = await aiChatService.generateTenantManagementResponse(command, tenants);
 
     res.status(200).json({
-        ...result,
-        type: 'search'
+        success: true,
+        message: response
     });
 });

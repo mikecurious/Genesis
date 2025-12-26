@@ -358,6 +358,52 @@ class AIChatService {
     clearConversationContext(userId) {
         this.conversationContext.delete(userId);
     }
+
+    /**
+     * Generate AI response for tenant management commands
+     * @param {string} command - The landlord's command
+     * @param {Array} tenants - List of tenants
+     * @returns {Promise<string>} - AI response
+     */
+    async generateTenantManagementResponse(command, tenants = []) {
+        try {
+            // Check if Gemini API is available
+            const { GoogleGenAI } = require('@google/genai');
+            const apiKey = process.env.GEMINI_API_KEY;
+
+            if (!apiKey) {
+                console.error('GEMINI_API_KEY not configured');
+                return "AI service is not available. Please configure the Gemini API key.";
+            }
+
+            const ai = new GoogleGenAI({ apiKey });
+
+            const modelPrompt = `You are an AI assistant for a landlord. Your task is to process a command from the landlord regarding their tenants and provide a confirmation message.
+
+Here is the list of tenants:
+${JSON.stringify(tenants, null, 2)}
+
+Here is the landlord's command:
+"${command}"
+
+Your Task:
+1. Understand the landlord's command (e.g., send a reminder, draft an update).
+2. Identify which tenants the command applies to based on their rent status or unit.
+3. Formulate a brief, professional confirmation message back to the landlord stating what action you have taken. For example: "Okay, I've sent a rent reminder to tenants with an 'Overdue' status: Charlie Brown." or "Drafting a maintenance update for all tenants now."
+
+Respond with ONLY the confirmation text.`;
+
+            const response = await ai.models.generateContent({
+                model: process.env.GEMINI_MODEL_NAME || 'gemini-2.5-flash',
+                contents: modelPrompt,
+            });
+
+            return response.text.trim();
+        } catch (error) {
+            console.error("Error generating tenant management response:", error);
+            return "I'm sorry, I couldn't process that command. Please try again.";
+        }
+    }
 }
 
 module.exports = new AIChatService();

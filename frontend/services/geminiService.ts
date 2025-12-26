@@ -377,27 +377,28 @@ export const generateDashboardInsights = async (listings: Listing[]): Promise<st
 };
 
 export const generateTenantManagementResponse = async (command: string, tenants: Tenant[]): Promise<string> => {
-    const modelPrompt = `You are an AI assistant for a landlord.Your task is to process a command from the landlord regarding their tenants and provide a confirmation message.
-
-    Here is the list of tenants:
-    ${JSON.stringify(tenants, null, 2)}
-
-    Here is the landlord's command:
-"${command}"
-
-    Your Task:
-1.  Understand the landlord's command (e.g., send a reminder, draft an update).
-2.  Identify which tenants the command applies to based on their rent status or unit.
-    3.  Formulate a brief, professional confirmation message back to the landlord stating what action you have taken.For example: "Okay, I've sent a rent reminder to tenants with an 'Overdue' status: Charlie Brown." or "Drafting a maintenance update for all tenants now."
-
-    Respond with ONLY the confirmation text.`;
-
     try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: modelPrompt,
+        // Call backend API for secure AI processing
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+        const response = await fetch(`${API_BASE_URL}/api/ai-chat/tenant-management`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                command,
+                tenants
+            })
         });
-        return response.text.trim();
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to process command');
+        }
+
+        return data.message;
     } catch (error) {
         console.error("Error generating tenant management response:", error);
         return "I'm sorry, I couldn't process that command. Please try again.";

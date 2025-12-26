@@ -6,13 +6,15 @@ const {
     getGreeting,
     getContext,
     clearContext,
-    processMessage
+    processMessage,
+    tenantManagement
 } = require('../controllers/aiChat');
 const { protect } = require('../middleware/auth');
 
 // Public routes
 router.post('/search', chatSearch);
 router.post('/message', processMessage);
+router.post('/tenant-management', tenantManagement);
 router.get('/greeting', getGreeting);
 router.get('/property/:id', getPropertyWithAI);
 

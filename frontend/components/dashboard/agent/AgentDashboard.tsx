@@ -63,6 +63,10 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([]);
 
+    // Automation Settings State
+    const [automationEnabled, setAutomationEnabled] = useState(false);
+    const [voiceFeatureEnabled, setVoiceFeatureEnabled] = useState(false);
+
     const handleAddListingSubmit = (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => {
         onAddListing(newListing);
         setIsFormOpen(false);
@@ -134,7 +138,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             case 'marketing':
                 return <AgentMarketing listings={listings} onBoostClick={handleBoostClick} />;
             case 'automation':
-                return <AutomationDashboard user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Agent' } as User} automationEnabled={false} voiceFeatureEnabled={false} />;
+                return (
+                    <AutomationDashboard
+                        user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Agent' } as User}
+                        automationEnabled={automationEnabled}
+                        voiceFeatureEnabled={voiceFeatureEnabled}
+                        onNavigateToSettings={() => setActiveSection('ai-settings')}
+                    />
+                );
             case 'ai-manager':
                 return (
                     <AIPropertyManager
@@ -146,7 +157,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     />
                 );
             case 'ai-settings':
-                return <AgentAiSettings />;
+                return (
+                    <AgentAiSettings
+                        automationEnabled={automationEnabled}
+                        voiceFeatureEnabled={voiceFeatureEnabled}
+                        onAutomationChange={setAutomationEnabled}
+                        onVoiceFeatureChange={setVoiceFeatureEnabled}
+                    />
+                );
             case 'profile':
                 return user ? (
                     <AgentProfileSettings user={user} />
