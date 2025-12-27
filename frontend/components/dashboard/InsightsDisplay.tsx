@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { type Listing } from '../../types';
 import { generateDashboardInsights } from '../../services/geminiService';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
@@ -16,10 +17,16 @@ export const InsightsDisplay: React.FC<InsightsDisplayProps> = ({ listings }) =>
         setInsights(null);
         try {
             const result = await generateDashboardInsights(listings);
-            setInsights(result);
+            // Sanitize HTML to prevent XSS attacks
+            const sanitized = DOMPurify.sanitize(result, {
+                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'a'],
+                ALLOWED_ATTR: ['href', 'target', 'rel']
+            });
+            setInsights(sanitized);
         } catch (error) {
             console.error(error);
-            setInsights("<p>Failed to generate insights. Please try again.</p>");
+            const errorMsg = DOMPurify.sanitize("<p>Failed to generate insights. Please try again.</p>");
+            setInsights(errorMsg);
         } finally {
             setIsLoading(false);
         }

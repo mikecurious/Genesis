@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { debounce } from "lodash";
 import { Navbar } from "./components/Navbar";
 import { Sidebar } from "./components/Sidebar";
 import { HeroIntro } from "./components/HeroIntro";
@@ -200,11 +201,15 @@ const App: React.FC = () => {
 
   // Check for existing token on app load
   useEffect(() => {
+    let isMounted = true; // Track mounted state
+
     const checkLoggedInStatus = async () => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
           const { data: user } = await authService.getMe();
+          if (!isMounted) return; // Don't update state if unmounted
+
           setCurrentUser(user);
           setIsUserLoggedIn(true);
 
@@ -220,6 +225,8 @@ const App: React.FC = () => {
           }
 
           const { data: requests } = await maintenanceService.getRequests();
+          if (!isMounted) return; // Don't update state if unmounted
+
           setMaintenanceRequests(
             requests.map((r: any) => ({
               id: r._id,
@@ -233,13 +240,21 @@ const App: React.FC = () => {
           );
         } catch (error) {
           console.error("Session validation or data fetching failed:", error);
-          localStorage.removeItem("token");
+          if (isMounted) {
+            localStorage.removeItem("token");
+          }
         }
       }
       // Fetch properties for both guests and logged-in users
-      fetchAndSetProperties();
+      if (isMounted) {
+        fetchAndSetProperties();
+      }
     };
     checkLoggedInStatus();
+
+    return () => {
+      isMounted = false; // Cleanup: mark as unmounted
+    };
   }, []);
 
   // Check for reset token in URL parameters on app load
@@ -287,11 +302,24 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Debounced localStorage save to prevent excessive writes
+  const debouncedSaveConversations = useMemo(
+    () => debounce((conversationsToSave: Record<string, Conversation>) => {
+      if (Object.keys(conversationsToSave).length > 0) {
+        localStorage.setItem("conversations", JSON.stringify(conversationsToSave));
+      }
+    }, 1000), // Save after 1 second of inactivity
+    []
+  );
+
   useEffect(() => {
-    if (Object.keys(conversations).length > 0) {
-      localStorage.setItem("conversations", JSON.stringify(conversations));
-    }
-  }, [conversations]);
+    debouncedSaveConversations(conversations);
+
+    // Cleanup: flush any pending saves on unmount
+    return () => {
+      debouncedSaveConversations.flush();
+    };
+  }, [conversations, debouncedSaveConversations]);
 
   const handleToggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -462,7 +490,8 @@ const App: React.FC = () => {
       isUserLoggedIn,
       chatUser,
       currentConversationId,
-      conversations,
+      // Removed 'conversations' from dependencies since we use functional updates (prev => ...)
+      // This prevents unnecessary callback recreations and stale closure issues
     ]
   );
 

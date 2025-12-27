@@ -2,12 +2,30 @@ const axios = require('axios');
 
 class MpesaService {
     constructor() {
+        // Validate required environment variables
+        const required = [
+            'MPESA_CONSUMER_KEY',
+            'MPESA_CONSUMER_SECRET',
+            'MPESA_BUSINESS_SHORTCODE',
+            'MPESA_PASSKEY',
+            'MPESA_CALLBACK_URL'
+        ];
+
+        const missing = required.filter(key => !process.env[key]);
+        if (missing.length > 0) {
+            console.error(`⚠️  M-Pesa configuration incomplete. Missing: ${missing.join(', ')}`);
+            console.error('M-Pesa payment functionality will be disabled.');
+            this.isConfigured = false;
+            return;
+        }
+
         this.consumerKey = process.env.MPESA_CONSUMER_KEY;
         this.consumerSecret = process.env.MPESA_CONSUMER_SECRET;
         this.businessShortCode = process.env.MPESA_BUSINESS_SHORTCODE;
         this.passkey = process.env.MPESA_PASSKEY;
         this.callbackURL = process.env.MPESA_CALLBACK_URL;
         this.environment = process.env.MPESA_ENVIRONMENT || 'sandbox';
+        this.isConfigured = true;
 
         this.baseURL = this.environment === 'production'
             ? 'https://api.safaricom.co.ke'
@@ -15,6 +33,8 @@ class MpesaService {
 
         this.accessToken = null;
         this.tokenExpiry = null;
+
+        console.log(`✓ M-Pesa service initialized (${this.environment} mode)`);
     }
 
     /**
@@ -22,6 +42,10 @@ class MpesaService {
      */
     async getAccessToken() {
         try {
+            if (!this.isConfigured) {
+                throw new Error('M-Pesa service is not configured. Please set required environment variables.');
+            }
+
             // Return cached token if still valid
             if (this.accessToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
                 return this.accessToken;
@@ -33,6 +57,7 @@ class MpesaService {
                 headers: {
                     'Authorization': `Basic ${auth}`,
                 },
+                timeout: 15000, // 15 second timeout
             });
 
             this.accessToken = response.data.access_token;
@@ -78,15 +103,27 @@ class MpesaService {
      */
     async initiateSTKPush(phoneNumber, amount, accountReference, transactionDesc = 'Payment') {
         try {
+            if (!this.isConfigured) {
+                return {
+                    success: false,
+                    error: 'M-Pesa service is not configured. Please set required environment variables.',
+                };
+            }
+
             const accessToken = await this.getAccessToken();
             const { password, timestamp } = this.generatePassword();
+
+            // Validate and round amount properly
+            if (amount !== Math.floor(amount)) {
+                console.warn(`Amount ${amount} has decimal places, rounding to ${Math.round(amount)}`);
+            }
 
             const payload = {
                 BusinessShortCode: this.businessShortCode,
                 Password: password,
                 Timestamp: timestamp,
                 TransactionType: 'CustomerPayBillOnline',
-                Amount: Math.floor(amount), // Must be integer
+                Amount: Math.round(amount), // Must be integer, use Math.round instead of Math.floor
                 PartyA: phoneNumber, // Customer phone number
                 PartyB: this.businessShortCode, // Same as BusinessShortCode
                 PhoneNumber: phoneNumber, // Customer phone number
@@ -105,6 +142,7 @@ class MpesaService {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
+                    timeout: 15000, // 15 second timeout
                 }
             );
 
@@ -133,6 +171,13 @@ class MpesaService {
      */
     async querySTKPush(checkoutRequestID) {
         try {
+            if (!this.isConfigured) {
+                return {
+                    success: false,
+                    error: 'M-Pesa service is not configured. Please set required environment variables.',
+                };
+            }
+
             const accessToken = await this.getAccessToken();
             const { password, timestamp } = this.generatePassword();
 
@@ -151,6 +196,7 @@ class MpesaService {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
+                    timeout: 15000, // 15 second timeout
                 }
             );
 

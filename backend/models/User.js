@@ -228,6 +228,15 @@ const UserSchema = new mongoose.Schema({
     },
 });
 
+// Indexes for performance
+UserSchema.index({ email: 1 }); // Email already has unique constraint
+UserSchema.index({ role: 1, accountStatus: 1 }); // Filter by role and status
+UserSchema.index({ createdAt: -1 }); // Sort by creation date
+UserSchema.index({ authProvider: 1 }); // Filter by auth provider (local, google)
+UserSchema.index({ 'subscription.status': 1, 'subscription.expiresAt': 1 }); // Subscription queries
+UserSchema.index({ landlordId: 1 }); // Tenant lookups by landlord
+UserSchema.index({ googleId: 1 }); // Google OAuth lookups
+
 // Encrypt password using bcrypt before saving
 UserSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {

@@ -67,5 +67,9 @@ const LeadSchema = new mongoose.Schema({
 // Indexes
 LeadSchema.index({ createdBy: 1, status: 1, createdAt: -1 });
 LeadSchema.index({ property: 1 });
+LeadSchema.index({ 'client.email': 1, property: 1 }, { unique: true }); // Prevent duplicate leads
+LeadSchema.index({ status: 1, createdAt: -1 }); // Filter by status, sort by date
+LeadSchema.index({ property: 1, createdAt: -1 }); // Property's leads, sorted by date
+LeadSchema.index({ dealType: 1, status: 1 }); // Filter by deal type and status
 
 module.exports = mongoose.model('Lead', LeadSchema);

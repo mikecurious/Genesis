@@ -35,4 +35,9 @@ const ChatSchema = new mongoose.Schema({
     },
 });
 
+// Indexes for performance
+ChatSchema.index({ participants: 1, createdAt: -1 }); // Find chats by participant, sorted by date
+ChatSchema.index({ property: 1, createdAt: -1 }); // Find chats by property, sorted by date
+ChatSchema.index({ 'messages.timestamp': -1 }); // Sort messages by timestamp
+
 module.exports = mongoose.model('Chat', ChatSchema);
