@@ -7,6 +7,7 @@ const {
     initiateGenericPayment
 } = require('../controllers/payments');
 const { protect } = require('../middleware/auth');
+const { verifyMpesaCallback } = require('../middleware/mpesaVerification');
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.get('/history', protect, getPaymentHistory);
 router.get('/:paymentId/status', protect, queryPaymentStatus);
 
 // Webhook route for M-Pesa to send callback data (public)
-router.post('/mpesa-callback', mpesaCallback);
+// Protected by signature verification, IP whitelisting, and structure validation
+router.post('/mpesa-callback', verifyMpesaCallback, mpesaCallback);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const axios = require('axios');
+const retry = require('async-retry');
 
 class MpesaService {
     constructor() {
@@ -39,6 +40,7 @@ class MpesaService {
 
     /**
      * Get OAuth access token from Safaricom
+     * Implements retry logic with exponential backoff
      */
     async getAccessToken() {
         try {
@@ -53,12 +55,35 @@ class MpesaService {
 
             const auth = Buffer.from(`${this.consumerKey}:${this.consumerSecret}`).toString('base64');
 
-            const response = await axios.get(`${this.baseURL}/oauth/v1/generate?grant_type=client_credentials`, {
-                headers: {
-                    'Authorization': `Basic ${auth}`,
+            // Retry with exponential backoff: 3 attempts, 1-5 second delays
+            const response = await retry(
+                async (bail) => {
+                    try {
+                        return await axios.get(`${this.baseURL}/oauth/v1/generate?grant_type=client_credentials`, {
+                            headers: {
+                                'Authorization': `Basic ${auth}`,
+                            },
+                            timeout: 15000, // 15 second timeout
+                        });
+                    } catch (error) {
+                        // Don't retry on 400-level errors (client errors)
+                        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                            bail(error);
+                            return;
+                        }
+                        throw error;
+                    }
                 },
-                timeout: 15000, // 15 second timeout
-            });
+                {
+                    retries: 3,
+                    factor: 2,
+                    minTimeout: 1000,
+                    maxTimeout: 5000,
+                    onRetry: (error, attempt) => {
+                        console.warn(`M-Pesa OAuth attempt ${attempt} failed, retrying...`);
+                    }
+                }
+            );
 
             this.accessToken = response.data.access_token;
             // Tokens expire in 3600 seconds, cache for 3500 seconds to be safe
@@ -134,15 +159,38 @@ class MpesaService {
 
             console.log('STK Push Request:', { ...payload, Password: '***' });
 
-            const response = await axios.post(
-                `${this.baseURL}/mpesa/stkpush/v1/processrequest`,
-                payload,
+            // Retry with exponential backoff: 3 attempts, 1-5 second delays
+            const response = await retry(
+                async (bail) => {
+                    try {
+                        return await axios.post(
+                            `${this.baseURL}/mpesa/stkpush/v1/processrequest`,
+                            payload,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${accessToken}`,
+                                    'Content-Type': 'application/json',
+                                },
+                                timeout: 15000, // 15 second timeout
+                            }
+                        );
+                    } catch (error) {
+                        // Don't retry on 400-level errors (client errors)
+                        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                            bail(error);
+                            return;
+                        }
+                        throw error;
+                    }
+                },
                 {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    timeout: 15000, // 15 second timeout
+                    retries: 3,
+                    factor: 2,
+                    minTimeout: 1000,
+                    maxTimeout: 5000,
+                    onRetry: (error, attempt) => {
+                        console.warn(`STK Push attempt ${attempt} failed, retrying...`);
+                    }
                 }
             );
 
@@ -188,15 +236,38 @@ class MpesaService {
                 CheckoutRequestID: checkoutRequestID,
             };
 
-            const response = await axios.post(
-                `${this.baseURL}/mpesa/stkpushquery/v1/query`,
-                payload,
+            // Retry with exponential backoff: 3 attempts, 1-5 second delays
+            const response = await retry(
+                async (bail) => {
+                    try {
+                        return await axios.post(
+                            `${this.baseURL}/mpesa/stkpushquery/v1/query`,
+                            payload,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${accessToken}`,
+                                    'Content-Type': 'application/json',
+                                },
+                                timeout: 15000, // 15 second timeout
+                            }
+                        );
+                    } catch (error) {
+                        // Don't retry on 400-level errors (client errors)
+                        if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                            bail(error);
+                            return;
+                        }
+                        throw error;
+                    }
+                },
                 {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    timeout: 15000, // 15 second timeout
+                    retries: 3,
+                    factor: 2,
+                    minTimeout: 1000,
+                    maxTimeout: 5000,
+                    onRetry: (error, attempt) => {
+                        console.warn(`STK Query attempt ${attempt} failed, retrying...`);
+                    }
                 }
             );
 

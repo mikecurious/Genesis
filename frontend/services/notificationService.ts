@@ -1,35 +1,120 @@
-import api from './apiService';
+import toast from 'react-hot-toast';
 
+/**
+ * Toast notification service for user feedback
+ * Replaces browser alert() with better UX
+ */
 export const notificationService = {
-    // Get notifications with pagination and filters
-    getNotifications: async (page = 1, limit = 20, filters?: { type?: string; read?: boolean }) => {
-        const params = new URLSearchParams();
-        params.append('page', page.toString());
-        params.append('limit', limit.toString());
-
-        if (filters?.type) params.append('type', filters.type);
-        if (filters?.read !== undefined) params.append('read', filters.read.toString());
-
-        return api.get(`/notifications?${params.toString()}`);
+    /**
+     * Show success message
+     */
+    success: (message: string) => {
+        toast.success(message, {
+            duration: 4000,
+            position: 'top-right',
+            style: {
+                background: '#10B981',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+            },
+        });
     },
 
-    // Get unread notification count
-    getUnreadCount: async () => {
-        return api.get('/notifications/unread-count');
+    /**
+     * Show error message
+     */
+    error: (message: string) => {
+        toast.error(message, {
+            duration: 5000,
+            position: 'top-right',
+            style: {
+                background: '#EF4444',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+            },
+        });
     },
 
-    // Mark notification as read
-    markAsRead: async (notificationId: string) => {
-        return api.put(`/notifications/${notificationId}/read`);
+    /**
+     * Show info message
+     */
+    info: (message: string) => {
+        toast(message, {
+            duration: 4000,
+            position: 'top-right',
+            icon: 'ℹ️',
+            style: {
+                background: '#3B82F6',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+            },
+        });
     },
 
-    // Mark all notifications as read
-    markAllAsRead: async () => {
-        return api.put('/notifications/read-all');
+    /**
+     * Show warning message
+     */
+    warning: (message: string) => {
+        toast(message, {
+            duration: 4500,
+            position: 'top-right',
+            icon: '⚠️',
+            style: {
+                background: '#F59E0B',
+                color: '#fff',
+                padding: '16px',
+                borderRadius: '8px',
+            },
+        });
     },
 
-    // Delete notification
-    deleteNotification: async (notificationId: string) => {
-        return api.delete(`/notifications/${notificationId}`);
+    /**
+     * Show loading message
+     */
+    loading: (message: string) => {
+        return toast.loading(message, {
+            position: 'top-right',
+        });
+    },
+
+    /**
+     * Dismiss a specific toast
+     */
+    dismiss: (toastId: string) => {
+        toast.dismiss(toastId);
+    },
+
+    /**
+     * Dismiss all toasts
+     */
+    dismissAll: () => {
+        toast.dismiss();
+    },
+
+    /**
+     * Show promise-based toast (for async operations)
+     */
+    promise: <T,>(
+        promise: Promise<T>,
+        messages: {
+            loading: string;
+            success: string;
+            error: string;
+        }
+    ) => {
+        return toast.promise(
+            promise,
+            {
+                loading: messages.loading,
+                success: messages.success,
+                error: messages.error,
+            },
+            {
+                position: 'top-right',
+            }
+        );
     },
 };

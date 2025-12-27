@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { debounce } from "lodash";
+import { Toaster } from 'react-hot-toast';
+import { notificationService } from "./services/notificationService";
 import { Navbar } from "./components/Navbar";
 import { Sidebar } from "./components/Sidebar";
 import { HeroIntro } from "./components/HeroIntro";
@@ -664,12 +666,8 @@ const App: React.FC = () => {
   };
 
   const handleAdminLogin = () => {
-    alert(
-      "Admin Access\n\n" +
-      "Use your admin credentials to log in:\n" +
-      "• Email: admin@genesis.com\n" +
-      "• Password: [Your admin password]\n\n" +
-      "Enter your credentials in the login form above."
+    notificationService.info(
+      "Admin Access: Use your admin credentials to log in. Email: admin@genesis.com. Enter your credentials in the login form above."
     );
   };
 
@@ -781,7 +779,7 @@ const App: React.FC = () => {
         errorMessage = error.message || "Request failed";
       }
 
-      alert(`Error adding listing: ${errorMessage}`);
+      notificationService.error(`Error adding listing: ${errorMessage}`);
     }
   };
 
@@ -806,12 +804,12 @@ const App: React.FC = () => {
       };
       setTenants((prev) => [...prev, newTenant]);
       setIsAddTenantModalOpen(false);
-      alert(
+      notificationService.success(
         `Tenant ${newTenant.name} invited successfully! Their default password is 'password123'.`
       );
     } catch (error: any) {
       console.error("Failed to add tenant:", error);
-      alert(`Error adding tenant: ${error.message}`);
+      notificationService.error(`Error adding tenant: ${error.message}`);
     }
   };
 
@@ -836,7 +834,7 @@ const App: React.FC = () => {
       setMaintenanceRequests((prev) => [mappedRequest, ...prev]);
     } catch (error: any) {
       console.error("Failed to add maintenance request:", error);
-      alert(`Error adding request: ${error.message}`);
+      notificationService.error(`Error adding request: ${error.message}`);
     }
   };
 
@@ -866,10 +864,10 @@ const App: React.FC = () => {
         )
       );
 
-      alert("Property updated successfully!");
+      notificationService.success("Property updated successfully!");
     } catch (error: any) {
       console.error("Failed to update listing:", error);
-      alert(`Error updating listing: ${error.message}`);
+      notificationService.error(`Error updating listing: ${error.message}`);
     }
   };
 
@@ -882,10 +880,10 @@ const App: React.FC = () => {
         prev.filter((listing) => listing.id !== propertyId)
       );
 
-      alert("Property deleted successfully!");
+      notificationService.success("Property deleted successfully!");
     } catch (error: any) {
       console.error("Failed to delete listing:", error);
-      alert(`Error deleting listing: ${error.message}`);
+      notificationService.error(`Error deleting listing: ${error.message}`);
     }
   };
 
@@ -1187,6 +1185,9 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-slate-800 dark:to-blue-900 text-gray-900 dark:text-white overflow-hidden">
+      {/* Toast Notifications */}
+      <Toaster />
+
       <div className="flex h-full">
         {/* Only show sidebar in chat view */}
         {currentView === "chat" && (
@@ -1257,7 +1258,7 @@ const App: React.FC = () => {
         <LiveAudioHandler
           onTranscription={handleSendMessage}
           onError={(errorMsg) => {
-            alert(`Voice Input Error: ${errorMsg}`);
+            notificationService.error(`Voice Input Error: ${errorMsg}`);
             setIsLiveSessionActive(false);
           }}
         />

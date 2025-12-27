@@ -118,7 +118,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            disabled={isSubmitting}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                             placeholder="John Doe"
                             required
                         />
@@ -133,7 +134,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            disabled={isSubmitting}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                             placeholder="123 Main Street, Nairobi"
                             required
                         />
@@ -149,7 +151,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                                 name="contact"
                                 value={formData.contact}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                disabled={isSubmitting}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                                 placeholder="+254 712 345 678"
                                 required
                             />
@@ -164,7 +167,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                                 name="whatsappNumber"
                                 value={formData.whatsappNumber}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                disabled={isSubmitting}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                                 placeholder="+254 712 345 678"
                                 required
                             />
@@ -180,7 +184,8 @@ export const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            disabled={isSubmitting}
+                            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                             placeholder="john.doe@example.com"
                             required
                         />

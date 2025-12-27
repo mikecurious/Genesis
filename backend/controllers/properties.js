@@ -57,8 +57,8 @@ exports.getProperties = asyncHandler(async (req, res, next) => {
         query = query.sort('-createdAt');
     }
 
-    // Executing query
-    const properties = await query;
+    // Executing query with lean for better performance (read-only)
+    const properties = await query.lean();
 
     res.status(200).json({ success: true, count: properties.length, data: properties });
 });
@@ -67,7 +67,7 @@ exports.getProperties = asyncHandler(async (req, res, next) => {
 // @route   GET /api/properties/:id
 // @access  Public
 exports.getProperty = asyncHandler(async (req, res, next) => {
-    const property = await Property.findById(req.params.id).populate('createdBy', 'name email');
+    const property = await Property.findById(req.params.id).populate('createdBy', 'name email').lean();
     if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
     }

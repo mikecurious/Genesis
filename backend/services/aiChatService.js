@@ -1,8 +1,15 @@
 const Property = require('../models/Property');
+const { LRUCache } = require('lru-cache');
 
 class AIChatService {
     constructor() {
-        this.conversationContext = new Map();
+        // Use LRU cache to prevent memory leak from indefinite Map growth
+        // max: 1000 entries, ttl: 30 minutes (1800000 ms)
+        this.conversationContext = new LRUCache({
+            max: 1000,
+            ttl: 1800000,
+            updateAgeOnGet: true
+        });
     }
 
     parseUserQuery(query) {

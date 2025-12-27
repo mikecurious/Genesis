@@ -116,19 +116,22 @@ exports.getAnalytics = asyncHandler(async (req, res, next) => {
     const recentUsers = await User.find()
         .sort({ createdAt: -1 })
         .limit(10)
-        .select('name email role createdAt isVerified');
+        .select('name email role createdAt isVerified')
+        .lean();
 
     const recentProperties = await Property.find()
         .sort({ createdAt: -1 })
         .limit(10)
         .populate('createdBy', 'name email')
-        .select('title location price createdAt status');
+        .select('title location price createdAt status')
+        .lean();
 
     const recentLeads = await Lead.find()
         .sort({ createdAt: -1 })
         .limit(10)
         .populate('property', 'title location')
-        .select('client.name client.email dealType status createdAt');
+        .select('client.name client.email dealType status createdAt')
+        .lean();
 
     // Revenue statistics (mock for now - integrate with payment system later)
     const subscriptionRevenue = {
@@ -173,13 +176,27 @@ exports.getAnalytics = asyncHandler(async (req, res, next) => {
 // @route   GET /api/admin/properties
 // @access  Private (Admin)
 exports.getAllProperties = asyncHandler(async (req, res, next) => {
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await Property.countDocuments();
+
     const properties = await Property.find()
         .populate('createdBy', 'name email role')
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
 
     res.status(200).json({
         success: true,
         count: properties.length,
+        total,
+        page,
+        pages: Math.ceil(total / limit),
         data: properties
     });
 });
@@ -188,14 +205,28 @@ exports.getAllProperties = asyncHandler(async (req, res, next) => {
 // @route   GET /api/admin/leads
 // @access  Private (Admin)
 exports.getAllLeads = asyncHandler(async (req, res, next) => {
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const total = await Lead.countDocuments();
+
     const leads = await Lead.find()
         .populate('property', 'title location price')
         .populate('propertyOwner', 'name email')
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
 
     res.status(200).json({
         success: true,
         count: leads.length,
+        total,
+        page,
+        pages: Math.ceil(total / limit),
         data: leads
     });
 });
