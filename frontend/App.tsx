@@ -143,8 +143,16 @@ const App: React.FC = () => {
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined" && localStorage.getItem("theme")) {
-      return localStorage.getItem("theme") as "light" | "dark";
+      const savedTheme = localStorage.getItem("theme") as "light" | "dark";
+      // Apply the theme immediately on initialization
+      if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      return savedTheme;
     }
+    document.documentElement.classList.remove("dark");
     return "light";
   });
 
@@ -626,6 +634,16 @@ const App: React.FC = () => {
     handleSetView("dashboard");
   };
 
+  const handleAdminLogin = () => {
+    alert(
+      "Admin Access\n\n" +
+      "Use your admin credentials to log in:\n" +
+      "• Email: admin@genesis.com\n" +
+      "• Password: [Your admin password]\n\n" +
+      "Enter your credentials in the login form above."
+    );
+  };
+
   const handleTenantSignIn = async (email: string, pass: string) => {
     setIsLoading(true);
     setAuthError(null);
@@ -940,6 +958,7 @@ const App: React.FC = () => {
             onGoToSignup={() => handleSetView("signup")}
             onDemoSignIn={handleDemoSignIn}
             onForgotPassword={() => handleSetView("forgotPassword")}
+            onAdminLogin={handleAdminLogin}
             isLoading={isLoading}
             error={authError}
           />

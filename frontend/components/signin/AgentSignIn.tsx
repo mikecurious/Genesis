@@ -6,11 +6,12 @@ interface AgentSignInProps {
     onGoToSignup: () => void;
     onDemoSignIn: () => void;
     onForgotPassword: () => void;
+    onAdminLogin?: () => void;
     isLoading: boolean;
     error: string | null;
 }
 
-export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup, onDemoSignIn, onForgotPassword, isLoading, error: apiError }) => {
+export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup, onDemoSignIn, onForgotPassword, onAdminLogin, isLoading, error: apiError }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({ email: '', password: '' });
@@ -124,6 +125,18 @@ export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup
                         </button>
                     </p>
                 </div>
+
+                {onAdminLogin && (
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                            onClick={onAdminLogin}
+                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                            <span className="text-xl">🛡️</span>
+                            Admin Login
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
