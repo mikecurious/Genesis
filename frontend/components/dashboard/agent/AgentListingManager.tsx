@@ -2,6 +2,7 @@ import React from 'react';
 import { type Listing } from '../../../types';
 import { PropertyCard } from '../../PropertyCard';
 import { PropertyDetailView } from '../PropertyDetailView';
+import { PropertyEditModal } from '../PropertyEditModal';
 
 interface AgentListingManagerProps {
     listings: Listing[];
@@ -18,22 +19,24 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
 }) => {
     const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
     const [selectedProperty, setSelectedProperty] = React.useState<Listing | null>(null);
+    const [editingProperty, setEditingProperty] = React.useState<Listing | null>(null);
 
-    const handleEdit = async (listing: Listing) => {
+    const handleEdit = (listing: Listing) => {
+        setEditingProperty(listing);
+    };
+
+    const handleSaveEdit = async (propertyId: string, updatedData: Partial<Listing>) => {
         if (!onEditListing) {
             alert('Edit feature not available');
             return;
         }
 
-        // For now, show a simple prompt to edit the title
-        // In a real app, this would open a modal with a form
-        const newTitle = prompt('Edit property title:', listing.title);
-        if (newTitle && newTitle !== listing.title) {
-            try {
-                await onEditListing(listing.id, { title: newTitle });
-            } catch (error) {
-                console.error('Edit failed:', error);
-            }
+        try {
+            await onEditListing(propertyId, updatedData);
+            setEditingProperty(null);
+        } catch (error) {
+            console.error('Edit failed:', error);
+            throw error; // Re-throw to let modal handle it
         }
     };
 
@@ -109,6 +112,16 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                     onClose={() => setSelectedProperty(null)}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                />
+            )}
+
+            {/* Property Edit Modal */}
+            {editingProperty && (
+                <PropertyEditModal
+                    property={editingProperty}
+                    isOpen={!!editingProperty}
+                    onClose={() => setEditingProperty(null)}
+                    onSave={handleSaveEdit}
                 />
             )}
         </div>
