@@ -4,9 +4,9 @@ const asyncHandler = require('express-async-handler');
 const mpesaService = require('../services/mpesaService');
 
 const planPrices = {
-    'Basic': 1000,
-    'MyGF 1.3': 2500,
-    'MyGF 3.2': 5000
+    'Basic': 10000,
+    'MyGF 1.3': 15000,
+    'MyGF 3.2': 25000
 };
 
 // @desc    Initiate a subscription payment
