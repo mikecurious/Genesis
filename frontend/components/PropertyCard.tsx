@@ -38,7 +38,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     return (
         <div className="group relative w-full bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full">
             {/* Image Section - Horizontal Carousel */}
-            <div className="relative h-64 overflow-hidden cursor-pointer" onClick={onImageClick}>
+            <div className="relative h-64 overflow-hidden cursor-pointer" onClick={() => onImageClick?.()}>
                 {/* Current Image */}
                 <div className="relative w-full h-full">
                     <img
@@ -66,12 +66,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                     )}
 
                     {/* Title & Location Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 cursor-pointer">
                         <h3 className="text-2xl font-bold mb-1 drop-shadow-md truncate">{property.title}</h3>
                         <p className="text-gray-200 text-sm flex items-center gap-1 drop-shadow-sm">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             {property.location}
                         </p>
+                        {onImageClick && (
+                            <p className="text-xs text-gray-300 mt-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                Click to view details
+                            </p>
+                        )}
                     </div>
                 </div>
 

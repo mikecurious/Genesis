@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Listing } from '../../../types';
 import { PropertyCard } from '../../PropertyCard';
+import { PropertyDetailView } from '../PropertyDetailView';
 
 interface AgentListingManagerProps {
     listings: Listing[];
@@ -16,6 +17,7 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
     onDeleteListing
 }) => {
     const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+    const [selectedProperty, setSelectedProperty] = React.useState<Listing | null>(null);
 
     const handleEdit = async (listing: Listing) => {
         if (!onEditListing) {
@@ -76,7 +78,7 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                             <PropertyCard
                                 property={listing}
                                 onConnect={() => { }}
-                                onImageClick={() => { }}
+                                onImageClick={() => setSelectedProperty(listing)}
                                 showConnectButton={false}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
@@ -98,6 +100,16 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                         Create a listing
                     </button>
                 </div>
+            )}
+
+            {/* Property Detail View Modal */}
+            {selectedProperty && (
+                <PropertyDetailView
+                    property={selectedProperty}
+                    onClose={() => setSelectedProperty(null)}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             )}
         </div>
     );
