@@ -1,13 +1,24 @@
 const express = require('express');
-const { initiatePayment, mpesaCallback } = require('../controllers/payments');
+const {
+    initiatePayment,
+    mpesaCallback,
+    queryPaymentStatus,
+    getPaymentHistory,
+    initiateGenericPayment
+} = require('../controllers/payments');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Route to start the payment process for the logged-in user
-router.post('/initiate', protect, initiatePayment);
+// Payment initiation routes
+router.post('/initiate', protect, initiatePayment); // Subscription payment
+router.post('/pay', protect, initiateGenericPayment); // Generic payment
 
-// Webhook route for M-Pesa to send callback data
+// Payment query routes
+router.get('/history', protect, getPaymentHistory);
+router.get('/:paymentId/status', protect, queryPaymentStatus);
+
+// Webhook route for M-Pesa to send callback data (public)
 router.post('/mpesa-callback', mpesaCallback);
 
 module.exports = router;
