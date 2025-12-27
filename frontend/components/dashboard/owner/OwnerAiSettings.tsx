@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
 
 const ToggleSwitch: React.FC<{ label: string; enabled: boolean; onChange: (enabled: boolean) => void }> = ({ label, enabled, onChange }) => (
     <div className="flex items-center justify-between">
@@ -17,9 +18,20 @@ export const OwnerAiSettings: React.FC = () => {
     const [followUp, setFollowUp] = useState(true);
     const [reminders, setReminders] = useState(true);
     const [whatsAppNumber, setWhatsAppNumber] = useState('');
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
     const handleActivateVoice = () => {
-        alert("Redirecting to payment gateway to activate AI Voice for Client. This is a premium feature.");
+        setIsPaymentModalOpen(true);
+    };
+
+    const handlePaymentSuccess = () => {
+        console.log('AI Voice feature activated successfully!');
+        setIsPaymentModalOpen(false);
+    };
+
+    const handlePaymentFailed = () => {
+        console.log('AI Voice activation payment failed or cancelled');
+        setIsPaymentModalOpen(false);
     };
 
     return (
@@ -71,6 +83,20 @@ export const OwnerAiSettings: React.FC = () => {
                     Activate Feature
                 </button>
             </div>
+
+            <MpesaPaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onSuccess={handlePaymentSuccess}
+                onFailed={handlePaymentFailed}
+                amount={5000}
+                description="AI Voice for Client - Premium Feature"
+                paymentType="service"
+                metadata={{
+                    feature: 'ai_voice',
+                    action: 'activate_premium_feature'
+                }}
+            />
         </div>
     );
 };

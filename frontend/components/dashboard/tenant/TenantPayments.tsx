@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { type Tenant } from '../../../types';
+import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
 
 interface TenantPaymentsProps {
     tenant: Tenant;
@@ -19,6 +20,19 @@ const statusColorMap = {
 };
 
 export const TenantPayments: React.FC<TenantPaymentsProps> = ({ tenant }) => {
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+    const handlePaymentSuccess = () => {
+        console.log('Rent payment successful!');
+        // TODO: Update rent status via API
+        setIsPaymentModalOpen(false);
+    };
+
+    const handlePaymentFailed = () => {
+        console.log('Rent payment failed or cancelled');
+        setIsPaymentModalOpen(false);
+    };
+
     return (
         <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 animate-fade-in-up">
             <div className="flex justify-between items-center mb-4">
@@ -32,7 +46,12 @@ export const TenantPayments: React.FC<TenantPaymentsProps> = ({ tenant }) => {
             {(tenant.rentStatus === 'Due' || tenant.rentStatus === 'Overdue') && (
                 <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-6 flex justify-between items-center">
                     <p className="text-blue-800 dark:text-blue-200">Your next payment is due. Please pay to avoid late fees.</p>
-                    <button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Pay Now</button>
+                    <button
+                        onClick={() => setIsPaymentModalOpen(true)}
+                        className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Pay Now
+                    </button>
                 </div>
             )}
 
@@ -59,6 +78,21 @@ export const TenantPayments: React.FC<TenantPaymentsProps> = ({ tenant }) => {
                     </tbody>
                 </table>
             </div>
+
+            <MpesaPaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                onSuccess={handlePaymentSuccess}
+                onFailed={handlePaymentFailed}
+                amount={55000}
+                description="Rent Payment"
+                paymentType="tenant_payment"
+                metadata={{
+                    tenantId: tenant.id,
+                    tenantName: tenant.name,
+                    propertyId: tenant.propertyId
+                }}
+            />
         </div>
     );
 };

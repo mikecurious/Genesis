@@ -6,7 +6,7 @@ import { AgentMarketing } from './AgentMarketing';
 import { AgentAiSettings } from './AgentAiSettings';
 import { AgentProfileSettings } from './AgentProfileSettings';
 import { ListingForm } from '../ListingForm';
-import { FeaturePaymentModal } from '../../modals/FeaturePaymentModal';
+import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
 import { DashboardSidebar, type DashboardSection } from '../DashboardSidebar';
 import { AutomationDashboard } from '../../AutomationDashboard';
 import { LeadViewer } from '../LeadViewer';
@@ -77,13 +77,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         setIsBoostModalOpen(true);
     };
 
-    const handleConfirmBoostPayment = () => {
+    const handleBoostPaymentSuccess = () => {
         if (listingToBoost) {
-            console.log(`Boosting property: ${listingToBoost.title} for 6,000 KSh`);
-            // In a real app, this would trigger an API call to the backend
-            // to mark the property as boosted and process the payment.
-            alert(`Payment successful! Your property "${listingToBoost.title}" is now boosted.`);
+            console.log(`Payment successful! Property boosted: ${listingToBoost.title}`);
+            // TODO: Update property boost status via API
         }
+        setIsBoostModalOpen(false);
+        setListingToBoost(null);
+    };
+
+    const handleBoostPaymentFailed = () => {
+        console.log('Payment failed or cancelled');
         setIsBoostModalOpen(false);
         setListingToBoost(null);
     };
@@ -244,13 +248,19 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 userRole={user?.role}
             />
             {isBoostModalOpen && listingToBoost && (
-                <FeaturePaymentModal
+                <MpesaPaymentModal
                     isOpen={isBoostModalOpen}
                     onClose={() => setIsBoostModalOpen(false)}
-                    onConfirm={handleConfirmBoostPayment}
-                    title={`Boost Property: ${listingToBoost.title}`}
-                    description="Promote your listing to get higher visibility, appear at the top of search results, and attract more potential clients."
-                    price="6,000 KSh"
+                    onSuccess={handleBoostPaymentSuccess}
+                    onFailed={handleBoostPaymentFailed}
+                    amount={6000}
+                    description={`Boost Property: ${listingToBoost.title}`}
+                    paymentType="service"
+                    metadata={{
+                        propertyId: listingToBoost.id,
+                        propertyTitle: listingToBoost.title,
+                        action: 'boost_property'
+                    }}
                 />
             )}
         </div>

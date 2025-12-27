@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { type User, PlanName } from '../../types';
 import { userService } from '../../services/apiService';
-import { FeaturePaymentModal } from '../modals/FeaturePaymentModal';
+import { MpesaPaymentModal } from '../modals/MpesaPaymentModal';
 import { PlanSelectionModal } from '../modals/PlanSelectionModal';
 
 interface SettingsProps {
@@ -76,8 +76,8 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
     };
 
     const handleRenewClick = () => {
-        // Determine current plan price (mock logic)
-        const currentPrice = user.subscription?.plan === PlanName.MyGF3_2 ? '25,000 KSh' : '15,000 KSh';
+        // Determine current plan price based on plan
+        const currentPrice = user.subscription?.plan === PlanName.MyGF3_2 ? '25000' : '15000';
         setSelectedPlan({ name: user.subscription?.plan || PlanName.MyGF1_3, price: currentPrice });
         setPaymentAction('renew');
         setIsPaymentModalOpen(true);
@@ -94,12 +94,23 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentConfirm = () => {
-        // Mock payment success
-        console.log(`Processing ${paymentAction} for ${selectedPlan?.name} at ${selectedPlan?.price}`);
-        alert(`Payment successful! Plan ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} to ${selectedPlan?.name}.`);
+    const handlePaymentSuccess = () => {
+        console.log(`Payment successful! ${paymentAction} to ${selectedPlan?.name}`);
+        // TODO: Call API to update subscription status
         setIsPaymentModalOpen(false);
-        // In a real app, you'd call an API here to update the subscription
+        setMessage({
+            type: 'success',
+            text: `Subscription ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} successfully!`
+        });
+    };
+
+    const handlePaymentFailed = () => {
+        console.log('Payment failed or cancelled');
+        setIsPaymentModalOpen(false);
+        setMessage({
+            type: 'error',
+            text: 'Payment was not completed. Please try again.'
+        });
     };
 
     return (
@@ -291,16 +302,21 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
             />
 
             {selectedPlan && (
-                <FeaturePaymentModal
+                <MpesaPaymentModal
                     isOpen={isPaymentModalOpen}
                     onClose={() => setIsPaymentModalOpen(false)}
-                    onConfirm={handlePaymentConfirm}
-                    title={paymentAction === 'renew' ? `Renew ${selectedPlan.name}` : `Upgrade to ${selectedPlan.name}`}
+                    onSuccess={handlePaymentSuccess}
+                    onFailed={handlePaymentFailed}
+                    amount={parseInt(selectedPlan.price)}
                     description={paymentAction === 'renew'
-                        ? `Renew your ${selectedPlan.name} subscription to continue enjoying premium features.`
-                        : `Upgrade to ${selectedPlan.name} to unlock more features and scale your business.`
+                        ? `Renew ${selectedPlan.name} subscription`
+                        : `Upgrade to ${selectedPlan.name}`
                     }
-                    price={selectedPlan.price}
+                    paymentType="subscription"
+                    metadata={{
+                        plan: selectedPlan.name,
+                        action: paymentAction
+                    }}
                 />
             )}
         </div>

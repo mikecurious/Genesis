@@ -1,17 +1,35 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { type Listing } from '../../../types';
+import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
 
 interface CombinedMarketingProps {
     listings: Listing[];
 }
 
-const handleBoost = (listingTitle: string) => {
-    alert(`Boosting "${listingTitle}"! This feature will integrate with a payment and promotion system.`);
-    console.log(`ADMIN NOTIFICATION: User boosted property: ${listingTitle}`);
-};
-
 export const CombinedMarketing: React.FC<CombinedMarketingProps> = ({ listings }) => {
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+
+    const handleBoostClick = (listing: Listing) => {
+        setSelectedListing(listing);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handlePaymentSuccess = () => {
+        if (selectedListing) {
+            console.log(`Payment successful! Property boosted: ${selectedListing.title}`);
+            // TODO: Update property boost status via API
+        }
+        setIsPaymentModalOpen(false);
+        setSelectedListing(null);
+    };
+
+    const handlePaymentFailed = () => {
+        console.log('Payment failed or cancelled');
+        setIsPaymentModalOpen(false);
+        setSelectedListing(null);
+    };
     return (
         <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6 animate-fade-in-up">
             <h2 className="text-xl font-semibold mb-1">Boost Your Property</h2>
@@ -24,7 +42,7 @@ export const CombinedMarketing: React.FC<CombinedMarketingProps> = ({ listings }
                             <p className="text-xs text-gray-500 dark:text-gray-400">{listing.location}</p>
                         </div>
                         <button
-                            onClick={() => handleBoost(listing.title)}
+                            onClick={() => handleBoostClick(listing)}
                             className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm"
                         >
                             Boost Property
@@ -34,6 +52,23 @@ export const CombinedMarketing: React.FC<CombinedMarketingProps> = ({ listings }
                      <div className="text-center py-8 text-gray-500">You have no listings to market. Add a listing first.</div>
                 )}
             </div>
+
+            {selectedListing && (
+                <MpesaPaymentModal
+                    isOpen={isPaymentModalOpen}
+                    onClose={() => setIsPaymentModalOpen(false)}
+                    onSuccess={handlePaymentSuccess}
+                    onFailed={handlePaymentFailed}
+                    amount={6000}
+                    description={`Boost Property: ${selectedListing.title}`}
+                    paymentType="service"
+                    metadata={{
+                        propertyId: selectedListing.id,
+                        propertyTitle: selectedListing.title,
+                        action: 'boost_property'
+                    }}
+                />
+            )}
         </div>
     );
 };
