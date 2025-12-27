@@ -45,9 +45,19 @@ exports.register = asyncHandler(async (req, res, next) => {
         </div>
     `;
 
-    try {
+    // Send email with timeout to prevent hanging
+    const sendEmailWithTimeout = async (emailOptions, timeoutMs = 15000) => {
         const sendEmail = require('../config/email');
-        await sendEmail({
+        return Promise.race([
+            sendEmail(emailOptions),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Email timeout')), timeoutMs)
+            )
+        ]);
+    };
+
+    try {
+        await sendEmailWithTimeout({
             email: user.email,
             subject: 'Verify Your Account - MyGF AI',
             html
@@ -60,7 +70,7 @@ exports.register = asyncHandler(async (req, res, next) => {
             message: 'Registration successful. Please check your email for a verification code.'
         });
     } catch (error) {
-        console.error('Email sending error:', error);
+        console.error('Email sending error:', error.message);
         // Still allow registration even if email fails
         console.log(`--- ACCOUNT VERIFICATION (Email Failed) ---`);
         console.log(`User: ${email}`);
@@ -232,9 +242,19 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
         </div>
     `;
 
-    try {
+    // Send email with timeout to prevent hanging
+    const sendEmailWithTimeout = async (emailOptions, timeoutMs = 15000) => {
         const sendEmail = require('../config/email');
-        await sendEmail({
+        return Promise.race([
+            sendEmail(emailOptions),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Email timeout')), timeoutMs)
+            )
+        ]);
+    };
+
+    try {
+        await sendEmailWithTimeout({
             email: user.email,
             subject: 'Password Reset Request - MyGF AI',
             html
@@ -245,7 +265,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
             message: 'If an account exists with that email, a password reset link has been sent.'
         });
     } catch (error) {
-        console.error('Email sending error:', error);
+        console.error('Email sending error:', error.message);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save({ validateBeforeSave: false });

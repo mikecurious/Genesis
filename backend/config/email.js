@@ -15,6 +15,9 @@ const createTransporter = () => {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 10000,
+            socketTimeout: 10000,
         });
     } else {
         // Development: Log emails to console
@@ -28,7 +31,10 @@ const createTransporter = () => {
             // For development, we'll just log the email
             streamTransport: true,
             newline: 'unix',
-            buffer: true
+            buffer: true,
+            connectionTimeout: 5000,
+            greetingTimeout: 5000,
+            socketTimeout: 5000,
         });
     }
 };
