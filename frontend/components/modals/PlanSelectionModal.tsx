@@ -12,19 +12,22 @@ const plans = [
     {
         name: PlanName.Basic,
         price: 'Free',
+        priceValue: '0',  // Numeric value for payments
         features: ['Basic Listings', 'Standard Support', 'Limited AI Access'],
         color: 'gray'
     },
     {
         name: PlanName.MyGF1_3,
-        price: '15,000 KSh/mo',
+        price: '15,000 KSh/mo',  // Display format
+        priceValue: '15000',  // Numeric value for payments
         features: ['Advanced AI Chat', 'Priority Support', 'Unlimited Listings', 'Market Analytics'],
         color: 'indigo',
         recommended: true
     },
     {
         name: PlanName.MyGF3_2,
-        price: '25,000 KSh/mo',
+        price: '25,000 KSh/mo',  // Display format
+        priceValue: '25000',  // Numeric value for payments
         features: ['Full AI Automation', 'Dedicated Account Manager', 'Premium Marketing', 'API Access'],
         color: 'purple'
     }
@@ -88,7 +91,7 @@ export const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({ isOpen, 
                                     </ul>
 
                                     <button
-                                        onClick={() => !isCurrent && onSelectPlan(plan.name, plan.price)}
+                                        onClick={() => !isCurrent && onSelectPlan(plan.name, plan.priceValue)}
                                         disabled={isCurrent}
                                         className={`w-full py-3 px-4 rounded-xl font-bold transition-all ${isCurrent
                                                 ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-default'
