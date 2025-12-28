@@ -103,9 +103,11 @@ exports.getPropertyAnalytics = asyncHandler(async (req, res) => {
             { $match: { createdBy: userId } },
             {
                 $group: {
-                    _id: '$dealType',
+                    _id: '$priceType',
                     count: { $sum: 1 },
-                    averagePrice: { $avg: '$price' }
+                    averagePrice: { $avg: '$price' },
+                    minPrice: { $min: '$price' },
+                    maxPrice: { $max: '$price' }
                 }
             }
         ]);
@@ -115,7 +117,7 @@ exports.getPropertyAnalytics = asyncHandler(async (req, res) => {
             { $match: { createdBy: userId } },
             {
                 $group: {
-                    _id: '$type',
+                    _id: '$propertyType',
                     count: { $sum: 1 }
                 }
             }

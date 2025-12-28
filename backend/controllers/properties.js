@@ -113,13 +113,6 @@ exports.createProperty = asyncHandler(async (req, res, next) => {
         finalPriceType = priceType;
     }
 
-    // Debug logging
-    console.log('=== CREATE PROPERTY DEBUG ===');
-    console.log('Request Headers content-type:', req.headers['content-type']);
-    console.log('req.files:', req.files);
-    console.log('req.body:', req.body);
-    console.log('=============================');
-
     let imageUrls = [];
     if (req.files && req.files.length > 0) {
         imageUrls = req.files.map(file => `/uploads/${file.filename}`);
@@ -188,17 +181,6 @@ exports.deleteProperty = asyncHandler(async (req, res, next) => {
     if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
     }
-
-    // Debug logging
-    console.log('=== DELETE PROPERTY DEBUG ===');
-    console.log('Property ID:', req.params.id);
-    console.log('Property createdBy:', property.createdBy);
-    console.log('User ID:', req.user._id);
-    console.log('User Role:', req.user.role);
-    console.log('createdBy type:', typeof property.createdBy);
-    console.log('user._id type:', typeof req.user._id);
-    console.log('Match:', property.createdBy && property.createdBy.toString() === req.user._id.toString());
-    console.log('============================');
 
     // Check if property has a valid createdBy
     if (!property.createdBy) {

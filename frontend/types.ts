@@ -9,7 +9,7 @@ export interface Listing {
   title: string; // Changed from name
   description: string;
   location: string;
-  price: string; // Changed from rent
+  price: number; // Changed from string to number (migration completed)
   priceType: 'sale' | 'rental'; // NEW: Distinguish sale vs rental
   agentName?: string; // Optional, will be populated from createdBy
   agentContact?: string; // Optional

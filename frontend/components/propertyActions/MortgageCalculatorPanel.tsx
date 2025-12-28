@@ -19,7 +19,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
     onClose,
     property
 }) => {
-    const propertyPrice = parseFloat(property.price.replace(/[^0-9.]/g, '')) || 0;
+    const propertyPrice = property.price || 0; // Price is now a number
 
     const [downPaymentPercent, setDownPaymentPercent] = useState(20);
     const [loanTerm, setLoanTerm] = useState(20);

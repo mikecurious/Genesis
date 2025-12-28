@@ -16,8 +16,9 @@ const PropertySchema = new mongoose.Schema({
         required: [true, 'Please add a location'],
     },
     price: {
-        type: String,
-        required: [true, 'Please add a price (e.g., 60,000 KSh)'],
+        type: Number,
+        required: [true, 'Please add a price'],
+        min: [0, 'Price must be a positive number'],
     },
     priceType: {
         type: String,

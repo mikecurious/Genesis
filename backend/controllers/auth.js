@@ -72,14 +72,11 @@ exports.register = asyncHandler(async (req, res, next) => {
     } catch (error) {
         console.error('Email sending error:', error.message);
         // Still allow registration even if email fails
-        console.log(`--- ACCOUNT VERIFICATION (Email Failed) ---`);
-        console.log(`User: ${email}`);
-        console.log(`OTP: ${verificationToken}`);
-        console.log(`--------------------------`);
+        // SECURITY: Never expose OTP in response or logs
 
         res.status(201).json({
             success: true,
-            message: 'Registration successful. Verification code: ' + verificationToken
+            message: 'Registration successful. Please check your email for a verification code. If you did not receive the email, please contact support.'
         });
     }
 });

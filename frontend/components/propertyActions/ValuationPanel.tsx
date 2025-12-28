@@ -15,7 +15,7 @@ export const ValuationPanel: React.FC<ValuationPanelProps> = ({
     const [activeTab, setActiveTab] = useState<'ai' | 'professional'>('ai');
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const propertyPrice = parseFloat(property.price.replace(/[^0-9.]/g, '')) || 0;
+    const propertyPrice = property.price || 0; // Price is now a number
     const estimatedMin = propertyPrice * 0.95;
     const estimatedMax = propertyPrice * 1.05;
     const marketAverage = propertyPrice;

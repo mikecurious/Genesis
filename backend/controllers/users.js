@@ -40,11 +40,8 @@ exports.inviteTenant = asyncHandler(async (req, res, next) => {
         rentStatus: 'Due',
     });
 
-    console.log(`--- TENANT INVITED ---`);
-    console.log(`User: ${email}`);
-    console.log(`Landlord: ${req.user.email}`);
-    console.log(`Default Password: ${defaultPassword}`);
-    console.log(`--------------------`);
+    // SECURITY: Never log passwords
+    console.log(`Tenant invited: ${email} by ${req.user.email}`);
 
     // We don't send the user object back with the password.
     const userResponse = await User.findById(user._id);
