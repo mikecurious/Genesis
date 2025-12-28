@@ -20,6 +20,7 @@ const PaymentSchema = new mongoose.Schema({
         type: String,
         enum: ['Basic', 'MyGF 1.3', 'MyGF 3.2', 'None'],
         default: null,
+        required: false,  // Make it optional
     },
     // M-Pesa STK Push fields
     merchantRequestID: {
