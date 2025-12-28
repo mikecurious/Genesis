@@ -246,9 +246,21 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
         });
     }
 
-    // Update user
+    // Whitelist of fields that admins can safely modify
+    // SECURITY: Prevent privilege escalation by restricting which fields can be updated
+    const allowedFields = [
+        'name',
+        'phone',
+        'accountStatus',
+        'suspensionReason',
+        'isVerified',
+        'whatsappNumber',
+        'notificationPreferences'
+    ];
+
+    // Only update allowed fields
     Object.keys(updates).forEach(key => {
-        if (key !== 'password' && key !== '_id') {
+        if (allowedFields.includes(key)) {
             user[key] = updates[key];
         }
     });

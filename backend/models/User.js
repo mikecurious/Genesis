@@ -23,8 +23,27 @@ const UserSchema = new mongoose.Schema({
             // Password is only required for local auth, not for Google auth
             return this.authProvider === 'local';
         },
-        minlength: 6,
+        minlength: [8, 'Password must be at least 8 characters'],
         select: false, // Do not return password by default
+        validate: {
+            validator: function(password) {
+                // Skip validation if authProvider is not local (Google OAuth users)
+                if (this.authProvider !== 'local') return true;
+
+                // Password must contain:
+                // - At least one uppercase letter
+                // - At least one lowercase letter
+                // - At least one number
+                // - At least one special character
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasLowercase = /[a-z]/.test(password);
+                const hasNumber = /\d/.test(password);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+                return hasUppercase && hasLowercase && hasNumber && hasSpecial;
+            },
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+        }
     },
     googleId: {
         type: String,

@@ -287,10 +287,23 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
         });
     }
 
-    if (newPassword.length < 6) {
+    // Validate password strength
+    if (newPassword.length < 8) {
         return res.status(400).json({
             success: false,
-            message: 'Password must be at least 6 characters long'
+            message: 'Password must be at least 8 characters long'
+        });
+    }
+
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
         });
     }
 
