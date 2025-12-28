@@ -678,9 +678,7 @@ const App: React.FC = () => {
   };
 
   const handleAdminLogin = () => {
-    notificationService.info(
-      "Admin Access: Use your admin credentials to log in. Email: admin@genesis.com. Enter your credentials in the login form above."
-    );
+    // Admin login handled through normal login form
   };
 
   const handleTenantSignIn = async (email: string, pass: string) => {
