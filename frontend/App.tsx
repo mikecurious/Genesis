@@ -28,6 +28,7 @@ import { AddTenantModal } from "./components/modals/AddTenantModal";
 import { LiveAudioHandler } from "./components/LiveAudioHandler";
 import { ForgotPassword } from "./components/signin/ForgotPassword";
 import { ResetPassword } from "./components/signin/ResetPassword";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import {
   type Message,
   Role,
@@ -1195,9 +1196,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-slate-800 dark:to-blue-900 text-gray-900 dark:text-white overflow-hidden">
-      {/* Toast Notifications */}
-      <Toaster />
+    <ErrorBoundary>
+      <div className="h-screen w-screen bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-slate-800 dark:to-blue-900 text-gray-900 dark:text-white overflow-hidden">
+        {/* Toast Notifications */}
+        <Toaster />
 
       <div className="flex h-full">
         {/* Only show sidebar in chat view */}
@@ -1274,7 +1276,8 @@ const App: React.FC = () => {
           }}
         />
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 
