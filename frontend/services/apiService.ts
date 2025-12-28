@@ -156,4 +156,20 @@ export const leadService = {
     },
 };
 
+// Notification API Service (for backend notifications)
+export const notificationApiService = {
+    getNotifications: async (page: number = 1, limit: number = 10) => {
+        return api.get(`/api/notifications?page=${page}&limit=${limit}`);
+    },
+    getUnreadCount: async () => {
+        return api.get('/api/notifications/unread-count');
+    },
+    markAsRead: async (notificationId: string) => {
+        return api.put(`/api/notifications/${notificationId}/read`);
+    },
+    markAllAsRead: async () => {
+        return api.put('/api/notifications/mark-all-read');
+    },
+};
+
 export default api;

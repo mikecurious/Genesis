@@ -182,22 +182,33 @@ const App: React.FC = () => {
 
   const fetchAndSetTenantData = async () => {
     try {
-      const { data: tenantUsers } = await userService.getTenants();
-      const mappedTenants = tenantUsers.map(
-        (user: any): Tenant => ({
-          id: user._id,
-          userId: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          unit: user.unit,
-          rentStatus: user.rentStatus,
-          rentAmount: user.rentAmount || 0,
-        })
-      );
-      setTenants(mappedTenants);
-    } catch (error) {
-      console.error("Failed to fetch tenants:", error);
+      const response = await userService.getTenants();
+      const tenantUsers = response.data.data || response.data || [];
+
+      // Ensure tenantUsers is an array before mapping
+      if (Array.isArray(tenantUsers)) {
+        const mappedTenants = tenantUsers.map(
+          (user: any): Tenant => ({
+            id: user._id,
+            userId: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            unit: user.unit,
+            rentStatus: user.rentStatus,
+            rentAmount: user.rentAmount || 0,
+          })
+        );
+        setTenants(mappedTenants);
+      } else {
+        setTenants([]); // Set empty array if not an array
+      }
+    } catch (error: any) {
+      // Silently handle 403 errors (user doesn't have permission)
+      if (error?.response?.status !== 403) {
+        console.error("Failed to fetch tenants:", error);
+      }
+      setTenants([]); // Set empty array on error
     }
   };
 
