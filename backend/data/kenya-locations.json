@@ -1,0 +1,359 @@
+{
+  "counties": [
+    {
+      "name": "Nairobi",
+      "code": "047",
+      "region": "Nairobi",
+      "aliases": ["Nairobi City", "Nai", "NRB"],
+      "neighborhoods": [
+        "Westlands", "Kilimani", "Karen", "Lavington", "Kileleshwa",
+        "Upperhill", "Runda", "Muthaiga", "Parklands", "Ngong",
+        "Kasarani", "Embakasi", "Syokimau", "Ruaka", "Riverside",
+        "Kiambu Road", "Thika Road", "Mombasa Road", "Langata",
+        "Hurlingham", "Spring Valley", "Loresho", "Kitisuru",
+        "Nyari", "Gigiri", "Ridgeways", "Rosslyn", "Eastleigh",
+        "South B", "South C", "Kilimani", "Dagoretti", "Kawangware",
+        "Kibera", "Ngara", "Pangani", "Mathare", "Buruburu",
+        "Umoja", "Donholm", "Kayole", "Zimmerman", "Roysambu",
+        "Kahawa", "Ruiru", "Juja", "Thika", "Kiambu",
+        "Limuru", "Kikuyu", "Rongai", "Ngong", "CBD"
+      ]
+    },
+    {
+      "name": "Mombasa",
+      "code": "001",
+      "region": "Coast",
+      "aliases": ["Mombasa City", "MSA"],
+      "neighborhoods": [
+        "Nyali", "Bamburi", "Mtwapa", "Shanzu", "Kizingo",
+        "Kilindini", "Likoni", "Changamwe", "Jomvu", "Port Reitz",
+        "Tudor", "Buxton", "Ganjoni"
+      ]
+    },
+    {
+      "name": "Kwale",
+      "code": "002",
+      "region": "Coast",
+      "aliases": [],
+      "towns": ["Ukunda", "Diani", "Msambweni", "Lunga Lunga", "Kinango"]
+    },
+    {
+      "name": "Kilifi",
+      "code": "003",
+      "region": "Coast",
+      "aliases": [],
+      "towns": ["Kilifi Town", "Malindi", "Watamu", "Gede", "Kaloleni", "Mariakani"]
+    },
+    {
+      "name": "Tana River",
+      "code": "004",
+      "region": "Coast",
+      "aliases": [],
+      "towns": ["Hola", "Garsen", "Bura"]
+    },
+    {
+      "name": "Lamu",
+      "code": "005",
+      "region": "Coast",
+      "aliases": [],
+      "towns": ["Lamu Town", "Mpeketoni", "Witu"]
+    },
+    {
+      "name": "Taita-Taveta",
+      "code": "006",
+      "region": "Coast",
+      "aliases": ["Taita Taveta"],
+      "towns": ["Voi", "Wundanyi", "Taveta", "Mwatate"]
+    },
+    {
+      "name": "Garissa",
+      "code": "007",
+      "region": "North Eastern",
+      "aliases": [],
+      "towns": ["Garissa Town", "Dadaab", "Balambala"]
+    },
+    {
+      "name": "Wajir",
+      "code": "008",
+      "region": "North Eastern",
+      "aliases": [],
+      "towns": ["Wajir Town", "Habaswein"]
+    },
+    {
+      "name": "Mandera",
+      "code": "009",
+      "region": "North Eastern",
+      "aliases": [],
+      "towns": ["Mandera Town", "Rhamu", "Elwak"]
+    },
+    {
+      "name": "Marsabit",
+      "code": "010",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Marsabit Town", "Moyale", "Laisamis"]
+    },
+    {
+      "name": "Isiolo",
+      "code": "011",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Isiolo Town", "Merti"]
+    },
+    {
+      "name": "Meru",
+      "code": "012",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Meru Town", "Maua", "Mikinduri", "Timau", "Nkubu"]
+    },
+    {
+      "name": "Tharaka-Nithi",
+      "code": "013",
+      "region": "Eastern",
+      "aliases": ["Tharaka Nithi"],
+      "towns": ["Chuka", "Marimanti", "Kathwana"]
+    },
+    {
+      "name": "Embu",
+      "code": "014",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Embu Town", "Runyenjes", "Siakago"]
+    },
+    {
+      "name": "Kitui",
+      "code": "015",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Kitui Town", "Mwingi", "Mutomo", "Kitui Central"]
+    },
+    {
+      "name": "Machakos",
+      "code": "016",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Machakos Town", "Athi River", "Mlolongo", "Kangundo", "Matungulu"]
+    },
+    {
+      "name": "Makueni",
+      "code": "017",
+      "region": "Eastern",
+      "aliases": [],
+      "towns": ["Wote", "Makindu", "Mtito Andei", "Emali", "Sultan Hamud"]
+    },
+    {
+      "name": "Nyandarua",
+      "code": "018",
+      "region": "Central",
+      "aliases": [],
+      "towns": ["Ol Kalou", "Nyahururu", "Engineer", "Njabini"]
+    },
+    {
+      "name": "Nyeri",
+      "code": "019",
+      "region": "Central",
+      "aliases": [],
+      "towns": ["Nyeri Town", "Karatina", "Othaya", "Mukurweini"]
+    },
+    {
+      "name": "Kirinyaga",
+      "code": "020",
+      "region": "Central",
+      "aliases": [],
+      "towns": ["Kerugoya", "Kutus", "Baricho", "Wang'uru"]
+    },
+    {
+      "name": "Murang'a",
+      "code": "021",
+      "region": "Central",
+      "aliases": ["Muranga"],
+      "towns": ["Murang'a Town", "Thika", "Kenol", "Kandara"]
+    },
+    {
+      "name": "Kiambu",
+      "code": "022",
+      "region": "Central",
+      "aliases": [],
+      "towns": ["Kiambu Town", "Thika", "Ruiru", "Juja", "Limuru", "Kikuyu", "Karuri", "Kahawa"]
+    },
+    {
+      "name": "Turkana",
+      "code": "023",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Lodwar", "Kakuma", "Lokitaung", "Kalokol"]
+    },
+    {
+      "name": "West Pokot",
+      "code": "024",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Kapenguria", "Makutano", "Sigor"]
+    },
+    {
+      "name": "Samburu",
+      "code": "025",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Maralal", "Baragoi", "Wamba"]
+    },
+    {
+      "name": "Trans Nzoia",
+      "code": "026",
+      "region": "Rift Valley",
+      "aliases": ["Trans-Nzoia"],
+      "towns": ["Kitale", "Kiminini", "Endebess"]
+    },
+    {
+      "name": "Uasin Gishu",
+      "code": "027",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Eldoret", "Burnt Forest", "Turbo", "Soy", "Moiben"]
+    },
+    {
+      "name": "Elgeyo-Marakwet",
+      "code": "028",
+      "region": "Rift Valley",
+      "aliases": ["Elgeyo Marakwet"],
+      "towns": ["Iten", "Kapsowar", "Tambach"]
+    },
+    {
+      "name": "Nandi",
+      "code": "029",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Kapsabet", "Nandi Hills", "Mosoriot"]
+    },
+    {
+      "name": "Baringo",
+      "code": "030",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Kabarnet", "Marigat", "Eldama Ravine"]
+    },
+    {
+      "name": "Laikipia",
+      "code": "031",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Nanyuki", "Nyahururu", "Rumuruti", "Doldol"]
+    },
+    {
+      "name": "Nakuru",
+      "code": "032",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Nakuru Town", "Naivasha", "Gilgil", "Molo", "Njoro", "Elburgon", "Subukia"]
+    },
+    {
+      "name": "Narok",
+      "code": "033",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Narok Town", "Kilgoris", "Suswa"]
+    },
+    {
+      "name": "Kajiado",
+      "code": "034",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Kajiado Town", "Ngong", "Kitengela", "Isinya", "Bissil", "Loitokitok"]
+    },
+    {
+      "name": "Kericho",
+      "code": "035",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Kericho Town", "Litein", "Londiani", "Sosiot"]
+    },
+    {
+      "name": "Bomet",
+      "code": "036",
+      "region": "Rift Valley",
+      "aliases": [],
+      "towns": ["Bomet Town", "Sotik", "Longisa"]
+    },
+    {
+      "name": "Kakamega",
+      "code": "037",
+      "region": "Western",
+      "aliases": [],
+      "towns": ["Kakamega Town", "Mumias", "Butere", "Khayega", "Shinyalu"]
+    },
+    {
+      "name": "Vihiga",
+      "code": "038",
+      "region": "Western",
+      "aliases": [],
+      "towns": ["Mbale", "Hamisi", "Luanda"]
+    },
+    {
+      "name": "Bungoma",
+      "code": "039",
+      "region": "Western",
+      "aliases": [],
+      "towns": ["Bungoma Town", "Webuye", "Kimilili", "Chwele"]
+    },
+    {
+      "name": "Busia",
+      "code": "040",
+      "region": "Western",
+      "aliases": [],
+      "towns": ["Busia Town", "Malaba", "Funyula"]
+    },
+    {
+      "name": "Siaya",
+      "code": "041",
+      "region": "Nyanza",
+      "aliases": [],
+      "towns": ["Siaya Town", "Bondo", "Ugunja", "Yala"]
+    },
+    {
+      "name": "Kisumu",
+      "code": "042",
+      "region": "Nyanza",
+      "aliases": ["Kisumu City"],
+      "towns": ["Kisumu Town", "Ahero", "Maseno", "Muhoroni"]
+    },
+    {
+      "name": "Homa Bay",
+      "code": "043",
+      "region": "Nyanza",
+      "aliases": [],
+      "towns": ["Homa Bay Town", "Mbita", "Ndhiwa", "Oyugis"]
+    },
+    {
+      "name": "Migori",
+      "code": "044",
+      "region": "Nyanza",
+      "aliases": [],
+      "towns": ["Migori Town", "Rongo", "Awendo", "Isebania"]
+    },
+    {
+      "name": "Kisii",
+      "code": "045",
+      "region": "Nyanza",
+      "aliases": [],
+      "towns": ["Kisii Town", "Ogembo", "Keroka", "Suneka"]
+    },
+    {
+      "name": "Nyamira",
+      "code": "046",
+      "region": "Nyanza",
+      "aliases": [],
+      "towns": ["Nyamira Town", "Keroka", "Nyansiongo"]
+    }
+  ],
+  "common_search_terms": {
+    "coast": ["Mombasa", "Kilifi", "Kwale", "Diani", "Malindi", "Watamu", "Lamu", "Nyali"],
+    "nairobi": ["Westlands", "Kilimani", "Karen", "Lavington", "CBD", "Upperhill"],
+    "central": ["Nyeri", "Murang'a", "Kiambu", "Thika", "Karatina"],
+    "rift valley": ["Nakuru", "Eldoret", "Naivasha", "Nanyuki", "Kericho"],
+    "western": ["Kakamega", "Bungoma", "Busia", "Mumias"],
+    "nyanza": ["Kisumu", "Kisii", "Homa Bay", "Migori"],
+    "north eastern": ["Garissa", "Wajir", "Mandera"],
+    "eastern": ["Meru", "Embu", "Kitui", "Machakos", "Isiolo"]
+  }
+}

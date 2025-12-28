@@ -1,5 +1,6 @@
 const Property = require('../models/Property');
 const { LRUCache } = require('lru-cache');
+const locationMatcher = require('./locationMatcherService');
 
 class AIChatService {
     constructor() {
@@ -73,20 +74,11 @@ class AIChatService {
             }
         }
 
-        // Detect locations (Kenyan cities and neighborhoods)
-        const locations = [
-            'westlands', 'kilimani', 'karen', 'lavington', 'kileleshwa',
-            'upperhill', 'runda', 'muthaiga', 'parklands', 'ngong',
-            'kasarani', 'embakasi', 'syokimau', 'kitengela', 'ruaka',
-            'mombasa', 'kisumu', 'nakuru', 'eldoret', 'thika',
-            'nyali', 'bamburi', 'diani', 'nairobi', 'cbd'
-        ];
-
-        for (const location of locations) {
-            if (queryLower.includes(location)) {
-                filters.location = location;
-                break;
-            }
+        // Detect locations using advanced location matcher
+        // This handles fuzzy matching, aliases, and regional queries
+        const detectedLocation = locationMatcher.getBestMatch(query);
+        if (detectedLocation) {
+            filters.location = detectedLocation;
         }
 
         // Extract price range
