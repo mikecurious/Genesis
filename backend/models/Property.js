@@ -20,6 +20,12 @@ const PropertySchema = new mongoose.Schema({
         required: [true, 'Please add a price'],
         min: [0, 'Price must be a positive number'],
     },
+    currency: {
+        type: String,
+        enum: ['KSh', 'USD', 'EUR', 'GBP'],
+        default: 'KSh',
+        required: true,
+    },
     priceType: {
         type: String,
         enum: ['sale', 'rental'],

@@ -9,22 +9,48 @@ const planPrices = {
     'MyGF 3.2': 25000
 };
 
+// @desc    Get available M-Pesa payment methods
+// @route   GET /api/payments/methods
+// @access  Public
+exports.getPaymentMethods = asyncHandler(async (req, res, next) => {
+    const methods = mpesaService.getAvailablePaymentMethods();
+
+    res.status(200).json({
+        success: true,
+        data: methods
+    });
+});
+
 // @desc    Initiate a subscription payment
 // @route   POST /api/payments/initiate
 // @access  Private
 exports.initiatePayment = asyncHandler(async (req, res, next) => {
-    const { plan, phoneNumber } = req.body;
+    let { plan, phoneNumber, mpesaMode } = req.body;
     const amount = planPrices[plan];
+
+    // Default to paybill if not specified
+    mpesaMode = mpesaMode || 'paybill';
+
+    // Validate mpesaMode
+    if (!['paybill', 'till'].includes(mpesaMode)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid payment mode. Use "paybill" or "till"'
+        });
+    }
 
     if (!amount) {
         return res.status(400).json({ success: false, message: 'Invalid plan selected' });
     }
 
+    // Normalize phone number (remove + and non-numeric characters)
+    phoneNumber = phoneNumber.replace(/\D/g, '');
+
     // Validate phone number format (254XXXXXXXXX)
     if (!phoneNumber || !/^254\d{9}$/.test(phoneNumber)) {
         return res.status(400).json({
             success: false,
-            message: 'Please provide a valid phone number in format 254XXXXXXXXX'
+            message: 'Please provide a valid Kenyan phone number (e.g., 254712345678, +254712345678, or 0712345678)'
         });
     }
 
@@ -35,15 +61,17 @@ exports.initiatePayment = asyncHandler(async (req, res, next) => {
         amount,
         plan,
         paymentType: 'subscription',
+        mpesaMode,
         status: 'pending',
     });
 
-    // Initiate STK Push
+    // Initiate STK Push with payment mode
     const stkResult = await mpesaService.initiateSTKPush(
         phoneNumber,
         amount,
         `SUB-${req.user._id}`,
-        `${plan} Subscription`
+        `${plan} Subscription`,
+        mpesaMode
     );
 
     if (!stkResult.success) {
@@ -154,7 +182,10 @@ exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
 
     // If payment is still processing, query M-Pesa
     if (payment.status === 'processing' && payment.checkoutRequestID) {
-        const queryResult = await mpesaService.querySTKPush(payment.checkoutRequestID);
+        const queryResult = await mpesaService.querySTKPush(
+            payment.checkoutRequestID,
+            payment.mpesaMode || 'paybill'
+        );
 
         if (queryResult.success) {
             // Update payment status based on query result
@@ -198,13 +229,27 @@ exports.getPaymentHistory = asyncHandler(async (req, res, next) => {
 // @route   POST /api/payments/pay
 // @access  Private
 exports.initiateGenericPayment = asyncHandler(async (req, res, next) => {
-    const { phoneNumber, amount, paymentType, description, metadata } = req.body;
+    let { phoneNumber, amount, paymentType, description, metadata, mpesaMode } = req.body;
+
+    // Default to paybill if not specified
+    mpesaMode = mpesaMode || 'paybill';
+
+    // Validate mpesaMode
+    if (!['paybill', 'till'].includes(mpesaMode)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid payment mode. Use "paybill" or "till"'
+        });
+    }
+
+    // Normalize phone number (remove + and non-numeric characters)
+    phoneNumber = phoneNumber.replace(/\D/g, '');
 
     // Validate phone number format (254XXXXXXXXX)
     if (!phoneNumber || !/^254\d{9}$/.test(phoneNumber)) {
         return res.status(400).json({
             success: false,
-            message: 'Please provide a valid phone number in format 254XXXXXXXXX'
+            message: 'Please provide a valid Kenyan phone number (e.g., 254712345678, +254712345678, or 0712345678)'
         });
     }
 
@@ -221,16 +266,18 @@ exports.initiateGenericPayment = asyncHandler(async (req, res, next) => {
         phoneNumber,
         amount,
         paymentType: paymentType || 'other',
+        mpesaMode,
         status: 'pending',
         metadata: metadata || {},
     });
 
-    // Initiate STK Push
+    // Initiate STK Push with payment mode
     const stkResult = await mpesaService.initiateSTKPush(
         phoneNumber,
         amount,
         `PAY-${req.user._id}-${Date.now()}`,
-        description || 'Payment'
+        description || 'Payment',
+        mpesaMode
     );
 
     if (!stkResult.success) {

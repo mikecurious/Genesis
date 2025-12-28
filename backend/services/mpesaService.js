@@ -3,12 +3,10 @@ const retry = require('async-retry');
 
 class MpesaService {
     constructor() {
-        // Validate required environment variables
+        // Required environment variables for basic M-Pesa functionality
         const required = [
             'MPESA_CONSUMER_KEY',
             'MPESA_CONSUMER_SECRET',
-            'MPESA_BUSINESS_SHORTCODE',
-            'MPESA_PASSKEY',
             'MPESA_CALLBACK_URL'
         ];
 
@@ -20,13 +18,35 @@ class MpesaService {
             return;
         }
 
+        // Basic configuration
         this.consumerKey = process.env.MPESA_CONSUMER_KEY;
         this.consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-        this.businessShortCode = process.env.MPESA_BUSINESS_SHORTCODE;
-        this.passkey = process.env.MPESA_PASSKEY;
         this.callbackURL = process.env.MPESA_CALLBACK_URL;
         this.environment = process.env.MPESA_ENVIRONMENT || 'sandbox';
-        this.isConfigured = true;
+
+        // Paybill configuration (for subscriptions, bills)
+        this.paybillShortCode = process.env.MPESA_PAYBILL_SHORTCODE;
+        this.paybillPasskey = process.env.MPESA_PAYBILL_PASSKEY;
+        this.hasPaybill = !!(this.paybillShortCode && this.paybillPasskey);
+
+        // Till Number configuration (for buy goods, retail)
+        this.tillNumber = process.env.MPESA_TILL_NUMBER;
+        this.tillPasskey = process.env.MPESA_TILL_PASSKEY;
+        this.hasTill = !!(this.tillNumber && this.tillPasskey);
+
+        // Backward compatibility: use MPESA_BUSINESS_SHORTCODE as paybill if paybill not set
+        if (!this.hasPaybill && process.env.MPESA_BUSINESS_SHORTCODE && process.env.MPESA_PASSKEY) {
+            this.paybillShortCode = process.env.MPESA_BUSINESS_SHORTCODE;
+            this.paybillPasskey = process.env.MPESA_PASSKEY;
+            this.hasPaybill = true;
+        }
+
+        this.isConfigured = this.hasPaybill || this.hasTill;
+
+        if (!this.isConfigured) {
+            console.error('⚠️  No payment methods configured. Set either Paybill or Till Number credentials.');
+            return;
+        }
 
         this.baseURL = this.environment === 'production'
             ? 'https://api.safaricom.co.ke'
@@ -36,6 +56,7 @@ class MpesaService {
         this.tokenExpiry = null;
 
         console.log(`✓ M-Pesa service initialized (${this.environment} mode)`);
+        console.log(`  Payment methods: ${this.hasPaybill ? 'Paybill' : ''}${this.hasPaybill && this.hasTill ? ' + ' : ''}${this.hasTill ? 'Till' : ''}`);
     }
 
     /**
@@ -98,11 +119,22 @@ class MpesaService {
 
     /**
      * Generate password for STK Push
+     * @param {string} paymentMode - 'paybill' or 'till'
      */
-    generatePassword() {
+    generatePassword(paymentMode = 'paybill') {
         const timestamp = this.getTimestamp();
-        const password = Buffer.from(`${this.businessShortCode}${this.passkey}${timestamp}`).toString('base64');
-        return { password, timestamp };
+        let shortCode, passkey;
+
+        if (paymentMode === 'till') {
+            shortCode = this.tillNumber;
+            passkey = this.tillPasskey;
+        } else {
+            shortCode = this.paybillShortCode;
+            passkey = this.paybillPasskey;
+        }
+
+        const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
+        return { password, timestamp, shortCode };
     }
 
     /**
@@ -120,13 +152,38 @@ class MpesaService {
     }
 
     /**
+     * Get available payment methods
+     */
+    getAvailablePaymentMethods() {
+        const methods = [];
+        if (this.hasPaybill) {
+            methods.push({
+                type: 'paybill',
+                name: 'Paybill',
+                shortCode: this.paybillShortCode,
+                description: 'Best for subscriptions and bills'
+            });
+        }
+        if (this.hasTill) {
+            methods.push({
+                type: 'till',
+                name: 'Till Number (Buy Goods)',
+                tillNumber: this.tillNumber,
+                description: 'Best for retail purchases'
+            });
+        }
+        return methods;
+    }
+
+    /**
      * Initiate STK Push
      * @param {string} phoneNumber - Phone number in format 254XXXXXXXXX
      * @param {number} amount - Amount to charge
      * @param {string} accountReference - Account reference (e.g., user ID, invoice number)
      * @param {string} transactionDesc - Transaction description
+     * @param {string} paymentMode - 'paybill' or 'till' (default: 'paybill')
      */
-    async initiateSTKPush(phoneNumber, amount, accountReference, transactionDesc = 'Payment') {
+    async initiateSTKPush(phoneNumber, amount, accountReference, transactionDesc = 'Payment', paymentMode = 'paybill') {
         try {
             if (!this.isConfigured) {
                 return {
@@ -135,29 +192,49 @@ class MpesaService {
                 };
             }
 
+            // Validate payment mode
+            if (paymentMode === 'paybill' && !this.hasPaybill) {
+                return {
+                    success: false,
+                    error: 'Paybill payment mode is not configured. Please configure MPESA_PAYBILL_SHORTCODE and MPESA_PAYBILL_PASSKEY.',
+                };
+            }
+
+            if (paymentMode === 'till' && !this.hasTill) {
+                return {
+                    success: false,
+                    error: 'Till Number payment mode is not configured. Please configure MPESA_TILL_NUMBER and MPESA_TILL_PASSKEY.',
+                };
+            }
+
             const accessToken = await this.getAccessToken();
-            const { password, timestamp } = this.generatePassword();
+            const { password, timestamp, shortCode } = this.generatePassword(paymentMode);
 
             // Validate and round amount properly
             if (amount !== Math.floor(amount)) {
                 console.warn(`Amount ${amount} has decimal places, rounding to ${Math.round(amount)}`);
             }
 
+            // Select transaction type based on payment mode
+            const transactionType = paymentMode === 'till'
+                ? 'CustomerBuyGoodsOnline'  // For Till Number
+                : 'CustomerPayBillOnline';   // For Paybill
+
             const payload = {
-                BusinessShortCode: this.businessShortCode,
+                BusinessShortCode: shortCode,
                 Password: password,
                 Timestamp: timestamp,
-                TransactionType: 'CustomerPayBillOnline',
+                TransactionType: transactionType,
                 Amount: Math.round(amount), // Must be integer, use Math.round instead of Math.floor
                 PartyA: phoneNumber, // Customer phone number
-                PartyB: this.businessShortCode, // Same as BusinessShortCode
+                PartyB: shortCode, // Paybill shortcode or Till number
                 PhoneNumber: phoneNumber, // Customer phone number
                 CallBackURL: this.callbackURL,
                 AccountReference: accountReference,
                 TransactionDesc: transactionDesc,
             };
 
-            console.log('STK Push Request:', { ...payload, Password: '***' });
+            console.log(`STK Push Request (${paymentMode}):`, { ...payload, Password: '***' });
 
             // Retry with exponential backoff: 3 attempts, 1-5 second delays
             const response = await retry(
@@ -216,8 +293,9 @@ class MpesaService {
     /**
      * Query STK Push transaction status
      * @param {string} checkoutRequestID - Checkout Request ID from STK Push
+     * @param {string} paymentMode - 'paybill' or 'till' (default: 'paybill')
      */
-    async querySTKPush(checkoutRequestID) {
+    async querySTKPush(checkoutRequestID, paymentMode = 'paybill') {
         try {
             if (!this.isConfigured) {
                 return {
@@ -227,10 +305,10 @@ class MpesaService {
             }
 
             const accessToken = await this.getAccessToken();
-            const { password, timestamp } = this.generatePassword();
+            const { password, timestamp, shortCode } = this.generatePassword(paymentMode);
 
             const payload = {
-                BusinessShortCode: this.businessShortCode,
+                BusinessShortCode: shortCode,
                 Password: password,
                 Timestamp: timestamp,
                 CheckoutRequestID: checkoutRequestID,

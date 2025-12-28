@@ -4,12 +4,16 @@ const {
     mpesaCallback,
     queryPaymentStatus,
     getPaymentHistory,
-    initiateGenericPayment
+    initiateGenericPayment,
+    getPaymentMethods
 } = require('../controllers/payments');
 const { protect } = require('../middleware/auth');
 const { verifyMpesaCallback } = require('../middleware/mpesaVerification');
 
 const router = express.Router();
+
+// Payment methods (public)
+router.get('/methods', getPaymentMethods);
 
 // Payment initiation routes
 router.post('/initiate', protect, initiatePayment); // Subscription payment

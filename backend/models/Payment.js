@@ -67,6 +67,11 @@ const PaymentSchema = new mongoose.Schema({
         enum: ['mpesa', 'card', 'bank'],
         default: 'mpesa',
     },
+    mpesaMode: {
+        type: String,
+        enum: ['paybill', 'till'],
+        default: 'paybill',
+    },
     metadata: {
         type: mongoose.Schema.Types.Mixed,
         default: {},
