@@ -247,13 +247,15 @@ const UserSchema = new mongoose.Schema({
     },
 });
 
-// Indexes for performance
-UserSchema.index({ email: 1 }); // Email already has unique constraint
-UserSchema.index({ role: 1, accountStatus: 1 }); // Filter by role and status
-UserSchema.index({ createdAt: -1 }); // Sort by creation date
-UserSchema.index({ authProvider: 1 }); // Filter by auth provider (local, google)
-UserSchema.index({ 'subscription.status': 1, 'subscription.expiresAt': 1 }); // Subscription queries
-UserSchema.index({ landlordId: 1 }); // Tenant lookups by landlord
+// Indexes for performance optimization
+UserSchema.index({ email: 1 }); // Already unique, but explicit index
+UserSchema.index({ role: 1, accountStatus: 1 }); // For filtering users by role and status
+UserSchema.index({ createdAt: -1 }); // For sorting by registration date
+UserSchema.index({ authProvider: 1 }); // For filtering by auth method
+UserSchema.index({ 'subscription.status': 1, 'subscription.expiresAt': 1 }); // For subscription queries
+UserSchema.index({ landlordId: 1 }); // For tenant lookups by landlord
+UserSchema.index({ isVerified: 1 }); // For finding unverified users
+UserSchema.index({ resetPasswordExpires: 1 }); // For password reset cleanup
 UserSchema.index({ googleId: 1 }); // Google OAuth lookups
 
 // Encrypt password using bcrypt before saving

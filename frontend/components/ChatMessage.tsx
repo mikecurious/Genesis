@@ -1,5 +1,6 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import DOMPurify from 'dompurify';
 import { type Message, Role, type Listing } from '../types';
 import { UserIcon } from './icons/UserIcon';
 import { AiIcon } from './icons/AiIcon';
@@ -182,9 +183,15 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
           ) : (
             <>
               <div className={`whitespace-pre-wrap prose dark:prose-invert prose-p:my-0 ${hasProperties ? 'p-4' : ''}`}>
-                {message.text.split('\n').map((line, index) => (
-                  <p key={index} className="text-inherit" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') || '\u00A0' }}></p>
-                ))}
+                {message.text.split('\n').map((line, index) => {
+                  // Convert **bold** to <strong> and sanitize to prevent XSS
+                  const htmlContent = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') || '\u00A0';
+                  const sanitized = DOMPurify.sanitize(htmlContent, {
+                    ALLOWED_TAGS: ['strong', 'em', 'b', 'i'],
+                    ALLOWED_ATTR: []
+                  });
+                  return <p key={index} className="text-inherit" dangerouslySetInnerHTML={{ __html: sanitized }}></p>;
+                })}
               </div>
 
               {hasGrounding && !hasProperties && (
