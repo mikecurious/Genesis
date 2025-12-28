@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { type Listing } from '../../types';
 import { ChevronLeftIcon } from '../icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '../icons/ChevronRightIcon';
+import { formatPrice } from '../../utils/formatPrice';
 
 interface PropertyDetailsProps {
     property: Listing;
@@ -61,7 +62,7 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onOp
             <div className="px-1">
                 <h1 className="text-xl md:text-2xl font-bold">{property.title}</h1>
                 <p className="text-md text-gray-500 dark:text-gray-400 mt-1">{property.location}</p>
-                <p className="text-xl md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-3">{property.price}</p>
+                <p className="text-xl md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-3">{formatPrice(property.price, property.currency)}</p>
 
                 <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
 

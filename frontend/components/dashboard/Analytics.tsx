@@ -13,6 +13,7 @@ import {
     Legend,
     Filler
 } from 'chart.js';
+import { formatPrice } from '../../utils/formatPrice';
 
 // Register Chart.js components
 ChartJS.register(
@@ -275,7 +276,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ userId }) => {
                                 <tr key={index} className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{property.title}</td>
                                     <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{property.location}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{property.price}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{formatPrice(property.price, property.currency)}</td>
                                     <td className="py-3 px-4">
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
                                             {property.leadCount} leads

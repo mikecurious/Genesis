@@ -10,6 +10,7 @@ export interface Listing {
   description: string;
   location: string;
   price: number; // Changed from string to number (migration completed)
+  currency: 'KSh' | 'USD' | 'EUR' | 'GBP'; // Currency code for the listing
   priceType: 'sale' | 'rental'; // NEW: Distinguish sale vs rental
   agentName?: string; // Optional, will be populated from createdBy
   agentContact?: string; // Optional

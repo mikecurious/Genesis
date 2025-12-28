@@ -15,9 +15,11 @@ const initialFormState: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'cre
     title: '',
     description: '',
     location: '',
-    price: '',
+    price: 0,
+    currency: 'KSh', // Default to Kenyan Shillings
     priceType: 'rental', // Default to rental
     tags: [],
+    images: []
 };
 
 const InputField: React.FC<{ label: string; name: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; placeholder?: string; type?: string; required?: boolean; as?: 'textarea' }> =
@@ -187,15 +189,42 @@ export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAdd
                                     </select>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Price and Currency Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Currency Selector */}
+                            <div>
+                                <label htmlFor="currency" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
+                                <select
+                                    id="currency"
+                                    name="currency"
+                                    value={formState.currency}
+                                    onChange={handleChange}
+                                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                    required
+                                >
+                                    <option value="KSh">KSh (Kenyan Shillings)</option>
+                                    <option value="USD">$ (US Dollars)</option>
+                                    <option value="EUR">€ (Euros)</option>
+                                    <option value="GBP">£ (British Pounds)</option>
+                                </select>
+                            </div>
 
                             {/* Dynamic Price Label */}
-                            <InputField
-                                label={formState.priceType === 'sale' ? 'Price' : 'Monthly Rent'}
-                                name="price"
-                                value={formState.price}
-                                onChange={handleChange}
-                                placeholder={formState.priceType === 'sale' ? 'e.g., 15,000,000 KSh' : 'e.g., 60,000 KSh/month'}
-                            />
+                            <div className="md:col-span-2">
+                                <InputField
+                                    label={formState.priceType === 'sale' ? 'Price' : 'Monthly Rent'}
+                                    name="price"
+                                    type="number"
+                                    value={formState.price.toString()}
+                                    onChange={handleChange}
+                                    placeholder={formState.priceType === 'sale' ? 'e.g., 15000000' : 'e.g., 60000'}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Enter numbers only (e.g., 60000). Currency symbol will be added automatically.
+                                </p>
+                            </div>
                         </div>
 
                         <div>

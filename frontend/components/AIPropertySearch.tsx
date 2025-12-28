@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sendChatMessage, getGreeting } from '../services/aiChatService';
 import { ChatInput } from './ChatInput';
+import { formatPrice } from '../utils/formatPrice';
 
 interface Message {
   id: string;
@@ -152,7 +153,7 @@ export const AIPropertySearch: React.FC = () => {
                               📍 {property.location}
                             </p>
                             <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-1">
-                              💰 {property.price}
+                              💰 {formatPrice(property.price, property.currency)}
                             </p>
                             {property.bedrooms && (
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -240,7 +241,7 @@ export const AIPropertySearch: React.FC = () => {
                   📍 {selectedProperty.location}
                 </p>
                 <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                  {selectedProperty.price}
+                  {formatPrice(selectedProperty.price, selectedProperty.currency)}
                 </p>
               </div>
 

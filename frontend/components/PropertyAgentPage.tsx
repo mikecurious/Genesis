@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Listing } from '../types';
+import { formatPrice } from '../utils/formatPrice';
 
 interface PropertyAgentPageProps {
     property: Listing;
@@ -182,7 +183,7 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{property.title}</h2>
                                 <span className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full font-semibold">
-                                    {property.price}
+                                    {formatPrice(property.price, property.currency)}
                                 </span>
                             </div>
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Listing } from '../types';
+import { formatPrice } from '../utils/formatPrice';
 
 interface HeroIntroProps {
   isVisible: boolean;
@@ -17,7 +18,7 @@ const PropertyCard: React.FC<{ listing: Listing }> = ({ listing }) => (
     />
     <div className="p-3">
       <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{listing.title}</p>
-      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">{listing.price}</p>
+      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">{typeof listing.price === 'number' && listing.currency ? formatPrice(listing.price, listing.currency) : listing.price}</p>
     </div>
   </div>
 );

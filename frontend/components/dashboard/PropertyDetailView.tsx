@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { type Listing } from '../../types';
+import { formatPrice } from '../../utils/formatPrice';
 
 interface PropertyDetailViewProps {
     property: Listing;
@@ -54,7 +55,7 @@ export const PropertyDetailView: React.FC<PropertyDetailViewProps> = ({
                     {/* Price & Status Tags */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                         <div className="bg-white/95 dark:bg-black/85 backdrop-blur-md px-6 py-2 rounded-full shadow-lg">
-                            <span className="text-indigo-600 dark:text-indigo-400 font-bold text-2xl">{property.price}</span>
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold text-2xl">{formatPrice(property.price, property.currency)}</span>
                         </div>
                         <div className={`px-4 py-1.5 rounded-full shadow-lg backdrop-blur-md text-sm font-bold text-white ${
                             property.priceType === 'sale' ? 'bg-emerald-500/90' : 'bg-blue-500/90'

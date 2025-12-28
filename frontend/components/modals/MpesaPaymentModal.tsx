@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { paymentService, type Payment } from '../../services/paymentService';
+import { paymentService, type Payment, type PaymentMethod } from '../../services/paymentService';
 
 interface MpesaPaymentModalProps {
     isOpen: boolean;
@@ -32,6 +32,9 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
     const [status, setStatus] = useState<PaymentStatus>('idle');
     const [payment, setPayment] = useState<Payment | null>(null);
     const [countdown, setCountdown] = useState(60);
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+    const [selectedMethod, setSelectedMethod] = useState<'paybill' | 'till'>('paybill');
+    const [loadingMethods, setLoadingMethods] = useState(true);
 
     useEffect(() => {
         if (isOpen) {
@@ -40,8 +43,31 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
             setError('');
             setPayment(null);
             setCountdown(60);
+
+            // Fetch available payment methods
+            fetchPaymentMethods();
         }
     }, [isOpen]);
+
+    const fetchPaymentMethods = async () => {
+        try {
+            setLoadingMethods(true);
+            const response = await paymentService.getPaymentMethods();
+            const methods = response.data || [];
+            setPaymentMethods(methods);
+
+            // Set default selection to first available method
+            if (methods.length > 0) {
+                setSelectedMethod(methods[0].type);
+            }
+        } catch (error) {
+            console.error('Failed to fetch payment methods:', error);
+            // Default to paybill if fetch fails
+            setPaymentMethods([]);
+        } finally {
+            setLoadingMethods(false);
+        }
+    };
 
     useEffect(() => {
         // Countdown timer when waiting for confirmation
@@ -84,6 +110,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                 response = await paymentService.initiateSubscriptionPayment({
                     plan,
                     phoneNumber: formatted,
+                    mpesaMode: selectedMethod,
                 });
             } else {
                 // Generic payment
@@ -93,6 +120,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                     paymentType,
                     description,
                     metadata,
+                    mpesaMode: selectedMethod,
                 });
             }
 
@@ -184,6 +212,57 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{description}</p>
                         </div>
+
+                        {/* Payment Method Selection */}
+                        {!loadingMethods && paymentMethods.length > 0 && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Payment Method
+                                </label>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {paymentMethods.map((method) => (
+                                        <label
+                                            key={method.type}
+                                            className={`relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                                selectedMethod === method.type
+                                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                                    : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-700'
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value={method.type}
+                                                checked={selectedMethod === method.type}
+                                                onChange={(e) => setSelectedMethod(e.target.value as 'paybill' | 'till')}
+                                                className="mt-1"
+                                                disabled={status === 'initiating'}
+                                            />
+                                            <div className="ml-3 flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                                        {method.name}
+                                                    </span>
+                                                    {method.type === 'paybill' && method.shortCode && (
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            Paybill: {method.shortCode}
+                                                        </span>
+                                                    )}
+                                                    {method.type === 'till' && method.tillNumber && (
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            Till: {method.tillNumber}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                                    {method.description}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

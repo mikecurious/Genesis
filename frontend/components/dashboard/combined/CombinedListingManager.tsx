@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { type Listing } from '../../../types';
+import { formatPrice } from '../../../utils/formatPrice';
 
 interface CombinedListingManagerProps {
     listings: Listing[];
@@ -35,7 +36,7 @@ export const CombinedListingManager: React.FC<CombinedListingManagerProps> = ({ 
                             <tr key={listing.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">{listing.title}</th>
                                 <td className="px-6 py-4">{listing.location}</td>
-                                <td className="px-6 py-4">{listing.price}</td>
+                                <td className="px-6 py-4">{formatPrice(listing.price, listing.currency)}</td>
                                 <td className="px-6 py-4">
                                     <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">Active</span>
                                 </td>

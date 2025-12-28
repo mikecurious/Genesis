@@ -10,6 +10,7 @@ import { ValuationPanel } from './propertyActions/ValuationPanel';
 import { VerificationPanel } from './propertyActions/VerificationPanel';
 import { LandSearchPanel } from './propertyActions/LandSearchPanel';
 import { ScheduleViewingPanel } from './propertyActions/ScheduleViewingPanel';
+import { formatPrice } from '../utils/formatPrice';
 
 interface PropertyExplorerPageProps {
     property: Listing;
@@ -302,8 +303,8 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{property.price}</p>
-                                <p className="text-sm text-gray-500">per month</p>
+                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formatPrice(property.price, property.currency)}</p>
+                                <p className="text-sm text-gray-500">{property.priceType === 'rental' ? 'per month' : ''}</p>
                             </div>
                         </div>
                         <div className="prose dark:prose-invert max-w-none">
