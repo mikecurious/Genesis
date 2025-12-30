@@ -176,6 +176,7 @@ app.use('/api/survey-requests', require('./routes/surveyRequests')); // Survey r
 app.use('/api/agent', require('./routes/agent')); // Agent profile routes
 app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for property search
 app.use('/api/features', require('./routes/newFeatures')); // New features routes (lead scoring, rent reminders, financial reports, surveyor requests)
+app.use('/api/tenants', require('./routes/tenants')); // Tenant management routes
 
 // Custom Error Handler Middleware
 app.use(errorHandler);

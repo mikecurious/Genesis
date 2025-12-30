@@ -68,13 +68,37 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User',
     },
+    propertyId: { // Link to the property the tenant rents
+        type: mongoose.Schema.ObjectId,
+        ref: 'Property',
+    },
     unit: { // The specific unit the tenant rents
         type: String,
+    },
+    rentAmount: { // Monthly rent amount
+        type: Number,
+        min: 0,
+    },
+    leaseStartDate: {
+        type: Date,
+    },
+    leaseEndDate: {
+        type: Date,
+    },
+    depositAmount: {
+        type: Number,
+        min: 0,
     },
     rentStatus: {
         type: String,
         enum: ['Paid', 'Due', 'Overdue'],
         default: 'Due',
+    },
+    lastPaymentDate: {
+        type: Date,
+    },
+    nextPaymentDue: {
+        type: Date,
     },
     // ---------------------------------
     whatsappNumber: { // Renamed from whatsAppNumber and added validation
@@ -296,6 +320,8 @@ UserSchema.index({ createdAt: -1 }); // For sorting by registration date
 UserSchema.index({ authProvider: 1 }); // For filtering by auth method
 UserSchema.index({ 'subscription.status': 1, 'subscription.expiresAt': 1 }); // For subscription queries
 UserSchema.index({ landlordId: 1 }); // For tenant lookups by landlord
+UserSchema.index({ propertyId: 1 }); // For tenant lookups by property
+UserSchema.index({ role: 1, propertyId: 1 }); // For tenant filtering by property
 UserSchema.index({ isVerified: 1 }); // For finding unverified users
 UserSchema.index({ resetPasswordExpires: 1 }); // For password reset cleanup
 UserSchema.index({ googleId: 1 }); // Google OAuth lookups

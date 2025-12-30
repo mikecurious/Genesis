@@ -218,7 +218,96 @@ class EmailService {
             return { success: false, error: error.message };
         }
     }
+
+    /**
+     * Send welcome email to new tenant
+     */
+    async sendTenantWelcomeEmail(tenant, tempPassword, property) {
+        if (!this.transporter) {
+            console.warn('Email service not available');
+            return;
+        }
+
+        const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .label { font-weight: bold; color: #667eea; }
+        .credentials { background: #f0f4ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #667eea; }
+        .button { background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 20px; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Welcome to Your New Home!</h1>
+        </div>
+        <div class="content">
+            <div class="card">
+                <p>Dear ${tenant.name},</p>
+
+                <p>Welcome to <strong>${property.title}</strong>! We're excited to have you as our tenant.</p>
+
+                <p><span class="label">Property Details:</span></p>
+                <ul>
+                    <li><strong>Address:</strong> ${property.location}</li>
+                    ${tenant.unit ? `<li><strong>Unit:</strong> ${tenant.unit}</li>` : ''}
+                    ${tenant.rentAmount ? `<li><strong>Monthly Rent:</strong> KSh ${tenant.rentAmount.toLocaleString()}</li>` : ''}
+                    ${tenant.leaseStartDate ? `<li><strong>Lease Start:</strong> ${new Date(tenant.leaseStartDate).toLocaleDateString()}</li>` : ''}
+                </ul>
+
+                <div class="credentials">
+                    <h3 style="margin-top: 0;">Your Portal Login Credentials</h3>
+                    <p><span class="label">Email:</span> ${tenant.email}</p>
+                    <p><span class="label">Temporary Password:</span> <strong>${tempPassword}</strong></p>
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Important:</strong> Please change your password after your first login for security purposes.
+                </div>
+
+                <p>You can use the tenant portal to:</p>
+                <ul>
+                    <li>View your rent payment history</li>
+                    <li>Submit maintenance requests</li>
+                    <li>Communicate with your landlord</li>
+                    <li>Update your contact information</li>
+                </ul>
+
+                <p>If you have any questions or concerns, please don't hesitate to reach out.</p>
+
+                <p>Welcome aboard!</p>
+
+                <p style="margin-top: 30px; color: #6b7280; font-size: 12px;">
+                    This is an automated message from MyGF AI Real Estate Platform.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+        `;
+
+        try {
+            await this.transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: tenant.email,
+                subject: `Welcome to ${property.title} - Your Login Credentials`,
+                html: emailHtml
+            });
+            console.log(`✅ Welcome email sent to tenant: ${tenant.email}`);
+        } catch (error) {
+            console.error('Error sending tenant welcome email:', error);
+            throw error;
+        }
+    }
 }
 
-// Export singleton instance
 module.exports = new EmailService();
