@@ -55,6 +55,39 @@ const LeadSchema = new mongoose.Schema({
     notes: {
         type: String,
     },
+    // Lead Scoring Fields
+    score: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+    },
+    scoreBreakdown: {
+        responseTime: { type: Number, default: 0 },
+        engagement: { type: Number, default: 0 },
+        budgetMatch: { type: Number, default: 0 },
+        urgency: { type: Number, default: 0 },
+        contactQuality: { type: Number, default: 0 },
+    },
+    buyingIntent: {
+        type: String,
+        enum: ['low', 'medium', 'high', 'very-high'],
+        default: 'medium',
+    },
+    lastFollowUpDate: {
+        type: Date,
+    },
+    nextFollowUpDate: {
+        type: Date,
+    },
+    followUpCount: {
+        type: Number,
+        default: 0,
+    },
+    autoFollowUpEnabled: {
+        type: Boolean,
+        default: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -71,5 +104,8 @@ LeadSchema.index({ 'client.email': 1, property: 1 }, { unique: true }); // Preve
 LeadSchema.index({ status: 1, createdAt: -1 }); // Filter by status, sort by date
 LeadSchema.index({ property: 1, createdAt: -1 }); // Property's leads, sorted by date
 LeadSchema.index({ dealType: 1, status: 1 }); // Filter by deal type and status
+LeadSchema.index({ score: -1 }); // Sort by lead score
+LeadSchema.index({ buyingIntent: 1, score: -1 }); // Filter by intent, sort by score
+LeadSchema.index({ nextFollowUpDate: 1, autoFollowUpEnabled: 1 }); // For follow-up scheduling
 
 module.exports = mongoose.model('Lead', LeadSchema);

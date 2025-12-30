@@ -35,6 +35,16 @@ app.set('trust proxy', 1);
 // Initialize WebSocket service
 websocketService.initialize(server);
 
+// Initialize automated services (cron jobs)
+const rentReminderService = require('./services/rentReminderService');
+const leadScoringService = require('./services/leadScoringService');
+
+// Start cron jobs
+rentReminderService.initialize();
+leadScoringService.initialize();
+
+logger.info('✅ Automated services initialized (rent reminders, lead scoring)');
+
 // Middleware
 // CORS configuration - allow frontend URL from environment or default to localhost
 const allowedOrigins = process.env.FRONTEND_URL
@@ -165,6 +175,7 @@ app.use('/api/surveyor', require('./routes/surveyor')); // Surveyor routes
 app.use('/api/survey-requests', require('./routes/surveyRequests')); // Survey request routes
 app.use('/api/agent', require('./routes/agent')); // Agent profile routes
 app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for property search
+app.use('/api/features', require('./routes/newFeatures')); // New features routes (lead scoring, rent reminders, financial reports, surveyor requests)
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
@@ -193,6 +204,11 @@ process.on('uncaughtException', (err) => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
     logger.info('SIGTERM received, shutting down gracefully...');
+
+    // Stop cron jobs
+    rentReminderService.stop();
+    leadScoringService.stop();
+
     server.close(() => {
         logger.info('Server closed');
         process.exit(0);

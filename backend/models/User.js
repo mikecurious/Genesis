@@ -116,6 +116,48 @@ const UserSchema = new mongoose.Schema({
         },
         expiresAt: Date,
     },
+    // Feature Control Flags
+    featureFlags: {
+        aiManager: {
+            enabled: { type: Boolean, default: false },
+            automationLevel: {
+                type: String,
+                enum: ['off', 'low', 'medium', 'high'],
+                default: 'medium'
+            }
+        },
+        rentReminders: {
+            enabled: { type: Boolean, default: true },
+            daysBeforeDue: { type: [Number], default: [7, 3, 1] },
+            channels: {
+                email: { type: Boolean, default: true },
+                whatsapp: { type: Boolean, default: false },
+                push: { type: Boolean, default: true }
+            }
+        },
+        leadScoring: {
+            enabled: { type: Boolean, default: true },
+            autoFollowUp: { type: Boolean, default: true },
+            followUpInterval: { type: Number, default: 2 } // days
+        },
+        maintenanceAI: {
+            enabled: { type: Boolean, default: false },
+            autoAnalysis: { type: Boolean, default: false },
+            imageAnalysis: { type: Boolean, default: false } // Premium feature
+        },
+        financialReports: {
+            enabled: { type: Boolean, default: true },
+            autoGenerate: { type: Boolean, default: false },
+            frequency: {
+                type: String,
+                enum: ['weekly', 'monthly', 'quarterly'],
+                default: 'monthly'
+            }
+        },
+        aiVoice: {
+            enabled: { type: Boolean, default: false } // Premium feature
+        }
+    },
     isVerified: {
         type: Boolean,
         default: false,

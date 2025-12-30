@@ -109,6 +109,29 @@ const PropertySchema = new mongoose.Schema({
     yearBuilt: {
         type: Number,
     },
+    // Surveyor Attachment
+    attachedSurveyor: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        default: null,
+    },
+    surveyorAttachedAt: {
+        type: Date,
+        default: null,
+    },
+    surveyorNotes: {
+        type: String,
+        default: null,
+    },
+    surveyStatus: {
+        type: String,
+        enum: ['not-requested', 'pending', 'in-progress', 'completed'],
+        default: 'not-requested',
+    },
+    surveyCompletedAt: {
+        type: Date,
+        default: null,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -122,5 +145,7 @@ PropertySchema.index({ bedrooms: 1, bathrooms: 1 });
 PropertySchema.index({ propertyType: 1 });
 PropertySchema.index({ priceType: 1 }); // NEW: Index for sale vs rental filtering
 PropertySchema.index({ semanticTags: 1 });
+PropertySchema.index({ attachedSurveyor: 1 }); // For surveyor's assigned properties
+PropertySchema.index({ surveyStatus: 1 }); // Filter by survey status
 
 module.exports = mongoose.model('Property', PropertySchema);

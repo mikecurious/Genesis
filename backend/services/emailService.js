@@ -11,7 +11,14 @@ class EmailService {
      */
     initialize() {
         // Use Nodemailer with Gmail or custom SMTP
-        this.transporter = nodemailer.createTransporter({
+        const createTransporter = nodemailer.createTransporter || nodemailer.default?.createTransporter;
+
+        if (!createTransporter) {
+            console.warn('⚠️  Email service not available - nodemailer not properly loaded');
+            return;
+        }
+
+        this.transporter = createTransporter({
             host: process.env.EMAIL_HOST || 'smtp.gmail.com',
             port: parseInt(process.env.EMAIL_PORT || '587'),
             secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports

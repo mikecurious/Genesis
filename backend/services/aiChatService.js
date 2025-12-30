@@ -359,6 +359,225 @@ class AIChatService {
     }
 
     /**
+     * Detect surveyor request intent from user message
+     */
+    detectSurveyorIntent(message) {
+        const messageLower = message.toLowerCase();
+
+        const surveyorKeywords = [
+            'surveyor', 'valuer', 'valuation', 'survey', 'inspection',
+            'assess', 'appraisal', 'appraiser', 'evaluate', 'evaluation',
+            'inspection report', 'property inspection'
+        ];
+
+        return surveyorKeywords.some(keyword => messageLower.includes(keyword));
+    }
+
+    /**
+     * Extract property reference from message
+     */
+    extractPropertyReference(message) {
+        const messageLower = message.toLowerCase();
+
+        // Look for "this property", "property [title]", etc.
+        const patterns = [
+            /(?:this|the)\s+property/i,
+            /property\s+(?:id|#)\s*:?\s*([a-f0-9]{24})/i,
+            /for\s+(.+?)\s+(?:property|listing)/i
+        ];
+
+        for (const pattern of patterns) {
+            const match = message.match(pattern);
+            if (match) {
+                return match[1] || 'current';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine survey type from message
+     */
+    determineSurveyType(message) {
+        const messageLower = message.toLowerCase();
+
+        if (messageLower.includes('valuation') || messageLower.includes('value') || messageLower.includes('appraisal')) {
+            return 'valuation';
+        } else if (messageLower.includes('inspection') || messageLower.includes('inspect')) {
+            return 'inspection';
+        } else if (messageLower.includes('compliance') || messageLower.includes('regulatory')) {
+            return 'compliance';
+        }
+
+        return 'inspection'; // Default
+    }
+
+    /**
+     * Find best matching surveyor based on criteria
+     */
+    async findBestSurveyor(propertyType, surveyType, location = null) {
+        try {
+            const User = require('../models/User');
+
+            // Build query to find available surveyors
+            const query = {
+                role: 'Surveyor',
+                accountStatus: 'active',
+                'surveyorProfile.availability': 'Available'
+            };
+
+            // Match specialization to property type
+            if (propertyType) {
+                const specializationMap = {
+                    'apartment': 'Residential',
+                    'house': 'Residential',
+                    'villa': 'Residential',
+                    'townhouse': 'Residential',
+                    'studio': 'Residential',
+                    'commercial': 'Commercial',
+                    'land': 'Land',
+                    'condo': 'Residential'
+                };
+
+                const specialization = specializationMap[propertyType] || 'Residential';
+                query['surveyorProfile.specializations'] = specialization;
+            }
+
+            // Find surveyors and sort by rating and experience
+            const surveyors = await User.find(query)
+                .sort({
+                    'surveyorProfile.rating': -1,
+                    'surveyorProfile.yearsOfExperience': -1,
+                    'surveyorProfile.completedSurveys': -1
+                })
+                .limit(5);
+
+            return surveyors;
+        } catch (error) {
+            console.error('Error finding surveyors:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Attach surveyor to property
+     */
+    async attachSurveyorToProperty(propertyId, surveyorId) {
+        try {
+            const property = await Property.findById(propertyId);
+            if (!property) {
+                throw new Error('Property not found');
+            }
+
+            property.attachedSurveyor = surveyorId;
+            property.surveyorAttachedAt = new Date();
+            property.surveyStatus = 'pending';
+
+            await property.save();
+
+            return {
+                success: true,
+                message: 'Surveyor attached to property successfully',
+                property
+            };
+        } catch (error) {
+            console.error('Error attaching surveyor:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Process surveyor request from chat
+     */
+    async processSurveyorRequest(message, userId, propertyId = null) {
+        try {
+            const User = require('../models/User');
+
+            // If no property specified, ask user to specify
+            if (!propertyId) {
+                // Get user's properties
+                const userProperties = await Property.find({
+                    createdBy: userId,
+                    status: { $in: ['active', 'sold', 'rented'] }
+                }).limit(10);
+
+                if (userProperties.length === 0) {
+                    return {
+                        success: false,
+                        message: "You don't have any properties listed. Please add a property first before requesting a surveyor.",
+                        requiresPropertySelection: false
+                    };
+                }
+
+                return {
+                    success: true,
+                    message: "I can help you find a surveyor. Which property would you like to have surveyed?",
+                    requiresPropertySelection: true,
+                    properties: userProperties.map(p => ({
+                        id: p._id,
+                        title: p.title,
+                        location: p.location,
+                        type: p.propertyType
+                    }))
+                };
+            }
+
+            // Property specified, find matching surveyors
+            const property = await Property.findById(propertyId);
+            if (!property) {
+                return {
+                    success: false,
+                    message: "Property not found. Please select a valid property."
+                };
+            }
+
+            const surveyType = this.determineSurveyType(message);
+            const surveyors = await this.findBestSurveyor(property.propertyType, surveyType, property.location);
+
+            if (surveyors.length === 0) {
+                return {
+                    success: false,
+                    message: `I couldn't find any available surveyors for ${property.propertyType} properties at the moment. Please try again later or contact support.`
+                };
+            }
+
+            // Format surveyor recommendations
+            const surveyorRecommendations = surveyors.map(s => ({
+                id: s._id,
+                name: s.name,
+                specializations: s.surveyorProfile.specializations,
+                rating: s.surveyorProfile.rating,
+                experience: s.surveyorProfile.yearsOfExperience,
+                completedSurveys: s.surveyorProfile.completedSurveys,
+                services: s.surveyorProfile.services,
+                bio: s.surveyorProfile.bio,
+                location: s.surveyorProfile.location
+            }));
+
+            return {
+                success: true,
+                message: `Great! I found ${surveyors.length} qualified surveyor${surveyors.length > 1 ? 's' : ''} for your ${property.propertyType} in ${property.location}. Here are my top recommendations based on their ratings and experience.`,
+                surveyType,
+                property: {
+                    id: property._id,
+                    title: property.title,
+                    location: property.location,
+                    type: property.propertyType
+                },
+                surveyors: surveyorRecommendations,
+                requiresSelection: true
+            };
+        } catch (error) {
+            console.error('Error processing surveyor request:', error);
+            return {
+                success: false,
+                message: "I encountered an error processing your surveyor request. Please try again."
+            };
+        }
+    }
+
+    /**
      * Generate AI response for tenant management commands
      * @param {string} command - The landlord's command
      * @param {Array} tenants - List of tenants

@@ -109,6 +109,13 @@ exports.processMessage = asyncHandler(async (req, res) => {
         });
     }
 
+    // Check if it's a surveyor request
+    if (aiChatService.detectSurveyorIntent(message)) {
+        const propertyId = req.body.propertyId || null;
+        const result = await aiChatService.processSurveyorRequest(message, userId, propertyId);
+        return res.status(200).json(result);
+    }
+
     // Otherwise, search for properties
     const result = await aiChatService.searchProperties(message, userId);
     res.status(200).json(result);
