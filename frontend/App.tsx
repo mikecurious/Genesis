@@ -794,6 +794,7 @@ const App: React.FC = () => {
   };
 
   const handleAddTenant = async (tenantData: {
+    propertyId: string;
     name: string;
     unit: string;
     email: string;

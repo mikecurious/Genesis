@@ -84,7 +84,7 @@ export const userService = {
         return api.get('/api/users/tenants');
     },
     inviteTenant: async (tenantData: any) => {
-        return api.post('/api/users/invite-tenant', tenantData);
+        return api.post('/api/tenants/add', tenantData);
     },
     updateProfile: async (userId: string, updates: Partial<User>) => {
         return api.put(`/api/users/${userId}`, updates);
