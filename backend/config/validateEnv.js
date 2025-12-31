@@ -26,7 +26,8 @@ const optionalEnvVars = [
     'TWILIO_WHATSAPP_NUMBER',
     'GOOGLE_CLIENT_ID',
     'GEMINI_API_KEY',
-    'GEMINI_MODEL_NAME'
+    'GEMINI_MODEL_NAME',
+    'GROQ_API_KEY'
 ];
 
 function validateEnv() {

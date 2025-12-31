@@ -1,6 +1,7 @@
 const Property = require('../models/Property');
 const { LRUCache } = require('lru-cache');
 const locationMatcher = require('./locationMatcherService');
+const groqService = require('./groqService');
 
 class AIChatService {
     constructor() {
@@ -138,7 +139,8 @@ class AIChatService {
                 .sort({ boosted: -1, createdAt: -1 })
                 .limit(20);
 
-            const response = this.generateConversationalResponse(query, properties, filters);
+            // Use Groq AI for intelligent, data-focused responses
+            const aiMessage = await groqService.generatePropertySearchResponse(query, properties, filters);
 
             if (userId) {
                 this.conversationContext.set(userId, {
@@ -157,13 +159,16 @@ class AIChatService {
                 agentContact: p.createdBy?.email || p.createdBy?.phone || 'N/A',
             }));
 
+            // Generate simple suggestions based on results
+            const suggestions = this.generateSuggestions(properties, filters);
+
             return {
                 success: true,
-                message: response.message,
+                message: aiMessage,
                 properties: mappedProperties,
                 count: mappedProperties.length,
                 filters: filters,
-                suggestions: response.suggestions
+                suggestions: suggestions
             };
 
         } catch (error) {
@@ -172,23 +177,21 @@ class AIChatService {
         }
     }
 
-    generateConversationalResponse(query, properties, filters) {
-        let message = '';
+    /**
+     * Generate search suggestions based on results and filters
+     * @deprecated - Used for fallback only. Groq AI now handles main responses.
+     */
+    generateSuggestions(properties, filters) {
         const suggestions = [];
 
         if (properties.length === 0) {
-            message = "I couldn't find any properties matching your criteria. ";
-
             if (filters.priceType === 'sale') {
-                message += "You were looking for properties to buy. ";
                 suggestions.push("Try searching for rental properties");
             } else if (filters.priceType === 'rental') {
-                message += "You were looking for rental properties. ";
                 suggestions.push("Try searching for properties to buy");
             }
 
             if (filters.location) {
-                message += `I searched in ${filters.location}. `;
                 suggestions.push("Try a different location like Westlands or Kilimani");
             }
 
@@ -198,44 +201,7 @@ class AIChatService {
 
             suggestions.push("Broaden your search criteria");
             suggestions.push("Ask about available locations");
-
         } else {
-            const propertyTypeText = filters.propertyType ? `${filters.propertyType}s` : 'properties';
-
-            // Better location messaging
-            let locationText = '';
-            if (filters.location) {
-                // Extract unique neighborhoods from results
-                const neighborhoods = [...new Set(properties.map(p => {
-                    const parts = p.location.split(',');
-                    return parts[0].trim();
-                }))];
-
-                if (neighborhoods.length === 1) {
-                    locationText = `in ${neighborhoods[0]}`;
-                } else if (neighborhoods.length <= 3) {
-                    locationText = `in ${neighborhoods.join(', ')}`;
-                } else {
-                    locationText = `across ${neighborhoods.length} areas in ${filters.location.charAt(0).toUpperCase() + filters.location.slice(1)}`;
-                }
-            } else {
-                locationText = 'in various locations';
-            }
-
-            const priceTypeText = filters.priceType === 'sale' ? 'for sale' :
-                                 filters.priceType === 'rental' ? 'for rent' : '';
-
-            message = `Great! I found ${properties.length} ${propertyTypeText} ${priceTypeText} ${locationText}. `;
-
-            if (filters.bedrooms) {
-                message += `All have at least ${filters.bedrooms} bedroom${filters.bedrooms > 1 ? 's' : ''}. `;
-            }
-
-            const priceRange = this.calculatePriceRange(properties);
-            if (priceRange) {
-                message += `Prices range from ${priceRange.min} to ${priceRange.max}. `;
-            }
-
             const uniqueLocations = [...new Set(properties.map(p => p.location))];
             if (uniqueLocations.length > 1 && uniqueLocations.length <= 5) {
                 suggestions.push(`Narrow down: ${uniqueLocations.slice(0, 3).join(' • ')}`);
@@ -247,7 +213,7 @@ class AIChatService {
             if (filters.priceType !== 'rental') suggestions.push("Show rentals");
         }
 
-        return { message, suggestions };
+        return suggestions;
     }
 
     calculatePriceRange(properties) {
@@ -278,7 +244,7 @@ class AIChatService {
         return `${price} KSh`;
     }
 
-    async getPropertyDetails(propertyId, userId = null) {
+    async getPropertyDetails(propertyId, userId = null, userQuestion = null) {
         try {
             const property = await Property.findById(propertyId)
                 .populate('createdBy', 'name email phone role surveyorProfile');
@@ -290,13 +256,21 @@ class AIChatService {
                 };
             }
 
-            const details = this.formatPropertyDetails(property);
+            // Use Groq AI for intelligent property details response
+            const aiMessage = await groqService.generatePropertyDetailsResponse(property, userQuestion);
+
+            const contactInfo = {
+                agent: property.createdBy?.name || 'Property Agent',
+                role: property.createdBy?.role || 'Agent',
+                email: property.createdBy?.email,
+                phone: property.createdBy?.phone
+            };
 
             return {
                 success: true,
-                message: details.message,
+                message: aiMessage,
                 property: property,
-                contactInfo: details.contactInfo
+                contactInfo: contactInfo
             };
 
         } catch (error) {
@@ -305,6 +279,10 @@ class AIChatService {
         }
     }
 
+    /**
+     * Format property details as plain text
+     * @deprecated - Used for fallback only. Groq AI now handles property details.
+     */
     formatPropertyDetails(property) {
         let message = `Here are the details for "${property.title}":\n\n`;
         message += `📍 Location: ${property.location}\n`;
@@ -578,45 +556,59 @@ class AIChatService {
     }
 
     /**
-     * Generate AI response for tenant management commands
+     * Generate AI response for tenant management commands using Groq
      * @param {string} command - The landlord's command
      * @param {Array} tenants - List of tenants
      * @returns {Promise<string>} - AI response
      */
     async generateTenantManagementResponse(command, tenants = []) {
         try {
-            // Check if Gemini API is available
-            const { GoogleGenAI } = require('@google/genai');
-            const apiKey = process.env.GEMINI_API_KEY;
-
-            if (!apiKey) {
-                console.error('GEMINI_API_KEY not configured');
-                return "AI service is not available. Please configure the Gemini API key.";
+            if (!groqService.isAvailable()) {
+                return "AI service is not available. Please configure the Groq API key.";
             }
 
-            const ai = new GoogleGenAI({ apiKey });
+            // Prepare tenant data context
+            const tenantContext = tenants.map(t => ({
+                name: t.name,
+                email: t.email,
+                unit: t.unit,
+                rentStatus: t.rentStatus,
+                rentAmount: t.rentAmount,
+                nextPaymentDue: t.nextPaymentDue
+            }));
 
-            const modelPrompt = `You are an AI assistant for a landlord. Your task is to process a command from the landlord regarding their tenants and provide a confirmation message.
+            const systemPrompt = `You are an AI assistant for a landlord. Your task is to process a command from the landlord regarding their tenants and provide a confirmation message.
 
 Here is the list of tenants:
-${JSON.stringify(tenants, null, 2)}
+${JSON.stringify(tenantContext, null, 2)}
 
-Here is the landlord's command:
-"${command}"
-
-Your Task:
-1. Understand the landlord's command (e.g., send a reminder, draft an update).
-2. Identify which tenants the command applies to based on their rent status or unit.
-3. Formulate a brief, professional confirmation message back to the landlord stating what action you have taken. For example: "Okay, I've sent a rent reminder to tenants with an 'Overdue' status: Charlie Brown." or "Drafting a maintenance update for all tenants now."
+Rules:
+1. Understand the landlord's command (e.g., send a reminder, draft an update)
+2. Identify which tenants the command applies to based on their rent status or unit
+3. Formulate a brief, professional confirmation message (1-2 sentences max)
+4. For example: "I've sent a rent reminder to tenants with 'Overdue' status: Charlie Brown" or "Drafting a maintenance update for all tenants now"
 
 Respond with ONLY the confirmation text.`;
 
-            const response = await ai.models.generateContent({
-                model: process.env.GEMINI_MODEL_NAME || 'gemini-2.5-flash',
-                contents: modelPrompt,
+            const response = await groqService.client.chat.completions.create({
+                messages: [
+                    {
+                        role: 'system',
+                        content: systemPrompt
+                    },
+                    {
+                        role: 'user',
+                        content: command
+                    }
+                ],
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.5,
+                max_tokens: 150,
+                stream: false
             });
 
-            return response.text.trim();
+            return response.choices[0]?.message?.content?.trim() ||
+                   "I'm sorry, I couldn't process that command. Please try again.";
         } catch (error) {
             console.error("Error generating tenant management response:", error);
             return "I'm sorry, I couldn't process that command. Please try again.";

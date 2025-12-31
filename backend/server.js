@@ -149,6 +149,10 @@ app.get('/api/health', async (req, res) => {
         status: process.env.GEMINI_API_KEY ? 'configured' : 'not_configured'
     };
 
+    health.services.groq = {
+        status: process.env.GROQ_API_KEY ? 'configured' : 'not_configured'
+    };
+
     health.services.cloudinary = {
         status: (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY)
             ? 'configured'
