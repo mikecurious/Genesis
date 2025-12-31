@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { type Tenant, type MaintenanceRequest, Role, type Message, type Technician, type FinancialStatement, type AutomationRule } from '../../../types';
 import { generateTenantManagementResponse } from '../../../services/geminiService';
 import { ChatHistoryModal } from '../../modals/ChatHistoryModal';
+import { TenantDetailsModal } from '../../modals/TenantDetailsModal';
 import { TenantList } from '../ai-manager/TenantList';
 import { TenantOnboarding } from '../ai-manager/TenantOnboarding';
 import { MaintenanceCenter } from '../ai-manager/MaintenanceCenter';
@@ -62,6 +63,7 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
     const [aiResponses, setAiResponses] = useState<{ role: Role, text: string }[]>([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [activeHistory, setActiveHistory] = useState<{ tenant: Tenant; messages: Message[] } | null>(null);
+    const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 
     // Mock handlers
     const handleAssignTechnician = (requestId: string) => {
@@ -259,7 +261,7 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                         <TenantList
                             tenants={tenants}
                             onAddTenant={() => setIsAddingTenant(true)}
-                            onViewDetails={(tenant) => console.log('View tenant:', tenant)}
+                            onViewDetails={(tenant) => setSelectedTenant(tenant)}
                         />
                     )}
 
@@ -291,6 +293,12 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                 onClose={() => setActiveHistory(null)}
                 tenant={activeHistory?.tenant || null}
                 messages={activeHistory?.messages || []}
+            />
+
+            <TenantDetailsModal
+                isOpen={!!selectedTenant}
+                onClose={() => setSelectedTenant(null)}
+                tenant={selectedTenant}
             />
         </div>
     );
