@@ -181,6 +181,7 @@ app.use('/api/agent', require('./routes/agent')); // Agent profile routes
 app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for property search
 app.use('/api/features', require('./routes/newFeatures')); // New features routes (lead scoring, rent reminders, financial reports, surveyor requests)
 app.use('/api/tenants', require('./routes/tenants')); // Tenant management routes
+app.use('/api/financial-reports', require('./routes/financialReporting')); // Comprehensive financial reporting with AI insights
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
