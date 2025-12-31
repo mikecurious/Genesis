@@ -8,7 +8,15 @@ export default {
         "./index.tsx"
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                brand: {
+                    green: '#098827',
+                    gold: '#E9BE25',
+                    black: '#000000',
+                }
+            }
+        },
     },
     plugins: [],
     darkMode: 'class',
