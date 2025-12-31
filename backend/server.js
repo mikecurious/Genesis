@@ -182,6 +182,7 @@ app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for prope
 app.use('/api/features', require('./routes/newFeatures')); // New features routes (lead scoring, rent reminders, financial reports, surveyor requests)
 app.use('/api/tenants', require('./routes/tenants')); // Tenant management routes
 app.use('/api/financial-reports', require('./routes/financialReporting')); // Comprehensive financial reporting with AI insights
+app.use('/api/role-intelligence', require('./routes/roleIntelligence')); // AI-powered role detection and optimization
 
 // Custom Error Handler Middleware
 app.use(errorHandler);

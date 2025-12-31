@@ -306,6 +306,30 @@ const UserSchema = new mongoose.Schema({
             default: null
         }
     },
+    // Role Intelligence - AI-powered role detection and optimization
+    roleIntelligence: {
+        detectedRoles: [{
+            role: String,
+            confidence: Number, // 0-100
+            indicators: [String]
+        }],
+        primaryRole: String,
+        isHybrid: {
+            type: Boolean,
+            default: false
+        },
+        confidenceScore: Number, // Overall confidence in role detection
+        recommendations: [String], // AI-generated recommendations
+        lastAnalyzed: Date
+    },
+    manualRoleSet: {
+        type: Boolean,
+        default: false // Set to true when user manually changes their role
+    },
+    autoRoleAssigned: {
+        type: Boolean,
+        default: false // Set to true when AI automatically assigns role
+    },
     // ---------------------------------
     createdAt: {
         type: Date,
