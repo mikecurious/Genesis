@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tenant } from '../../../types';
+import { propertyService } from '../../../services/apiService';
+
+interface Property {
+    _id: string;
+    title: string;
+    location: string;
+}
 
 interface TenantOnboardingProps {
     onAddTenant: (tenant: Omit<Tenant, 'id' | 'rentStatus'>) => void;
@@ -8,6 +15,7 @@ interface TenantOnboardingProps {
 
 export const TenantOnboarding: React.FC<TenantOnboardingProps> = ({ onAddTenant, onCancel }) => {
     const [formData, setFormData] = useState({
+        propertyId: '',
         name: '',
         email: '',
         phone: '',
@@ -20,6 +28,9 @@ export const TenantOnboarding: React.FC<TenantOnboardingProps> = ({ onAddTenant,
         paymentDay: '1',
     });
 
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loadingProperties, setLoadingProperties] = useState(false);
+
     const [isAiSettingUp, setIsAiSettingUp] = useState(false);
     const [setupStep, setSetupStep] = useState(0);
 
@@ -30,6 +41,23 @@ export const TenantOnboarding: React.FC<TenantOnboardingProps> = ({ onAddTenant,
         "Configuring WhatsApp reminders...",
         "Sending welcome message..."
     ];
+
+    useEffect(() => {
+        fetchProperties();
+    }, []);
+
+    const fetchProperties = async () => {
+        try {
+            setLoadingProperties(true);
+            const response = await propertyService.getProperties();
+            setProperties(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+            setProperties([]);
+        } finally {
+            setLoadingProperties(false);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,6 +74,7 @@ export const TenantOnboarding: React.FC<TenantOnboardingProps> = ({ onAddTenant,
         }
 
         onAddTenant({
+            propertyId: formData.propertyId,
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
@@ -115,8 +144,33 @@ export const TenantOnboarding: React.FC<TenantOnboardingProps> = ({ onAddTenant,
                     <div className="space-y-4">
                         <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Lease Details</h3>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit / Property</label>
-                            <input required name="unit" value={formData.unit} onChange={handleChange} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Apt 4B" />
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Property</label>
+                            <select
+                                required
+                                name="propertyId"
+                                value={formData.propertyId}
+                                onChange={handleChange}
+                                disabled={loadingProperties}
+                                className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="">
+                                    {loadingProperties ? 'Loading properties...' : 'Choose a property'}
+                                </option>
+                                {properties.map((property) => (
+                                    <option key={property._id} value={property._id}>
+                                        {property.title} - {property.location}
+                                    </option>
+                                ))}
+                            </select>
+                            {!loadingProperties && properties.length === 0 && (
+                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                    No properties found. Please create a property first.
+                                </p>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit / Apartment Number</label>
+                            <input name="unit" value={formData.unit} onChange={handleChange} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Apt 4B" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>

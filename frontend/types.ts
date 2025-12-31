@@ -139,6 +139,7 @@ export interface SubscriptionPlan {
 // New type for Tenant Management
 export interface Tenant {
   id: string;
+  propertyId?: string; // Link to the property
   name: string;
   unit: string; // e.g., "Apt 3B, Modern 2-Bedroom"
   email: string;
