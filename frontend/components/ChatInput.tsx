@@ -90,7 +90,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 onClick={onToggleListening}
                 className={`absolute left-4 md:left-5 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${isListening
                   ? 'text-red-500 bg-red-50 dark:bg-red-900/20 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]'
-                  : 'text-gray-400 hover:text-indigo-500 dark:text-gray-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20'
+                  : 'text-gray-400 hover:text-green-500 dark:text-gray-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 aria-label={isListening ? "Stop voice input" : "Start voice input"}
                 title={isListening ? "Stop voice input" : "Start voice input (Beta)"}
@@ -117,7 +117,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 type="submit"
                 disabled={isDisabled || !text.trim()}
                 className={`absolute right-3 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 ${text.trim() && !isDisabled
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.8)] scale-100 rotate-0'
+                  ? 'bg-gradient-to-r from-green-600 to-teal-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.8)] scale-100 rotate-0'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 scale-90 rotate-90 opacity-50 cursor-not-allowed'
                   }`}
               >
@@ -129,10 +129,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           {/* Helper Text & Char Count */}
           <div className="absolute -bottom-8 left-0 right-0 px-6 flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
               Press Enter to send
             </span>
-            <span className={`${text.length > 0 ? 'text-indigo-500 dark:text-indigo-400' : ''}`}>
+            <span className={`${text.length > 0 ? 'text-green-500 dark:text-green-400' : ''}`}>
               {text.length} chars
             </span>
           </div>

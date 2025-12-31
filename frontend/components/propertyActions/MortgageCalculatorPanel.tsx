@@ -19,7 +19,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
     onClose,
     property
 }) => {
-    const propertyPrice = property.price || 0; // Price is now a number
+    const propertyPrice = parseFloat(property.price.replace(/[^0-9.]/g, '')) || 0;
 
     const [downPaymentPercent, setDownPaymentPercent] = useState(20);
     const [loanTerm, setLoanTerm] = useState(20);
@@ -138,7 +138,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Down Payment
                             </label>
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            <span className="text-sm font-bold text-green-600 dark:text-green-400">
                                 {downPaymentPercent}% = {formatCurrency(downPayment)}
                             </span>
                         </div>
@@ -148,7 +148,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             max="50"
                             value={downPaymentPercent}
                             onChange={(e) => setDownPaymentPercent(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600"
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-green-600"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
                             <span>10%</span>
@@ -162,7 +162,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Loan Term
                             </label>
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            <span className="text-sm font-bold text-green-600 dark:text-green-400">
                                 {loanTerm} years
                             </span>
                         </div>
@@ -172,7 +172,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             max="30"
                             value={loanTerm}
                             onChange={(e) => setLoanTerm(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600"
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-green-600"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
                             <span>5 years</span>
@@ -186,7 +186,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Interest Rate
                             </label>
-                            <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                            <span className="text-sm font-bold text-green-600 dark:text-green-400">
                                 {interestRate.toFixed(1)}%
                             </span>
                         </div>
@@ -197,7 +197,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                             step="0.5"
                             value={interestRate}
                             onChange={(e) => setInterestRate(Number(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600"
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-green-600"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
                             <span>8%</span>
@@ -206,14 +206,14 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                     </div>
 
                     {/* Results */}
-                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-6 border-2 border-indigo-200 dark:border-indigo-800">
+                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-6 border-2 border-green-200 dark:border-green-800">
                         <div className="text-center mb-4">
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Monthly Payment</p>
-                            <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">
+                            <p className="text-4xl font-bold text-green-600 dark:text-green-400">
                                 {formatCurrency(monthlyPayment)}
                             </p>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-indigo-200 dark:border-indigo-800">
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-green-200 dark:border-green-800">
                             <div className="text-center">
                                 <p className="text-xs text-gray-600 dark:text-gray-400">Total Interest</p>
                                 <p className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -266,7 +266,7 @@ export const MortgageCalculatorPanel: React.FC<MortgageCalculatorPanelProps> = (
                         >
                             Close
                         </button>
-                        <button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                        <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
                             Save Calculation
                         </button>
                     </div>

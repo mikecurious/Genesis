@@ -119,7 +119,7 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                     <select
                         value={documentType}
                         onChange={(e) => setDocumentType(e.target.value as any)}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                     >
                         <option value="title_deed">Title Deed</option>
                         <option value="sale_agreement">Sale Agreement</option>
@@ -135,7 +135,7 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
                     className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
-                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                             : 'border-gray-300 dark:border-gray-600'
                         }`}
                 >
@@ -159,7 +159,7 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                                 <button
                                     onClick={handleUpload}
                                     disabled={uploading}
-                                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {uploading ? 'Uploading...' : 'Upload & Verify'}
                                 </button>
@@ -179,7 +179,7 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                             <div>
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 font-medium"
+                                    className="text-green-600 dark:text-green-400 hover:text-green-500 font-medium"
                                 >
                                     Click to upload
                                 </button>

@@ -20,7 +20,7 @@ export const TenantList: React.FC<TenantListProps> = ({ tenants, onAddTenant, on
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Tenants</h3>
                 <button
                     onClick={onAddTenant}
-                    className="w-full md:w-auto bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                    className="w-full md:w-auto bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     Add Tenant
@@ -33,7 +33,7 @@ export const TenantList: React.FC<TenantListProps> = ({ tenants, onAddTenant, on
                     <div key={tenant.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold">
+                                <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center text-green-600 dark:text-green-400 font-bold">
                                     {tenant.name.charAt(0)}
                                 </div>
                                 <div>
@@ -59,7 +59,7 @@ export const TenantList: React.FC<TenantListProps> = ({ tenants, onAddTenant, on
 
                         <button
                             onClick={() => onViewDetails(tenant)}
-                            className="w-full py-2 text-center text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg font-medium text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                            className="w-full py-2 text-center text-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg font-medium text-sm hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
                         >
                             Manage Tenant
                         </button>
@@ -91,7 +91,7 @@ export const TenantList: React.FC<TenantListProps> = ({ tenants, onAddTenant, on
                                 <tr key={tenant.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                                            <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-xs">
                                                 {tenant.name.charAt(0)}
                                             </div>
                                             <span className="font-medium text-gray-900 dark:text-white">{tenant.name}</span>
@@ -113,7 +113,7 @@ export const TenantList: React.FC<TenantListProps> = ({ tenants, onAddTenant, on
                                     <td className="px-6 py-4 text-right">
                                         <button
                                             onClick={() => onViewDetails(tenant)}
-                                            className="text-indigo-600 hover:text-indigo-900 dark:hover:text-indigo-400 font-medium text-sm"
+                                            className="text-green-600 hover:text-indigo-900 dark:hover:text-green-400 font-medium text-sm"
                                         >
                                             Manage
                                         </button>

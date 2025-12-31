@@ -5,7 +5,6 @@ interface AutomationDashboardProps {
     user: User;
     automationEnabled?: boolean;      // From AI Settings "AI Client Follow-up"
     voiceFeatureEnabled?: boolean;    // From AI Settings "AI Voice" premium
-    onNavigateToSettings?: () => void; // Callback to navigate to AI Settings
 }
 
 interface AutomationSettings {
@@ -31,7 +30,7 @@ const ToggleSwitch: React.FC<{ enabled: boolean; onChange: (enabled: boolean) =>
     <button
         onClick={() => !disabled && onChange(!enabled)}
         disabled={disabled}
-        className={`${enabled && !disabled ? 'bg-indigo-600' : 'bg-gray-400 dark:bg-gray-600'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+        className={`${enabled && !disabled ? 'bg-green-600' : 'bg-gray-400 dark:bg-gray-600'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
     >
         <span className={`${enabled ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
     </button>
@@ -82,7 +81,7 @@ const AutomationCard: React.FC<{
     );
 };
 
-export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, automationEnabled = false, voiceFeatureEnabled = false, onNavigateToSettings }) => {
+export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, automationEnabled = false, voiceFeatureEnabled = false }) => {
     const [settings, setSettings] = useState<AutomationSettings>({});
     const [isSaving, setIsSaving] = useState(false);
 
@@ -157,11 +156,8 @@ export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, 
                             </p>
                             <button
                                 onClick={() => {
-                                    if (onNavigateToSettings) {
-                                        onNavigateToSettings();
-                                    } else {
-                                        console.log('Navigate to AI Settings - no handler provided');
-                                    }
+                                    // TODO: Navigate to AI Settings
+                                    console.log('Navigate to AI Settings');
                                 }}
                                 className="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
                             >
@@ -198,7 +194,7 @@ export const AutomationDashboard: React.FC<AutomationDashboardProps> = ({ user, 
                     disabled={!automationEnabled || isSaving}
                     className={`${!automationEnabled || isSaving
                             ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                            : 'bg-indigo-600 hover:bg-indigo-700'
+                            : 'bg-green-600 hover:bg-green-700'
                         } text-white font-semibold px-8 py-3 rounded-lg transition-colors flex items-center gap-2`}
                 >
                     {isSaving ? (

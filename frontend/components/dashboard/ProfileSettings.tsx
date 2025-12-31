@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { type User, PlanName } from '../../types';
 import { userService } from '../../services/apiService';
-import { MpesaPaymentModal } from '../modals/MpesaPaymentModal';
+import { FeaturePaymentModal } from '../modals/FeaturePaymentModal';
 import { PlanSelectionModal } from '../modals/PlanSelectionModal';
 
 interface SettingsProps {
@@ -76,8 +76,8 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
     };
 
     const handleRenewClick = () => {
-        // Determine current plan price based on plan
-        const currentPrice = user.subscription?.plan === PlanName.MyGF3_2 ? '25000' : '15000';
+        // Determine current plan price (mock logic)
+        const currentPrice = user.subscription?.plan === PlanName.MyGF3_2 ? '25,000 KSh' : '15,000 KSh';
         setSelectedPlan({ name: user.subscription?.plan || PlanName.MyGF1_3, price: currentPrice });
         setPaymentAction('renew');
         setIsPaymentModalOpen(true);
@@ -94,23 +94,12 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSuccess = () => {
-        console.log(`Payment successful! ${paymentAction} to ${selectedPlan?.name}`);
-        // TODO: Call API to update subscription status
+    const handlePaymentConfirm = () => {
+        // Mock payment success
+        console.log(`Processing ${paymentAction} for ${selectedPlan?.name} at ${selectedPlan?.price}`);
+        alert(`Payment successful! Plan ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} to ${selectedPlan?.name}.`);
         setIsPaymentModalOpen(false);
-        setMessage({
-            type: 'success',
-            text: `Subscription ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} successfully!`
-        });
-    };
-
-    const handlePaymentFailed = () => {
-        console.log('Payment failed or cancelled');
-        setIsPaymentModalOpen(false);
-        setMessage({
-            type: 'error',
-            text: 'Payment was not completed. Please try again.'
-        });
+        // In a real app, you'd call an API here to update the subscription
     };
 
     return (
@@ -118,7 +107,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
             {/* Subscription & Billing Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     Subscription & Billing
                 </h2>
 
@@ -144,7 +133,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                         </button>
                         <button
                             onClick={handleUpgradeClick}
-                            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-indigo-500/30 transition-all"
+                            className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-green-500/30 transition-all"
                         >
                             Upgrade Plan
                         </button>
@@ -155,7 +144,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
             {/* Profile Settings Section */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     Profile Settings
                 </h2>
 
@@ -172,7 +161,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                     required
                                 />
                             </div>
@@ -198,7 +187,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     placeholder="+254712345678"
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                 />
                             </div>
 
@@ -211,7 +200,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                     value={formData.whatsappNumber}
                                     onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
                                     placeholder="+254712345678"
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                 />
                             </div>
                         </div>
@@ -232,7 +221,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                             email: e.target.checked
                                         }
                                     })}
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
                                 />
                                 <span className="text-gray-700 dark:text-gray-300">Email Notifications</span>
                             </label>
@@ -249,7 +238,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                         }
                                     })}
                                     disabled={!formData.whatsappNumber}
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+                                    className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
                                 />
                                 <span className="text-gray-700 dark:text-gray-300">WhatsApp Notifications</span>
                             </label>
@@ -265,7 +254,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                                             push: e.target.checked
                                         }
                                     })}
-                                    className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
                                 />
                                 <span className="text-gray-700 dark:text-gray-300">Push Notifications</span>
                             </label>
@@ -286,7 +275,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
                         {isLoading ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -302,21 +291,16 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
             />
 
             {selectedPlan && (
-                <MpesaPaymentModal
+                <FeaturePaymentModal
                     isOpen={isPaymentModalOpen}
                     onClose={() => setIsPaymentModalOpen(false)}
-                    onSuccess={handlePaymentSuccess}
-                    onFailed={handlePaymentFailed}
-                    amount={parseInt(selectedPlan.price)}
+                    onConfirm={handlePaymentConfirm}
+                    title={paymentAction === 'renew' ? `Renew ${selectedPlan.name}` : `Upgrade to ${selectedPlan.name}`}
                     description={paymentAction === 'renew'
-                        ? `Renew ${selectedPlan.name} subscription`
-                        : `Upgrade to ${selectedPlan.name}`
+                        ? `Renew your ${selectedPlan.name} subscription to continue enjoying premium features.`
+                        : `Upgrade to ${selectedPlan.name} to unlock more features and scale your business.`
                     }
-                    paymentType="subscription"
-                    metadata={{
-                        plan: selectedPlan.name,
-                        action: paymentAction
-                    }}
+                    price={selectedPlan.price}
                 />
             )}
         </div>

@@ -195,7 +195,7 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
           Already have an account?{" "}
           <button
             onClick={onGoToSignIn}
-            className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+            className="font-medium text-green-600 dark:text-green-400 hover:underline"
           >
             Sign In
           </button>

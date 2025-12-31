@@ -80,7 +80,7 @@ export const NotificationPanel: React.FC = () => {
             case 'purchase_inquiry':
             case 'rental_inquiry':
                 return (
-                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 );
@@ -128,7 +128,7 @@ export const NotificationPanel: React.FC = () => {
                 </div>
                 <button
                     onClick={handleMarkAllAsRead}
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+                    className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium"
                 >
                     Mark all as read
                 </button>
@@ -145,7 +145,7 @@ export const NotificationPanel: React.FC = () => {
                                 setPage(1);
                             }}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filterType === type
-                                ? 'bg-indigo-600 text-white'
+                                ? 'bg-green-600 text-white'
                                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }`}
                         >
@@ -158,7 +158,7 @@ export const NotificationPanel: React.FC = () => {
             {/* Notifications List */}
             {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
                 </div>
             ) : notifications.length === 0 ? (
                 <div className="text-center py-12">
@@ -173,7 +173,7 @@ export const NotificationPanel: React.FC = () => {
                         <div
                             key={notif._id}
                             className={`p-4 rounded-lg border transition-all ${!notif.read
-                                ? 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-900/20'
+                                ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                 }`}
                         >
@@ -196,7 +196,7 @@ export const NotificationPanel: React.FC = () => {
                                             {!notif.read && (
                                                 <button
                                                     onClick={() => handleMarkAsRead(notif._id)}
-                                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+                                                    className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
                                                 >
                                                     Mark read
                                                 </button>

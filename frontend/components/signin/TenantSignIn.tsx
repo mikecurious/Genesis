@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
+import { Logo } from '../Logo';
 
 interface TenantSignInProps {
     onSignIn: (email: string, pass: string) => Promise<void>;
@@ -57,7 +58,7 @@ export const TenantSignIn: React.FC<TenantSignInProps> = ({ onSignIn, onGoToAgen
                                 onChange={(e) => setEmail(e.target.value)}
                                 onBlur={validate}
                                 required
-                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                 placeholder="tenant@example.com"
                             />
                             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
@@ -72,7 +73,7 @@ export const TenantSignIn: React.FC<TenantSignInProps> = ({ onSignIn, onGoToAgen
                                 onChange={(e) => setPassword(e.target.value)}
                                 onBlur={validate}
                                 required
-                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                 placeholder="••••••••"
                             />
                             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
@@ -80,7 +81,7 @@ export const TenantSignIn: React.FC<TenantSignInProps> = ({ onSignIn, onGoToAgen
                                 <button
                                     type="button"
                                     onClick={onForgotPassword}
-                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                                    className="text-xs text-green-600 dark:text-green-400 hover:underline"
                                 >
                                     Forgot Password?
                                 </button>
@@ -93,7 +94,7 @@ export const TenantSignIn: React.FC<TenantSignInProps> = ({ onSignIn, onGoToAgen
                             <button
                                 type="submit"
                                 disabled={isLoading || !isFormValid}
-                                className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 disabled:cursor-not-allowed flex items-center justify-center"
+                                className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed flex items-center justify-center"
                             >
                                 {isLoading ? <SpinnerIcon /> : 'Sign In'}
                             </button>
@@ -103,7 +104,7 @@ export const TenantSignIn: React.FC<TenantSignInProps> = ({ onSignIn, onGoToAgen
 
                 <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
                     Not a tenant?{' '}
-                    <button onClick={onGoToAgentSignIn} className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <button onClick={onGoToAgentSignIn} className="font-medium text-green-600 dark:text-green-400 hover:underline">
                         Agent Portal
                     </button>
                 </p>

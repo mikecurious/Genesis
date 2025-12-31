@@ -10,7 +10,7 @@ export const TechnicianList: React.FC<TechnicianListProps> = ({ technicians }) =
         <div className="space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Service Providers</h3>
-                <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                <button className="text-green-600 hover:text-indigo-800 text-sm font-medium">
                     + Add Provider
                 </button>
             </div>

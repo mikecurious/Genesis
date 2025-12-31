@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { type Listing } from '../../types';
 import { ChevronLeftIcon } from '../icons/ChevronLeftIcon';
 import { ChevronRightIcon } from '../icons/ChevronRightIcon';
-import { formatPrice } from '../../utils/formatPrice';
 
 interface PropertyDetailsProps {
     property: Listing;
@@ -30,7 +29,7 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onOp
     return (
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 md:p-4 border border-gray-200 dark:border-gray-700/50">
             <div className="relative group mb-4">
-                <button onClick={() => onOpenImageViewer(property.imageUrls, currentImageIndex)} className="w-full aspect-video block rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500">
+                <button onClick={() => onOpenImageViewer(property.imageUrls, currentImageIndex)} className="w-full aspect-video block rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500">
                     <img 
                         src={property.imageUrls[currentImageIndex]} 
                         alt={property.title}
@@ -62,7 +61,7 @@ export const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property, onOp
             <div className="px-1">
                 <h1 className="text-xl md:text-2xl font-bold">{property.title}</h1>
                 <p className="text-md text-gray-500 dark:text-gray-400 mt-1">{property.location}</p>
-                <p className="text-xl md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-3">{formatPrice(property.price, property.currency)}</p>
+                <p className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400 mt-3">{property.price}</p>
 
                 <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
 

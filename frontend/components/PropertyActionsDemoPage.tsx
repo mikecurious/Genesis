@@ -67,7 +67,7 @@ export const PropertyActionsDemoPage: React.FC = () => {
                                 alt={demoProperty.title}
                                 className="w-full h-full object-cover"
                             />
-                            <div className="absolute top-4 right-4 bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                                 {demoProperty.price}
                             </div>
                         </div>
@@ -78,7 +78,7 @@ export const PropertyActionsDemoPage: React.FC = () => {
                                 {demoProperty.title}
                             </h2>
                             <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2 mb-4">
-                                <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -91,7 +91,7 @@ export const PropertyActionsDemoPage: React.FC = () => {
                                 {demoProperty.tags?.map((tag) => (
                                     <span
                                         key={tag}
-                                        className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-medium"
+                                        className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-full text-sm font-medium"
                                     >
                                         {tag}
                                     </span>

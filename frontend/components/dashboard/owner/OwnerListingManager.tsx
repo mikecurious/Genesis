@@ -63,7 +63,7 @@ export const OwnerListingManager: React.FC<OwnerListingManagerProps> = ({
                 </div>
                 <button
                     onClick={onOpenAddListingModal}
-                    className="bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 flex items-center gap-2"
+                    className="bg-green-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-green-700 transition-all shadow-lg hover:shadow-green-500/30 active:scale-95 flex items-center gap-2"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     Add New Listing
@@ -94,7 +94,7 @@ export const OwnerListingManager: React.FC<OwnerListingManagerProps> = ({
                     <p className="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first property listing.</p>
                     <button
                         onClick={onOpenAddListingModal}
-                        className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
+                        className="text-green-600 dark:text-green-400 font-semibold hover:underline"
                     >
                         Create a listing
                     </button>

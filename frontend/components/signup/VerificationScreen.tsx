@@ -36,7 +36,7 @@ export const VerificationScreen: React.FC<VerificationScreenProps> = ({ email, o
                     placeholder="Enter 6-digit code"
                     required
                     maxLength={6}
-                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-2xl tracking-[0.5em] text-center rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-4"
+                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-2xl tracking-[0.5em] text-center rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-4"
                     disabled={isLoading}
                 />
 
@@ -52,7 +52,7 @@ export const VerificationScreen: React.FC<VerificationScreenProps> = ({ email, o
             </form>
 
             <p className="text-xs text-gray-500 mt-4">
-                Didn't receive a code? <a href="#" className="text-indigo-600 dark:text-indigo-400 hover:underline">Resend code</a>.
+                Didn't receive a code? <a href="#" className="text-green-600 dark:text-green-400 hover:underline">Resend code</a>.
             </p>
         </div>
     );

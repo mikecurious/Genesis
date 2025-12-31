@@ -1,8 +1,6 @@
 import React from 'react';
 import { type Listing } from '../../../types';
 import { PropertyCard } from '../../PropertyCard';
-import { PropertyDetailView } from '../PropertyDetailView';
-import { PropertyEditModal } from '../PropertyEditModal';
 
 interface AgentListingManagerProps {
     listings: Listing[];
@@ -18,25 +16,22 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
     onDeleteListing
 }) => {
     const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
-    const [selectedProperty, setSelectedProperty] = React.useState<Listing | null>(null);
-    const [editingProperty, setEditingProperty] = React.useState<Listing | null>(null);
 
-    const handleEdit = (listing: Listing) => {
-        setEditingProperty(listing);
-    };
-
-    const handleSaveEdit = async (propertyId: string, updatedData: Partial<Listing>) => {
+    const handleEdit = async (listing: Listing) => {
         if (!onEditListing) {
             alert('Edit feature not available');
             return;
         }
 
-        try {
-            await onEditListing(propertyId, updatedData);
-            setEditingProperty(null);
-        } catch (error) {
-            console.error('Edit failed:', error);
-            throw error; // Re-throw to let modal handle it
+        // For now, show a simple prompt to edit the title
+        // In a real app, this would open a modal with a form
+        const newTitle = prompt('Edit property title:', listing.title);
+        if (newTitle && newTitle !== listing.title) {
+            try {
+                await onEditListing(listing.id, { title: newTitle });
+            } catch (error) {
+                console.error('Edit failed:', error);
+            }
         }
     };
 
@@ -67,7 +62,7 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                 </div>
                 <button
                     onClick={onOpenAddListingModal}
-                    className="bg-indigo-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 flex items-center gap-2"
+                    className="bg-green-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-green-700 transition-all shadow-lg hover:shadow-green-500/30 active:scale-95 flex items-center gap-2"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                     Add New Listing
@@ -81,7 +76,7 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                             <PropertyCard
                                 property={listing}
                                 onConnect={() => { }}
-                                onImageClick={() => setSelectedProperty(listing)}
+                                onImageClick={() => { }}
                                 showConnectButton={false}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
@@ -98,31 +93,11 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                     <p className="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first property listing.</p>
                     <button
                         onClick={onOpenAddListingModal}
-                        className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
+                        className="text-green-600 dark:text-green-400 font-semibold hover:underline"
                     >
                         Create a listing
                     </button>
                 </div>
-            )}
-
-            {/* Property Detail View Modal */}
-            {selectedProperty && (
-                <PropertyDetailView
-                    property={selectedProperty}
-                    onClose={() => setSelectedProperty(null)}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
-            )}
-
-            {/* Property Edit Modal */}
-            {editingProperty && (
-                <PropertyEditModal
-                    property={editingProperty}
-                    isOpen={!!editingProperty}
-                    onClose={() => setEditingProperty(null)}
-                    onSave={handleSaveEdit}
-                />
             )}
         </div>
     );

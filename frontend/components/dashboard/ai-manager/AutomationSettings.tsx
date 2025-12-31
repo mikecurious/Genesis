@@ -9,9 +9,9 @@ interface AutomationSettingsProps {
 export const AutomationSettings: React.FC<AutomationSettingsProps> = ({ rules, onToggleRule }) => {
     return (
         <div className="space-y-6">
-            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl border border-indigo-100 dark:border-indigo-800">
+            <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-100 dark:border-green-800">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                    <div className="p-3 bg-green-100 dark:bg-green-900/50 rounded-lg">
                         <span className="text-2xl">🧠</span>
                     </div>
                     <div>
@@ -52,7 +52,7 @@ export const AutomationSettings: React.FC<AutomationSettingsProps> = ({ rules, o
                         <div className="w-full md:w-auto flex justify-end">
                             <button
                                 onClick={() => onToggleRule(rule.id)}
-                                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${rule.enabled ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${rule.enabled ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`}
                             >
                                 <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${rule.enabled ? 'translate-x-7' : 'translate-x-1'}`} />
                             </button>

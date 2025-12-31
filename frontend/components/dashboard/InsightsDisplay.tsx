@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import DOMPurify from 'dompurify';
 import { type Listing } from '../../types';
 import { generateDashboardInsights } from '../../services/geminiService';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
@@ -17,16 +16,10 @@ export const InsightsDisplay: React.FC<InsightsDisplayProps> = ({ listings }) =>
         setInsights(null);
         try {
             const result = await generateDashboardInsights(listings);
-            // Sanitize HTML to prevent XSS attacks
-            const sanitized = DOMPurify.sanitize(result, {
-                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'a'],
-                ALLOWED_ATTR: ['href', 'target', 'rel']
-            });
-            setInsights(sanitized);
+            setInsights(result);
         } catch (error) {
             console.error(error);
-            const errorMsg = DOMPurify.sanitize("<p>Failed to generate insights. Please try again.</p>");
-            setInsights(errorMsg);
+            setInsights("<p>Failed to generate insights. Please try again.</p>");
         } finally {
             setIsLoading(false);
         }
@@ -39,7 +32,7 @@ export const InsightsDisplay: React.FC<InsightsDisplayProps> = ({ listings }) =>
                 <button
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 disabled:cursor-wait flex items-center justify-center min-w-[180px]"
+                    className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-wait flex items-center justify-center min-w-[180px]"
                 >
                     {isLoading ? <SpinnerIcon /> : 'Generate Insights'}
                 </button>

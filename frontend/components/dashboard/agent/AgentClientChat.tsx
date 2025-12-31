@@ -25,7 +25,7 @@ const ChatBubble: React.FC<{ message: Message }> = ({ message }) => {
     return (
         <div className={`flex items-start gap-2.5 my-2 ${message.role === Role.USER ? 'justify-end' : 'justify-start'}`}>
             {message.role === Role.MODEL && (
-                <div className="w-6 h-6 flex-shrink-0 rounded-full bg-indigo-500 flex items-center justify-center self-start">
+                <div className="w-6 h-6 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center self-start">
                     <AiIcon className="h-4 w-4" />
                 </div>
             )}
@@ -73,7 +73,7 @@ export const AgentClientChat: React.FC<AgentClientChatProps> = ({ interactionCha
                                 <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
                                     <h3 className="font-bold text-gray-900 dark:text-white">
                                         {/* FIX: Property 'name' does not exist on type 'Listing'. Changed to 'title'. */}
-                                        Chat for: <span className="text-indigo-600 dark:text-indigo-400">{property?.title || 'Unknown Property'}</span>
+                                        Chat for: <span className="text-green-600 dark:text-green-400">{property?.title || 'Unknown Property'}</span>
                                     </h3>
                                     {!isTakeover && (
                                         <button 

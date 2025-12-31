@@ -42,7 +42,7 @@ export const VerificationCenter: React.FC<VerificationCenterProps> = ({ userId, 
                         <button
                             onClick={() => setActiveTab('documents')}
                             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'documents'
-                                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                ? 'border-green-500 text-green-600 dark:text-green-400'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                                 }`}
                         >
@@ -57,7 +57,7 @@ export const VerificationCenter: React.FC<VerificationCenterProps> = ({ userId, 
                         <button
                             onClick={() => setActiveTab('land-search')}
                             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'land-search'
-                                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                ? 'border-green-500 text-green-600 dark:text-green-400'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                                 }`}
                         >
@@ -72,7 +72,7 @@ export const VerificationCenter: React.FC<VerificationCenterProps> = ({ userId, 
                         <button
                             onClick={() => setActiveTab('valuation')}
                             className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'valuation'
-                                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                ? 'border-green-500 text-green-600 dark:text-green-400'
                                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                                 }`}
                         >

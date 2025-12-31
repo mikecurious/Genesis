@@ -138,7 +138,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                 {!isEditing ? (
                     <button
                         onClick={() => setIsEditing(true)}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                        className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -156,7 +156,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                         <button
                             onClick={handleSaveProfile}
                             disabled={isSaving}
-                            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                         >
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
@@ -179,7 +179,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                     </div>
                     {isEditing && (
                         <div>
-                            <label className="cursor-pointer bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors inline-block">
+                            <label className="cursor-pointer bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-4 py-2 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors inline-block">
                                 Upload New Image
                                 <input
                                     type="file"
@@ -203,7 +203,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                         onChange={(e) => setBio(e.target.value)}
                         maxLength={500}
                         rows={4}
-                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         placeholder="Tell clients about your experience and expertise..."
                     />
                 ) : (
@@ -219,7 +219,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                         <label
                             key={spec}
                             className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${specializations.includes(spec)
-                                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                 } ${!isEditing ? 'pointer-events-none' : ''}`}
                         >
@@ -228,7 +228,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                                 checked={specializations.includes(spec)}
                                 onChange={() => toggleSpecialization(spec)}
                                 disabled={!isEditing}
-                                className="w-4 h-4 text-indigo-600 rounded"
+                                className="w-4 h-4 text-green-600 rounded"
                             />
                             <span className="text-sm font-medium text-gray-900 dark:text-white">{spec}</span>
                         </label>
@@ -243,7 +243,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                     {isEditing && (
                         <button
                             onClick={addService}
-                            className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm font-medium"
+                            className="text-green-600 dark:text-green-400 hover:underline text-sm font-medium"
                         >
                             + Add Service
                         </button>
@@ -291,7 +291,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                                     <div>
                                         <h4 className="font-semibold text-gray-900 dark:text-white">{service.name}</h4>
                                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{service.description}</p>
-                                        <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-2">KSh {service.price.toLocaleString()}</p>
+                                        <p className="text-lg font-bold text-green-600 dark:text-green-400 mt-2">KSh {service.price.toLocaleString()}</p>
                                     </div>
                                 )}
                             </div>
@@ -313,7 +313,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
                             className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg"
                         />
                     ) : (
-                        <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{yearsOfExperience} years</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{yearsOfExperience} years</p>
                     )}
                 </div>
 
@@ -335,7 +335,7 @@ export const SurveyorProfile: React.FC<SurveyorProfileProps> = ({ user }) => {
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                <div className="bg-gradient-to-br from-indigo-500 to-teal-600 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-indigo-100 text-sm">Rating</p>

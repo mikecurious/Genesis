@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { type Listing } from '../../../types';
-import { formatPrice } from '../../../utils/formatPrice';
 
 interface CombinedListingManagerProps {
     listings: Listing[];
@@ -15,7 +14,7 @@ export const CombinedListingManager: React.FC<CombinedListingManagerProps> = ({ 
                 <h2 className="text-xl font-semibold">Your Properties ({listings.length})</h2>
                 <button
                     onClick={onOpenAddListingModal}
-                    className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
                 >
                     + Add New Listing
                 </button>
@@ -36,12 +35,12 @@ export const CombinedListingManager: React.FC<CombinedListingManagerProps> = ({ 
                             <tr key={listing.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap">{listing.title}</th>
                                 <td className="px-6 py-4">{listing.location}</td>
-                                <td className="px-6 py-4">{formatPrice(listing.price, listing.currency)}</td>
+                                <td className="px-6 py-4">{listing.price}</td>
                                 <td className="px-6 py-4">
                                     <span className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">Active</span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <a href="#" className="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">Edit</a>
+                                    <a href="#" className="font-medium text-green-600 dark:text-green-500 hover:underline">Edit</a>
                                 </td>
                             </tr>
                         )) : (

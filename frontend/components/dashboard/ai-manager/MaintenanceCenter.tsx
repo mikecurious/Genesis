@@ -55,12 +55,12 @@ export const MaintenanceCenter: React.FC<MaintenanceCenterProps> = ({ requests, 
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">{req.description}</p>
 
                         {req.aiAnalysis && (
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg mb-4 border border-indigo-100 dark:border-indigo-800/50">
+                            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4 border border-green-100 dark:border-green-800/50">
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="text-lg">🤖</span>
-                                    <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300 uppercase">AI Analysis</span>
+                                    <span className="text-xs font-bold text-indigo-800 dark:text-green-300 uppercase">AI Analysis</span>
                                 </div>
-                                <p className="text-xs text-indigo-700 dark:text-indigo-300">{req.aiAnalysis.summary}</p>
+                                <p className="text-xs text-green-700 dark:text-green-300">{req.aiAnalysis.summary}</p>
                                 <p className="text-xs font-medium text-indigo-800 dark:text-indigo-200 mt-1">Suggestion: {req.aiAnalysis.suggestedAction}</p>
                             </div>
                         )}
@@ -72,7 +72,7 @@ export const MaintenanceCenter: React.FC<MaintenanceCenterProps> = ({ requests, 
                             </div>
                             <button
                                 onClick={() => onAssignTechnician(req.id)}
-                                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400"
+                                className="text-sm font-medium text-green-600 hover:text-indigo-800 dark:hover:text-green-400"
                             >
                                 {req.technicianId ? 'View Technician' : 'Assign Technician'} &rarr;
                             </button>

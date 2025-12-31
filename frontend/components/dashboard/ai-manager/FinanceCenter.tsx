@@ -74,7 +74,7 @@ export const FinanceCenter: React.FC<FinanceCenterProps> = ({ statements, onGene
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <button className="text-indigo-600 hover:text-indigo-900 dark:hover:text-indigo-400 font-medium">Download</button>
+                                        <button className="text-green-600 hover:text-indigo-900 dark:hover:text-green-400 font-medium">Download</button>
                                     </td>
                                 </tr>
                             ))}

@@ -10,7 +10,6 @@ import { ValuationPanel } from './propertyActions/ValuationPanel';
 import { VerificationPanel } from './propertyActions/VerificationPanel';
 import { LandSearchPanel } from './propertyActions/LandSearchPanel';
 import { ScheduleViewingPanel } from './propertyActions/ScheduleViewingPanel';
-import { formatPrice } from '../utils/formatPrice';
 
 interface PropertyExplorerPageProps {
     property: Listing;
@@ -284,7 +283,7 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                                 <button
                                     key={index}
                                     onClick={() => { setCurrentImageIndex(index); setZoomLevel(1); }}
-                                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-indigo-500 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                    className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${index === currentImageIndex ? 'border-green-500 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
                                 >
                                     <img src={img} alt="" className="w-full h-full object-cover" />
                                 </button>
@@ -298,13 +297,13 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                             <div>
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{property.title}</h2>
                                 <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                     {property.location}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{formatPrice(property.price, property.currency)}</p>
-                                <p className="text-sm text-gray-500">{property.priceType === 'rental' ? 'per month' : ''}</p>
+                                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{property.price}</p>
+                                <p className="text-sm text-gray-500">per month</p>
                             </div>
                         </div>
                         <div className="prose dark:prose-invert max-w-none">
@@ -335,7 +334,7 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-indigo-900 rounded-full animate-pulse"></div>
+                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-green-900 rounded-full animate-pulse"></div>
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg leading-tight">Deal Assistant</h3>
@@ -345,22 +344,22 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                     </div>
 
                     {/* Action Bar - Quick Actions */}
-                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-2 flex gap-2 overflow-x-auto border-b border-indigo-100 dark:border-indigo-900/50 flex-shrink-0 scrollbar-hide">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-2 flex gap-2 overflow-x-auto border-b border-green-100 dark:border-green-900/50 flex-shrink-0 scrollbar-hide">
                         <button
                             onClick={() => handleSendMessage("I'd like to schedule a viewing")}
-                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-full border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors shadow-sm"
+                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900 transition-colors shadow-sm"
                         >
                             📅 Schedule Viewing
                         </button>
                         <button
                             onClick={() => handleSendMessage("What's the best price?")}
-                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-full border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors shadow-sm"
+                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900 transition-colors shadow-sm"
                         >
                             💰 Negotiate Price
                         </button>
                         <button
                             onClick={() => handleSendMessage("I want to make an offer")}
-                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-full border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900 transition-colors shadow-sm"
+                            className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900 transition-colors shadow-sm"
                         >
                             <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

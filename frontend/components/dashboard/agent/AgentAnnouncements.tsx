@@ -28,7 +28,7 @@ export const AgentAnnouncements: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">Announcements from Admin</h2>
             <div className="space-y-6">
                 {announcements.map(announcement => (
-                    <div key={announcement.id} className="p-4 bg-gray-50 dark:bg-gray-800/70 rounded-lg border-l-4 border-indigo-500">
+                    <div key={announcement.id} className="p-4 bg-gray-50 dark:bg-gray-800/70 rounded-lg border-l-4 border-green-500">
                         <div className="flex justify-between items-baseline">
                            <h3 className="font-semibold text-gray-900 dark:text-white">{announcement.title}</h3>
                            <p className="text-xs text-gray-500">{announcement.date}</p>

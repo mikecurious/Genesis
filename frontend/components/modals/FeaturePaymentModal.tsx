@@ -28,7 +28,7 @@ export const FeaturePaymentModal: React.FC<FeaturePaymentModalProps> = ({ isOpen
                     </svg>
                     <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
                     <p className="mb-4 text-gray-500 dark:text-gray-400">{description}</p>
-                    <p className="mb-6 text-xl font-semibold text-indigo-600 dark:text-indigo-400">{price}</p>
+                    <p className="mb-6 text-xl font-semibold text-green-600 dark:text-green-400">{price}</p>
 
                     <button 
                         onClick={onConfirm}

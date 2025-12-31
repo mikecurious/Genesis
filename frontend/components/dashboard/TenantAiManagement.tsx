@@ -18,7 +18,7 @@ const statusColorMap = {
 
 const LockedView: React.FC<{ onActivate: () => void }> = ({ onActivate }) => (
     <div className="bg-white dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center flex flex-col items-center justify-center animate-fade-in-up h-full">
-        <svg className="w-16 h-16 text-indigo-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-16 h-16 text-green-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -41,7 +41,7 @@ const ToggleSwitch: React.FC<{ label: string; enabled: boolean; onChange: (enabl
         <button
             type="button"
             onClick={() => onChange(!enabled)}
-            className={`${enabled ? 'bg-indigo-600' : 'bg-gray-400 dark:bg-gray-600'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            className={`${enabled ? 'bg-green-600' : 'bg-gray-400 dark:bg-gray-600'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
         >
             <span className={`${enabled ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
         </button>
@@ -105,7 +105,7 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
                     <h2 className="text-xl font-semibold">Tenant List ({tenants.length})</h2>
                     <button
                         onClick={onAddTenant}
-                        className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-sm"
+                        className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm"
                     >
                         + Add Tenant
                     </button>
@@ -133,7 +133,7 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
                                     <td className="px-4 py-3 text-right">
                                         <button 
                                             onClick={() => handleViewHistory(tenant, index)}
-                                            className="font-medium text-indigo-600 dark:text-indigo-500 hover:underline"
+                                            className="font-medium text-green-600 dark:text-green-500 hover:underline"
                                         >
                                             View History
                                         </button>
@@ -162,9 +162,9 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
                             onChange={(e) => setCommand(e.target.value)}
                             placeholder="e.g., Send rent reminders to overdue tenants"
                             rows={2}
-                            className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                            className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                         />
-                        <button type="submit" disabled={isAiLoading} className="mt-2 w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-400">
+                        <button type="submit" disabled={isAiLoading} className="mt-2 w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400">
                            {isAiLoading ? 'Processing...' : 'Send Command'}
                         </button>
                     </form>
@@ -182,9 +182,9 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
                                     value={whatsAppNumber}
                                     onChange={(e) => setWhatsAppNumber(e.target.value)}
                                     placeholder="+254 712 345 678"
-                                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                 />
-                                <button className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-sm">Save</button>
+                                <button className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm">Save</button>
                             </div>
                             <p className="text-xs text-gray-500 mt-2">Get instant updates on tenant communications.</p>
                         </div>

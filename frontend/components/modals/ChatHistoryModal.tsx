@@ -16,7 +16,7 @@ const HistoryChatBubble: React.FC<{ message: Message }> = ({ message }) => {
     return (
         <div className={`flex items-start gap-2.5 my-2 ${isTenant ? 'justify-end' : 'justify-start'}`}>
             {!isTenant && (
-                <div className="w-6 h-6 flex-shrink-0 rounded-full bg-indigo-500 flex items-center justify-center self-start">
+                <div className="w-6 h-6 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center self-start">
                     <AiIcon className="h-4 w-4" />
                 </div>
             )}

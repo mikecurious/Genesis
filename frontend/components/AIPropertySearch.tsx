@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { sendChatMessage, getGreeting } from '../services/aiChatService';
 import { ChatInput } from './ChatInput';
-import { formatPrice } from '../utils/formatPrice';
 
 interface Message {
   id: string;
@@ -118,7 +117,7 @@ export const AIPropertySearch: React.FC = () => {
               <div
                 className={`max-w-[80%] rounded-2xl p-4 ${
                   message.role === 'user'
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-green-600 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md'
                 }`}
               >
@@ -152,8 +151,8 @@ export const AIPropertySearch: React.FC = () => {
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                               📍 {property.location}
                             </p>
-                            <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mt-1">
-                              💰 {formatPrice(property.price, property.currency)}
+                            <p className="text-sm font-bold text-green-600 dark:text-green-400 mt-1">
+                              💰 {property.price}
                             </p>
                             {property.bedrooms && (
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -177,7 +176,7 @@ export const AIPropertySearch: React.FC = () => {
                       <button
                         key={idx}
                         onClick={() => handleSuggestionClick(suggestion)}
-                        className="block w-full text-left text-sm px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                        className="block w-full text-left text-sm px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
                       >
                         {suggestion}
                       </button>
@@ -193,9 +192,9 @@ export const AIPropertySearch: React.FC = () => {
             <div className="flex justify-start">
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
             </div>
@@ -240,8 +239,8 @@ export const AIPropertySearch: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400">
                   📍 {selectedProperty.location}
                 </p>
-                <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                  {formatPrice(selectedProperty.price, selectedProperty.currency)}
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                  {selectedProperty.price}
                 </p>
               </div>
 
@@ -277,7 +276,7 @@ export const AIPropertySearch: React.FC = () => {
                     {selectedProperty.amenities.map((amenity: string, idx: number) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm"
+                        className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm"
                       >
                         {amenity}
                       </span>
@@ -311,7 +310,7 @@ export const AIPropertySearch: React.FC = () => {
               {/* Close Button */}
               <button
                 onClick={() => setSelectedProperty(null)}
-                className="mt-6 w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-colors"
+                className="mt-6 w-full px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
               >
                 Close
               </button>

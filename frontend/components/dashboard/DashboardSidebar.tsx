@@ -67,10 +67,6 @@ const VerificationIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
 );
 
-const ProfileIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-);
-
 const allSections = [
     { id: 'overview' as DashboardSection, label: 'My Listings', icon: ListIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'leads' as DashboardSection, label: 'Leads', icon: LeadsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
@@ -82,7 +78,6 @@ const allSections = [
     { id: 'ai-settings' as DashboardSection, label: 'AI Settings', icon: AiIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'analytics' as DashboardSection, label: 'Analytics', icon: AnalyticsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'notifications' as DashboardSection, label: 'Notifications', icon: NotificationIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
-    { id: 'profile' as DashboardSection, label: 'My Profile', icon: ProfileIcon, roles: ['Agent', 'Landlord', 'Property Seller'] },
     { id: 'settings' as DashboardSection, label: 'Settings', icon: SettingsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
 ];
 
@@ -124,7 +119,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                     onClose();
                                 }}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeSection === section.id
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                                    ? 'bg-green-600 text-white shadow-lg shadow-green-500/30'
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                     }`}
                             >
@@ -137,9 +132,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
                 {/* Footer */}
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                        <p>MyGF AI Dashboard</p>
-                        <p className="mt-1">v1.0.0</p>
+                    <div className="flex flex-col items-center gap-2">
+                        <img src="/logo@Dashboard.png" alt="MyGF AI" className="h-8 w-auto" />
+                        <p className="text-xs text-gray-500 dark:text-gray-400">v1.0.0</p>
                     </div>
                 </div>
             </aside>

@@ -1,13 +1,11 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import DOMPurify from 'dompurify';
 import { type Message, Role, type Listing } from '../types';
 import { UserIcon } from './icons/UserIcon';
 import { AiIcon } from './icons/AiIcon';
 import { AgentIcon } from './icons/AgentIcon';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
-import { formatPrice } from '../utils/formatPrice';
 
 interface ChatMessageProps {
   message: Message;
@@ -18,9 +16,9 @@ interface ChatMessageProps {
 
 const LoadingDots: React.FC = () => (
   <div className="flex items-center space-x-1">
-    <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse [animation-delay:-0.3s]"></div>
-    <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse [animation-delay:-0.15s]"></div>
-    <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
+    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
   </div>
 );
 
@@ -31,7 +29,7 @@ const PropertyCard: React.FC<{
 }> = ({ property, onConnect, onImageClick }) => (
   <div className="w-full bg-white dark:bg-gray-800/50 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-transparent flex flex-col">
     {/* Image section */}
-    <button onClick={onImageClick} className="w-full h-40 block focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-t-xl relative group">
+    <button onClick={onImageClick} className="w-full h-40 block focus:outline-none focus:ring-2 focus:ring-green-500 rounded-t-xl relative group">
       <img
         className="w-full h-full object-cover"
         src={property.imageUrls[0] || `https://picsum.photos/seed/${encodeURIComponent(property.title)}/400/300`}
@@ -47,14 +45,14 @@ const PropertyCard: React.FC<{
 
     {/* Content section */}
     <div className="p-4 flex flex-col flex-grow">
-      <p className="text-indigo-600 dark:text-indigo-400 font-semibold text-lg">{formatPrice(property.price, property.currency)}</p>
+      <p className="text-green-600 dark:text-green-400 font-semibold text-lg">{property.price}</p>
       <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-3 flex-grow">{property.description}</p>
 
       {/* Agent Info & Action */}
       <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700/50">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-            <AgentIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+            <AgentIcon className="w-5 h-5 text-green-600 dark:text-green-400" />
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{property.agentName}</p>
@@ -63,7 +61,7 @@ const PropertyCard: React.FC<{
         </div>
         <button
           onClick={() => onConnect?.(property)}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+          className="w-full bg-green-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors"
         >
           Connect Now
         </button>
@@ -164,7 +162,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
   return (
     <div className={`flex items-start gap-4 my-4 animate-fade-in-up ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-indigo-500 flex items-center justify-center self-start">
+        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-green-500 flex items-center justify-center self-start">
           <AiIcon />
         </div>
       )}
@@ -183,15 +181,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
           ) : (
             <>
               <div className={`whitespace-pre-wrap prose dark:prose-invert prose-p:my-0 ${hasProperties ? 'p-4' : ''}`}>
-                {message.text.split('\n').map((line, index) => {
-                  // Convert **bold** to <strong> and sanitize to prevent XSS
-                  const htmlContent = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') || '\u00A0';
-                  const sanitized = DOMPurify.sanitize(htmlContent, {
-                    ALLOWED_TAGS: ['strong', 'em', 'b', 'i'],
-                    ALLOWED_ATTR: []
-                  });
-                  return <p key={index} className="text-inherit" dangerouslySetInnerHTML={{ __html: sanitized }}></p>;
-                })}
+                {message.text.split('\n').map((line, index) => (
+                  <p key={index} className="text-inherit" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') || '\u00A0' }}></p>
+                ))}
               </div>
 
               {hasGrounding && !hasProperties && (

@@ -125,7 +125,7 @@ export const ValuationRequestComponent: React.FC<ValuationRequestProps> = ({ use
                             <select
                                 value={selectedPropertyId}
                                 onChange={(e) => setSelectedPropertyId(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                             >
                                 <option value="">-- Or enter details manually below --</option>
                                 {userProperties.map((property) => (
@@ -153,7 +153,7 @@ export const ValuationRequestComponent: React.FC<ValuationRequestProps> = ({ use
                                             value={manualDetails.location}
                                             onChange={(e) => setManualDetails({ ...manualDetails, location: e.target.value })}
                                             placeholder="e.g., Nairobi, Westlands"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                             required={!selectedPropertyId}
                                         />
                                     </div>
@@ -167,7 +167,7 @@ export const ValuationRequestComponent: React.FC<ValuationRequestProps> = ({ use
                                             value={manualDetails.size}
                                             onChange={(e) => setManualDetails({ ...manualDetails, size: e.target.value })}
                                             placeholder="e.g., 1/4 acre, 2000 sqft"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                             required={!selectedPropertyId}
                                         />
                                     </div>
@@ -181,7 +181,7 @@ export const ValuationRequestComponent: React.FC<ValuationRequestProps> = ({ use
                                             value={manualDetails.type}
                                             onChange={(e) => setManualDetails({ ...manualDetails, type: e.target.value })}
                                             placeholder="e.g., Residential, Commercial, Land"
-                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
                                             required={!selectedPropertyId}
                                         />
                                     </div>
@@ -232,7 +232,7 @@ export const ValuationRequestComponent: React.FC<ValuationRequestProps> = ({ use
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                        className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     >
                         {submitting ? 'Submitting...' : 'Submit Valuation Request'}
                     </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { notificationApiService } from '../../services/apiService';
+import { notificationService } from '../../services/notificationService';
 
 interface Notification {
     _id: string;
@@ -30,12 +30,10 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
     // Fetch unread count
     const fetchUnreadCount = async () => {
         try {
-            const { data } = await notificationApiService.getUnreadCount();
+            const { data } = await notificationService.getUnreadCount();
             setUnreadCount(data.count || 0);
         } catch (error) {
             console.error('Failed to fetch unread count:', error);
-            // Silently fail - notifications are optional feature
-            setUnreadCount(0);
         }
     };
 
@@ -43,11 +41,10 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
     const fetchRecentNotifications = async () => {
         setIsLoading(true);
         try {
-            const { data } = await notificationApiService.getNotifications(1, 5);
+            const { data } = await notificationService.getNotifications(1, 5);
             setRecentNotifications(data.data || []);
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
-            setRecentNotifications([]);
         } finally {
             setIsLoading(false);
         }
@@ -86,7 +83,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
 
     const handleMarkAsRead = async (notificationId: string) => {
         try {
-            await notificationApiService.markAsRead(notificationId);
+            await notificationService.markAsRead(notificationId);
             setRecentNotifications(prev =>
                 prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
             );
@@ -102,7 +99,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
             case 'purchase_inquiry':
             case 'rental_inquiry':
                 return (
-                    <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 );
@@ -163,7 +160,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                         <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
                         {unreadCount > 0 && (
-                            <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                            <span className="text-xs text-green-600 dark:text-green-400 font-medium">
                                 {unreadCount} new
                             </span>
                         )}
@@ -173,7 +170,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
                     <div className="max-h-96 overflow-y-auto">
                         {isLoading ? (
                             <div className="p-8 flex items-center justify-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                             </div>
                         ) : recentNotifications.length === 0 ? (
                             <div className="p-8 text-center text-gray-500 dark:text-gray-400">
@@ -187,7 +184,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
                                 <div
                                     key={notification._id}
                                     onClick={() => !notification.read && handleMarkAsRead(notification._id)}
-                                    className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors ${!notification.read ? 'bg-indigo-50 dark:bg-indigo-900/10' : ''
+                                    className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors ${!notification.read ? 'bg-green-50 dark:bg-green-900/10' : ''
                                         }`}
                                 >
                                     <div className="flex items-start gap-3">
@@ -204,7 +201,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
                                             </p>
                                         </div>
                                         {!notification.read && (
-                                            <div className="w-2 h-2 bg-indigo-600 rounded-full flex-shrink-0 mt-2"></div>
+                                            <div className="w-2 h-2 bg-green-600 rounded-full flex-shrink-0 mt-2"></div>
                                         )}
                                     </div>
                                 </div>
@@ -220,7 +217,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
                                     setIsOpen(false);
                                     onViewAll?.();
                                 }}
-                                className="w-full text-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+                                className="w-full text-center text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium"
                             >
                                 View All Notifications
                             </button>

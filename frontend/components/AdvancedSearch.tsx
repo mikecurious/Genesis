@@ -61,7 +61,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch, onClea
                 </svg>
                 <span className="text-gray-700 dark:text-gray-300 font-medium">Advanced Filters</span>
                 {activeFilterCount > 0 && (
-                    <span className="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
+                    <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">
                         {activeFilterCount}
                     </span>
                 )}
@@ -183,7 +183,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch, onClea
                                             key={amenity}
                                             onClick={() => handleAmenityToggle(amenity.toLowerCase())}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${filters.amenities?.includes(amenity.toLowerCase())
-                                                    ? 'bg-indigo-600 text-white'
+                                                    ? 'bg-green-600 text-white'
                                                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                                 }`}
                                         >
@@ -208,7 +208,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch, onClea
                                 />
                                 <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
                                     <span>0</span>
-                                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                                    <span className="font-semibold text-green-600 dark:text-green-400">
                                         {filters.investmentScoreMin || 0}
                                     </span>
                                     <span>100</span>
@@ -242,7 +242,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onSearch, onClea
                                 </button>
                                 <button
                                     onClick={handleSearch}
-                                    className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                                    className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
                                 >
                                     Apply Filters
                                 </button>

@@ -137,7 +137,7 @@ export const LeadViewer: React.FC<LeadViewerProps> = ({ onClose }) => {
             {/* Leads List */}
             {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
                 </div>
             ) : leads.length === 0 ? (
                 <div className="text-center py-12">
@@ -157,7 +157,7 @@ export const LeadViewer: React.FC<LeadViewerProps> = ({ onClose }) => {
                             <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="text-indigo-600 dark:text-indigo-400">
+                                        <div className="text-green-600 dark:text-green-400">
                                             {getDealTypeIcon(lead.dealType)}
                                         </div>
                                         <h3 className="font-semibold text-gray-900 dark:text-white">

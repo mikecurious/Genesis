@@ -12,22 +12,19 @@ const plans = [
     {
         name: PlanName.Basic,
         price: 'Free',
-        priceValue: '0',  // Numeric value for payments
         features: ['Basic Listings', 'Standard Support', 'Limited AI Access'],
         color: 'gray'
     },
     {
         name: PlanName.MyGF1_3,
-        price: '15,000 KSh/mo',  // Display format
-        priceValue: '15000',  // Numeric value for payments
+        price: '15,000 KSh/mo',
         features: ['Advanced AI Chat', 'Priority Support', 'Unlimited Listings', 'Market Analytics'],
         color: 'indigo',
         recommended: true
     },
     {
         name: PlanName.MyGF3_2,
-        price: '25,000 KSh/mo',  // Display format
-        priceValue: '25000',  // Numeric value for payments
+        price: '25,000 KSh/mo',
         features: ['Full AI Automation', 'Dedicated Account Manager', 'Premium Marketing', 'API Access'],
         color: 'purple'
     }
@@ -61,12 +58,12 @@ export const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({ isOpen, 
                                     className={`relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105 ${isCurrent
                                             ? 'border-green-500 ring-2 ring-green-500/20'
                                             : plan.recommended
-                                                ? 'border-indigo-500 ring-2 ring-indigo-500/20'
+                                                ? 'border-green-500 ring-2 ring-indigo-500/20'
                                                 : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
                                         }`}
                                 >
                                     {plan.recommended && !isCurrent && (
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
                                             RECOMMENDED
                                         </div>
                                     )}
@@ -84,19 +81,19 @@ export const PlanSelectionModal: React.FC<PlanSelectionModalProps> = ({ isOpen, 
                                     <ul className="space-y-3 mb-8">
                                         {plan.features.map((feature, idx) => (
                                             <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                                <svg className={`w-5 h-5 mr-2 ${isCurrent ? 'text-green-500' : 'text-indigo-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                                <svg className={`w-5 h-5 mr-2 ${isCurrent ? 'text-green-500' : 'text-green-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                                                 {feature}
                                             </li>
                                         ))}
                                     </ul>
 
                                     <button
-                                        onClick={() => !isCurrent && onSelectPlan(plan.name, plan.priceValue)}
+                                        onClick={() => !isCurrent && onSelectPlan(plan.name, plan.price)}
                                         disabled={isCurrent}
                                         className={`w-full py-3 px-4 rounded-xl font-bold transition-all ${isCurrent
                                                 ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-default'
                                                 : plan.recommended
-                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-indigo-500/30'
+                                                    ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-green-500/30'
                                                     : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                                             }`}
                                     >

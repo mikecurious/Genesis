@@ -4,9 +4,8 @@ import { AgentListingManager } from './AgentListingManager';
 import { AgentClientChat } from './AgentClientChat';
 import { AgentMarketing } from './AgentMarketing';
 import { AgentAiSettings } from './AgentAiSettings';
-import { AgentProfileSettings } from './AgentProfileSettings';
 import { ListingForm } from '../ListingForm';
-import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
+import { FeaturePaymentModal } from '../../modals/FeaturePaymentModal';
 import { DashboardSidebar, type DashboardSection } from '../DashboardSidebar';
 import { AutomationDashboard } from '../../AutomationDashboard';
 import { LeadViewer } from '../LeadViewer';
@@ -33,7 +32,7 @@ const TabButton: React.FC<{ active: boolean; onClick: () => void; children: Reac
     <button
         onClick={onClick}
         className={`px-3 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${active
-            ? 'border-indigo-500 text-gray-900 dark:text-white'
+            ? 'border-green-500 text-gray-900 dark:text-white'
             : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-500'
             }`}
     >
@@ -63,10 +62,6 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([]);
 
-    // Automation Settings State
-    const [automationEnabled, setAutomationEnabled] = useState(false);
-    const [voiceFeatureEnabled, setVoiceFeatureEnabled] = useState(false);
-
     const handleAddListingSubmit = (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => {
         onAddListing(newListing);
         setIsFormOpen(false);
@@ -77,17 +72,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         setIsBoostModalOpen(true);
     };
 
-    const handleBoostPaymentSuccess = () => {
+    const handleConfirmBoostPayment = () => {
         if (listingToBoost) {
-            console.log(`Payment successful! Property boosted: ${listingToBoost.title}`);
-            // TODO: Update property boost status via API
+            console.log(`Boosting property: ${listingToBoost.title} for 6,000 KSh`);
+            // In a real app, this would trigger an API call to the backend
+            // to mark the property as boosted and process the payment.
+            alert(`Payment successful! Your property "${listingToBoost.title}" is now boosted.`);
         }
-        setIsBoostModalOpen(false);
-        setListingToBoost(null);
-    };
-
-    const handleBoostPaymentFailed = () => {
-        console.log('Payment failed or cancelled');
         setIsBoostModalOpen(false);
         setListingToBoost(null);
     };
@@ -112,9 +103,9 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Analytics</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl">
+                            <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
-                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">{listings.length}</p>
+                                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{listings.length}</p>
                             </div>
                             <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Active Chats</p>
@@ -142,14 +133,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             case 'marketing':
                 return <AgentMarketing listings={listings} onBoostClick={handleBoostClick} />;
             case 'automation':
-                return (
-                    <AutomationDashboard
-                        user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Agent' } as User}
-                        automationEnabled={automationEnabled}
-                        voiceFeatureEnabled={voiceFeatureEnabled}
-                        onNavigateToSettings={() => setActiveSection('ai-settings')}
-                    />
-                );
+                return <AutomationDashboard user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Agent' } as User} automationEnabled={false} voiceFeatureEnabled={false} />;
             case 'ai-manager':
                 return (
                     <AIPropertyManager
@@ -161,22 +145,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     />
                 );
             case 'ai-settings':
-                return (
-                    <AgentAiSettings
-                        automationEnabled={automationEnabled}
-                        voiceFeatureEnabled={voiceFeatureEnabled}
-                        onAutomationChange={setAutomationEnabled}
-                        onVoiceFeatureChange={setVoiceFeatureEnabled}
-                    />
-                );
-            case 'profile':
-                return user ? (
-                    <AgentProfileSettings user={user} />
-                ) : (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-                        <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
-                    </div>
-                );
+                return <AgentAiSettings />;
             case 'settings':
                 return user ? (
                     <ProfileSettings user={user} onUpdate={(updatedUser) => {
@@ -248,19 +217,13 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 userRole={user?.role}
             />
             {isBoostModalOpen && listingToBoost && (
-                <MpesaPaymentModal
+                <FeaturePaymentModal
                     isOpen={isBoostModalOpen}
                     onClose={() => setIsBoostModalOpen(false)}
-                    onSuccess={handleBoostPaymentSuccess}
-                    onFailed={handleBoostPaymentFailed}
-                    amount={6000}
-                    description={`Boost Property: ${listingToBoost.title}`}
-                    paymentType="service"
-                    metadata={{
-                        propertyId: listingToBoost.id,
-                        propertyTitle: listingToBoost.title,
-                        action: 'boost_property'
-                    }}
+                    onConfirm={handleConfirmBoostPayment}
+                    title={`Boost Property: ${listingToBoost.title}`}
+                    description="Promote your listing to get higher visibility, appear at the top of search results, and attract more potential clients."
+                    price="6,000 KSh"
                 />
             )}
         </div>

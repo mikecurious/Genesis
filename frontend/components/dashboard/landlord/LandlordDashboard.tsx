@@ -78,9 +78,9 @@ export const LandlordDashboard: React.FC<LandlordDashboardProps> = ({
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Analytics</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl">
+                            <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
-                                <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">{listings.length}</p>
+                                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{listings.length}</p>
                             </div>
                             <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Occupancy Rate</p>

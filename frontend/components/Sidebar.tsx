@@ -14,7 +14,6 @@ interface SidebarProps {
   onHomeClick: () => void;
   onFeaturesClick: () => void;
   onDashboardClick: () => void;
-  onAISearchClick?: () => void;
   onLogout: () => void;
   conversations: Record<string, Conversation>;
   currentConversationId: string | null;
@@ -36,16 +35,15 @@ const ConversationItem: React.FC<{ children: React.ReactNode; onClick: () => voi
   </button>
 );
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  isOpen,
-  setIsOpen,
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  isOpen, 
+  setIsOpen, 
   isUserLoggedIn,
   currentUser,
-  chatUser,
-  onHomeClick,
-  onFeaturesClick,
+  chatUser, 
+  onHomeClick, 
+  onFeaturesClick, 
   onDashboardClick,
-  onAISearchClick,
   onLogout,
   conversations,
   currentConversationId,
@@ -80,14 +78,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <nav className="p-4 space-y-2">
             <NavItem onClick={onNewChat}>New Chat</NavItem>
-            {onAISearchClick && (
-              <NavItem onClick={onAISearchClick}>
-                <span className="flex items-center gap-2">
-                  🔍 AI Property Search
-                  <span className="text-xs bg-indigo-500 text-white px-2 py-0.5 rounded-full">Database</span>
-                </span>
-              </NavItem>
-            )}
             <NavItem onClick={onFeaturesClick}>Features</NavItem>
             {isUserLoggedIn && currentUser?.role !== UserRole.Tenant && <NavItem onClick={onDashboardClick}>Dashboard</NavItem>}
             {isUserLoggedIn && currentUser?.role === UserRole.Tenant && <NavItem onClick={onDashboardClick}>My Dashboard</NavItem>}
@@ -112,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
           <div className="p-4 border-t border-gray-200 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
                 <UserIcon className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">

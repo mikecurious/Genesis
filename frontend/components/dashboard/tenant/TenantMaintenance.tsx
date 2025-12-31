@@ -34,11 +34,11 @@ export const TenantMaintenance: React.FC<TenantMaintenanceProps> = ({ requests, 
                         rows={4} 
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" 
+                        className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" 
                         placeholder="e.g., The kitchen sink is leaking."
                         required
                     ></textarea>
-                    <button type="submit" className="mt-4 w-full bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors">Submit Request</button>
+                    <button type="submit" className="mt-4 w-full bg-green-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-green-700 transition-colors">Submit Request</button>
                 </form>
             </div>
 

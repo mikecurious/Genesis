@@ -36,8 +36,8 @@ const mockRules: AutomationRule[] = [
 
 const LockedView: React.FC<{ onActivate: () => void }> = ({ onActivate }) => (
     <div className="bg-white dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center flex flex-col items-center justify-center animate-fade-in-up h-full min-h-[400px]">
-        <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-full mb-6">
-            <svg className="w-16 h-16 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-full mb-6">
+            <svg className="w-16 h-16 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
         </div>
@@ -48,7 +48,7 @@ const LockedView: React.FC<{ onActivate: () => void }> = ({ onActivate }) => (
         </p>
         <button
             onClick={onActivate}
-            className="mt-8 bg-indigo-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1"
+            className="mt-8 bg-green-600 text-white font-bold py-4 px-8 rounded-xl hover:bg-green-700 transition-all shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-1"
         >
             Activate AI Manager
         </button>
@@ -131,7 +131,7 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                     {aiResponses.map((res, i) => (
                         <div key={i} className={`flex ${res.role === Role.USER ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[85%] md:max-w-[80%] p-3 rounded-2xl ${res.role === Role.USER
-                                ? 'bg-indigo-600 text-white rounded-br-none'
+                                ? 'bg-green-600 text-white rounded-br-none'
                                 : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-bl-none shadow-sm'
                                 }`}>
                                 {res.text}
@@ -156,12 +156,12 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                         value={command}
                         onChange={(e) => setCommand(e.target.value)}
                         placeholder="Ask AI..."
-                        className="w-full bg-gray-100 dark:bg-gray-800 border-0 rounded-xl px-4 py-3 pr-12 focus:ring-2 focus:ring-indigo-500 dark:text-white text-sm md:text-base"
+                        className="w-full bg-gray-100 dark:bg-gray-800 border-0 rounded-xl px-4 py-3 pr-12 focus:ring-2 focus:ring-green-500 dark:text-white text-sm md:text-base"
                     />
                     <button
                         type="submit"
                         disabled={isAiLoading || !command.trim()}
-                        className="absolute right-2 top-2 p-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="absolute right-2 top-2 p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                     </button>
@@ -177,7 +177,7 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                         <select
                             id="tabs"
                             name="tabs"
-                            className="block w-full pl-3 pr-10 py-3 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-xl dark:bg-gray-800 dark:text-white shadow-sm appearance-none transition-colors"
+                            className="block w-full pl-3 pr-10 py-3 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-xl dark:bg-gray-800 dark:text-white shadow-sm appearance-none transition-colors"
                             value={activeTab}
                             onChange={(e) => setActiveTab(e.target.value as any)}
                         >
@@ -200,31 +200,31 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                     <nav className="flex -mb-px min-w-max">
                         <button
                             onClick={() => setActiveTab('overview')}
-                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'overview' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'overview' ? 'border-green-500 text-green-600 dark:text-green-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                         >
                             Overview
                         </button>
                         <button
                             onClick={() => setActiveTab('tenants')}
-                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'tenants' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'tenants' ? 'border-green-500 text-green-600 dark:text-green-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                         >
                             Tenants ({tenants.length})
                         </button>
                         <button
                             onClick={() => setActiveTab('maintenance')}
-                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'maintenance' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'maintenance' ? 'border-green-500 text-green-600 dark:text-green-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                         >
                             Maintenance ({maintenanceRequests.length})
                         </button>
                         <button
                             onClick={() => setActiveTab('finance')}
-                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'finance' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'finance' ? 'border-green-500 text-green-600 dark:text-green-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                         >
                             Finance
                         </button>
                         <button
                             onClick={() => setActiveTab('automation')}
-                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'automation' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                            className={`py-4 px-6 text-center border-b-2 font-medium text-sm transition-colors ${activeTab === 'automation' ? 'border-green-500 text-green-600 dark:text-green-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                         >
                             Automation
                         </button>
@@ -235,10 +235,10 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                     {activeTab === 'overview' && (
                         <div className="space-y-8">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                                <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-100 dark:border-green-800">
                                     <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">Occupancy Rate</h3>
-                                    <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2">92%</p>
-                                    <p className="text-sm text-indigo-700 dark:text-indigo-300 mt-1">11/12 Units Rented</p>
+                                    <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">92%</p>
+                                    <p className="text-sm text-green-700 dark:text-green-300 mt-1">11/12 Units Rented</p>
                                 </div>
                                 <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-100 dark:border-green-800">
                                     <h3 className="text-lg font-bold text-green-900 dark:text-green-100">Rent Collected</h3>

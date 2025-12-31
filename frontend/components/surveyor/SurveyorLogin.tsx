@@ -20,7 +20,7 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
             <div className="max-w-md w-full">
                 {/* Logo & Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-2xl mb-4">
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                         </svg>
@@ -41,7 +41,7 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="surveyor@example.com"
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -55,7 +55,7 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -69,7 +69,7 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
                         >
                             {isLoading ? 'Signing in...' : 'Sign In'}
                         </button>
@@ -85,7 +85,7 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
                 {/* Info Cards */}
                 <div className="mt-8 grid grid-cols-3 gap-4">
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Fast</div>
+                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">Fast</div>
                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Task Access</div>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">

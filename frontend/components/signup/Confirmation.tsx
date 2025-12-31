@@ -29,7 +29,7 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ role, plan }) => {
                 <div>
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Selected Plan</h3>
                     <p className="text-lg font-bold text-gray-900 dark:text-white">{plan}</p>
-                    <p className="text-md text-indigo-600 dark:text-indigo-400">{planDetails[plan]?.price || 'Free'}</p>
+                    <p className="text-md text-green-600 dark:text-green-400">{planDetails[plan]?.price || 'Free'}</p>
                 </div>
             </div>
 

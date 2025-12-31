@@ -23,10 +23,10 @@ const plans: SubscriptionPlan[] = [
 const RoleCard: React.FC<{ role: typeof roles[0]; isSelected: boolean; onSelect: () => void }> = ({ role, isSelected, onSelect }) => (
     <button
         onClick={onSelect}
-        className={`relative text-left w-full h-full p-5 border rounded-lg transition-all duration-300 ${isSelected ? 'border-indigo-500 bg-gray-50 dark:bg-gray-800 scale-105 shadow-lg' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500'}`}
+        className={`relative text-left w-full h-full p-5 border rounded-lg transition-all duration-300 ${isSelected ? 'border-green-500 bg-gray-50 dark:bg-gray-800 scale-105 shadow-lg' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500'}`}
     >
         {isSelected && (
-            <div className="absolute top-3 right-3 bg-indigo-600 text-white rounded-full p-1">
+            <div className="absolute top-3 right-3 bg-green-600 text-white rounded-full p-1">
                 <CheckIcon className="w-4 h-4" />
             </div>
         )}
@@ -38,10 +38,10 @@ const RoleCard: React.FC<{ role: typeof roles[0]; isSelected: boolean; onSelect:
 const PlanCard: React.FC<{ plan: SubscriptionPlan; isSelected: boolean; onSelect: () => void }> = ({ plan, isSelected, onSelect }) => (
     <button
         onClick={onSelect}
-        className={`relative text-left w-full h-full p-5 border rounded-lg transition-all duration-300 flex flex-col ${isSelected ? 'border-indigo-500 bg-gray-50 dark:bg-gray-800 scale-105 shadow-lg' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500'}`}
+        className={`relative text-left w-full h-full p-5 border rounded-lg transition-all duration-300 flex flex-col ${isSelected ? 'border-green-500 bg-gray-50 dark:bg-gray-800 scale-105 shadow-lg' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500'}`}
     >
         {isSelected && (
-            <div className="absolute top-3 right-3 bg-indigo-600 text-white rounded-full p-1">
+            <div className="absolute top-3 right-3 bg-green-600 text-white rounded-full p-1">
                 <CheckIcon className="w-4 h-4" />
             </div>
         )}
@@ -122,7 +122,7 @@ export const AccountSetup: React.FC<AccountSetupProps> = ({ onSetupComplete }) =
                 <button
                     onClick={handleNext}
                     disabled={!selectedRole || !selectedPlan}
-                    className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 disabled:cursor-not-allowed"
+                    className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
                 >
                     Next
                 </button>

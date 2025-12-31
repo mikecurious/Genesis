@@ -75,7 +75,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ token, onBackToLog
                             </p>
                             <button
                                 onClick={onBackToLogin}
-                                className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors"
+                                className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
                             >
                                 Go to Login
                             </button>
@@ -110,7 +110,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ token, onBackToLog
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 onBlur={validate}
                                 required
-                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                 placeholder="••••••••"
                             />
                             {newPassword && (
@@ -132,7 +132,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ token, onBackToLog
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 onBlur={validate}
                                 required
-                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -143,7 +143,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ token, onBackToLog
                             <button
                                 type="submit"
                                 disabled={isLoading || !newPassword || !confirmPassword}
-                                className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-indigo-400 disabled:cursor-not-allowed flex items-center justify-center"
+                                className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed flex items-center justify-center"
                             >
                                 {isLoading ? <SpinnerIcon /> : 'Reset Password'}
                             </button>
@@ -153,7 +153,7 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ token, onBackToLog
                     <div className="text-center mt-6">
                         <button
                             onClick={onBackToLogin}
-                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                            className="text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
                         >
                             ← Back to Login
                         </button>

@@ -13,7 +13,6 @@ import {
     Legend,
     Filler
 } from 'chart.js';
-import { formatPrice } from '../../utils/formatPrice';
 
 // Register Chart.js components
 ChartJS.register(
@@ -83,7 +82,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ userId }) => {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
             </div>
         );
     }
@@ -198,7 +197,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ userId }) => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                <div className="bg-gradient-to-br from-purple-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-purple-100 text-sm font-medium">Conversion Rate</p>
@@ -276,9 +275,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ userId }) => {
                                 <tr key={index} className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">{property.title}</td>
                                     <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{property.location}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{formatPrice(property.price, property.currency)}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{property.price}</td>
                                     <td className="py-3 px-4">
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-indigo-800 dark:text-green-300">
                                             {property.leadCount} leads
                                         </span>
                                     </td>

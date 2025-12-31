@@ -15,11 +15,9 @@ const initialFormState: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'cre
     title: '',
     description: '',
     location: '',
-    price: 0,
-    currency: 'KSh', // Default to Kenyan Shillings
+    price: '',
     priceType: 'rental', // Default to rental
     tags: [],
-    images: []
 };
 
 const InputField: React.FC<{ label: string; name: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void; placeholder?: string; type?: string; required?: boolean; as?: 'textarea' }> =
@@ -27,9 +25,9 @@ const InputField: React.FC<{ label: string; name: string; value: string; onChang
         <div>
             <label htmlFor={name} className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
             {as === 'textarea' ? (
-                <textarea id={name} name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} rows={3} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" />
+                <textarea id={name} name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} rows={3} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" />
             ) : (
-                <input type={type} id={name} name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" />
+                <input type={type} id={name} name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" />
             )}
         </div>
     );
@@ -182,58 +180,31 @@ export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAdd
                                         name="priceType"
                                         value={formState.priceType}
                                         onChange={handleChange}
-                                        className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
+                                        className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     >
                                         <option value="sale">For Sale</option>
                                         <option value="rental">Monthly Rental</option>
                                     </select>
                                 </div>
                             )}
-                        </div>
-
-                        {/* Price and Currency Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {/* Currency Selector */}
-                            <div>
-                                <label htmlFor="currency" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
-                                <select
-                                    id="currency"
-                                    name="currency"
-                                    value={formState.currency}
-                                    onChange={handleChange}
-                                    className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5"
-                                    required
-                                >
-                                    <option value="KSh">KSh (Kenyan Shillings)</option>
-                                    <option value="USD">$ (US Dollars)</option>
-                                    <option value="EUR">€ (Euros)</option>
-                                    <option value="GBP">£ (British Pounds)</option>
-                                </select>
-                            </div>
 
                             {/* Dynamic Price Label */}
-                            <div className="md:col-span-2">
-                                <InputField
-                                    label={formState.priceType === 'sale' ? 'Price' : 'Monthly Rent'}
-                                    name="price"
-                                    type="number"
-                                    value={formState.price.toString()}
-                                    onChange={handleChange}
-                                    placeholder={formState.priceType === 'sale' ? 'e.g., 15000000' : 'e.g., 60000'}
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Enter numbers only (e.g., 60000). Currency symbol will be added automatically.
-                                </p>
-                            </div>
+                            <InputField
+                                label={formState.priceType === 'sale' ? 'Price' : 'Monthly Rent'}
+                                name="price"
+                                value={formState.price}
+                                onChange={handleChange}
+                                placeholder={formState.priceType === 'sale' ? 'e.g., 15,000,000 KSh' : 'e.g., 60,000 KSh/month'}
+                            />
                         </div>
 
                         <div>
                             <label htmlFor="tags" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Tags / Keywords</label>
                             <div className="flex flex-wrap items-center gap-2 p-1.5 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
                                 {formState.tags?.map(tag => (
-                                    <div key={tag} className="flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200 text-xs font-medium pl-2.5 pr-1 py-1 rounded-full">
+                                    <div key={tag} className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 text-indigo-800 dark:text-indigo-200 text-xs font-medium pl-2.5 pr-1 py-1 rounded-full">
                                         <span>{tag}</span>
-                                        <button type="button" onClick={() => handleRemoveTag(tag)} className="text-indigo-500 hover:text-indigo-700 focus:outline-none">
+                                        <button type="button" onClick={() => handleRemoveTag(tag)} className="text-green-500 hover:text-green-700 focus:outline-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
                                         </button>
                                     </div>
@@ -254,12 +225,12 @@ export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAdd
                         <div className="relative">
                             <div className="flex justify-between items-center mb-2">
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                                <button type="button" onClick={handleGenerateDescription} disabled={isGenerating} className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline disabled:opacity-50 disabled:cursor-wait">
+                                <button type="button" onClick={handleGenerateDescription} disabled={isGenerating} className="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400 hover:underline disabled:opacity-50 disabled:cursor-wait">
                                     <SparklesIcon className="w-4 h-4" />
                                     {isGenerating ? 'Generating...' : 'Generate with AI'}
                                 </button>
                             </div>
-                            <textarea id="description" name="description" value={formState.description} onChange={handleChange} placeholder="Describe the key features of the property, or let AI generate it for you." required rows={5} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5" />
+                            <textarea id="description" name="description" value={formState.description} onChange={handleChange} placeholder="Describe the key features of the property, or let AI generate it for you." required rows={5} className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5" />
                         </div>
 
                         <div>
@@ -375,7 +346,7 @@ export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAdd
                     </div>
                     <div className="flex items-center justify-end pt-6 mt-4 border-t border-gray-200 dark:border-gray-600 rounded-b">
                         <button type="button" onClick={onClose} className="text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">Cancel</button>
-                        <button type="submit" className="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Add Listing</button>
+                        <button type="submit" className="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Add Listing</button>
                     </div>
                 </form>
             </div>

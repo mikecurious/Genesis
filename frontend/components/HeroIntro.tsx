@@ -1,6 +1,5 @@
 import React from 'react';
 import { Listing } from '../types';
-import { formatPrice } from '../utils/formatPrice';
 
 interface HeroIntroProps {
   isVisible: boolean;
@@ -18,7 +17,7 @@ const PropertyCard: React.FC<{ listing: Listing }> = ({ listing }) => (
     />
     <div className="p-3">
       <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{listing.title}</p>
-      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">{typeof listing.price === 'number' && listing.currency ? formatPrice(listing.price, listing.currency) : listing.price}</p>
+      <p className="text-xs text-green-600 dark:text-green-400 font-semibold">{listing.price}</p>
     </div>
   </div>
 );
@@ -64,7 +63,7 @@ export const HeroIntro: React.FC<HeroIntroProps> = ({ isVisible, listings, searc
           <button
             onClick={() => onSearchModeChange(searchMode === 'buy' ? 'general' : 'buy')}
             className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${searchMode === 'buy'
-              ? 'bg-indigo-600 text-white shadow-lg scale-105'
+              ? 'bg-green-600 text-white shadow-lg scale-105'
               : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm'
               }`}
           >
@@ -76,7 +75,7 @@ export const HeroIntro: React.FC<HeroIntroProps> = ({ isVisible, listings, searc
           <button
             onClick={() => onSearchModeChange(searchMode === 'rent' ? 'general' : 'rent')}
             className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${searchMode === 'rent'
-              ? 'bg-indigo-600 text-white shadow-lg scale-105'
+              ? 'bg-green-600 text-white shadow-lg scale-105'
               : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm'
               }`}
           >
