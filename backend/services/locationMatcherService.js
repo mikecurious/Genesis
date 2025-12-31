@@ -219,7 +219,23 @@ class LocationMatcherService {
             return null;
         }
 
-        // Return the best match
+        // Prioritize exact county/city matches over neighborhoods
+        // e.g., if user searches "Nairobi", return "Nairobi" not "Westlands"
+        const queryWords = query.toLowerCase().trim().split(/\s+/);
+
+        for (const match of matches) {
+            // Check if any query word exactly matches the location name or its aliases
+            const matchNameLower = match.name.toLowerCase();
+            if (queryWords.some(word => word === matchNameLower ||
+                match.searchTerms?.some(term => term === word))) {
+                // Exact match found - prioritize counties/cities over neighborhoods
+                if (match.type === 'county' || match.type === 'town') {
+                    return match.name;
+                }
+            }
+        }
+
+        // Return the best match (first one, which is already sorted by type priority)
         return matches[0].name;
     }
 
