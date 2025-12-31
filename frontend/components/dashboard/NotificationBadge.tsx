@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { notificationService } from '../../services/notificationService';
+import { notificationApiService } from '../../services/apiService';
 
 interface Notification {
     _id: string;
@@ -30,7 +30,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
     // Fetch unread count
     const fetchUnreadCount = async () => {
         try {
-            const { data } = await notificationService.getUnreadCount();
+            const { data } = await notificationApiService.getUnreadCount();
             setUnreadCount(data.count || 0);
         } catch (error) {
             console.error('Failed to fetch unread count:', error);
@@ -41,7 +41,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
     const fetchRecentNotifications = async () => {
         setIsLoading(true);
         try {
-            const { data } = await notificationService.getNotifications(1, 5);
+            const { data } = await notificationApiService.getNotifications(1, 5);
             setRecentNotifications(data.data || []);
         } catch (error) {
             console.error('Failed to fetch notifications:', error);
@@ -83,7 +83,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ onViewAll 
 
     const handleMarkAsRead = async (notificationId: string) => {
         try {
-            await notificationService.markAsRead(notificationId);
+            await notificationApiService.markAsRead(notificationId);
             setRecentNotifications(prev =>
                 prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
             );

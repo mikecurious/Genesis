@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { type Tenant, Role, type Message } from '../../types';
 import { generateTenantManagementResponse } from '../../services/geminiService';
 import { ChatHistoryModal } from '../modals/ChatHistoryModal';
+import { TenantDetailsModal } from '../modals/TenantDetailsModal';
 
 interface TenantAiManagementProps {
     isActive: boolean;
@@ -69,6 +70,7 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [whatsAppEnabled, setWhatsAppEnabled] = useState(true);
     const [activeHistory, setActiveHistory] = useState<{ tenant: Tenant; messages: Message[] } | null>(null);
+    const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 
     const handleSendCommand = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -131,9 +133,15 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
                                         <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColorMap[tenant.rentStatus]}`}>{tenant.rentStatus}</span>
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <button 
+                                        <button
+                                            onClick={() => setSelectedTenant(tenant)}
+                                            className="font-medium text-green-600 dark:text-green-500 hover:underline mr-3"
+                                        >
+                                            Manage
+                                        </button>
+                                        <button
                                             onClick={() => handleViewHistory(tenant, index)}
-                                            className="font-medium text-green-600 dark:text-green-500 hover:underline"
+                                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                                         >
                                             View History
                                         </button>
@@ -197,6 +205,12 @@ const UnlockedView: React.FC<{ tenants: Tenant[], onAddTenant: () => void }> = (
             onClose={() => setActiveHistory(null)}
             tenant={activeHistory?.tenant || null}
             messages={activeHistory?.messages || []}
+        />
+
+        <TenantDetailsModal
+            isOpen={!!selectedTenant}
+            onClose={() => setSelectedTenant(null)}
+            tenant={selectedTenant}
         />
       </>
     );
