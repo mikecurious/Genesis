@@ -8,7 +8,7 @@ const MaintenanceRequestSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Submitted', 'In Progress', 'Resolved'],
+        enum: ['Submitted', 'In Progress', 'Resolved', 'Cancelled'],
         default: 'Submitted',
     },
     tenant: {
@@ -33,6 +33,61 @@ const MaintenanceRequestSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User',
     },
+    // AI Analysis Fields
+    aiAnalysis: {
+        category: {
+            type: String,
+            enum: ['Plumbing', 'Electrical', 'HVAC', 'Structural', 'Appliance', 'Pest Control', 'Painting', 'Flooring', 'Other'],
+        },
+        urgencyScore: {
+            type: Number, // 0-100
+            min: 0,
+            max: 100,
+        },
+        estimatedCost: {
+            min: Number,
+            max: Number,
+            currency: {
+                type: String,
+                default: 'KSh'
+            }
+        },
+        timeEstimate: {
+            value: Number, // in hours
+            unit: {
+                type: String,
+                enum: ['hours', 'days', 'weeks'],
+                default: 'hours'
+            }
+        },
+        recommendedAction: String,
+        analyzedAt: Date,
+    },
+    // Image Analysis
+    images: [{
+        url: String,
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        },
+        aiDescription: String, // AI-generated description from Gemini Vision
+    }],
+    // Technician Assignment
+    assignedTechnician: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Technician',
+    },
+    technicianNotes: String,
+    completedAt: Date,
+    // Costs
+    actualCost: Number,
+    // Feedback
+    tenantRating: {
+        type: Number,
+        min: 1,
+        max: 5,
+    },
+    tenantFeedback: String,
 });
 
 // Indexes for performance
