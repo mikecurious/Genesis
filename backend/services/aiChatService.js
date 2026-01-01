@@ -633,7 +633,13 @@ Respond with ONLY the confirmation text.`;
             'land survey'
         ];
 
-        return surveyorKeywords.some(keyword => messageLower.includes(keyword));
+        const detected = surveyorKeywords.some(keyword => messageLower.includes(keyword));
+
+        if (detected) {
+            console.log(`🔍 Surveyor request detected: "${message}"`);
+        }
+
+        return detected;
     }
 
     /**
@@ -641,12 +647,15 @@ Respond with ONLY the confirmation text.`;
      */
     async processSurveyorRequest(message, userId, propertyId = null) {
         try {
+            console.log(`📋 Processing surveyor request: "${message}" (userId: ${userId}, propertyId: ${propertyId})`);
             const surveyorMatchingService = require('./surveyorMatchingService');
 
             // Parse the intent using AI
             const intent = await surveyorMatchingService.parseSurveyorIntent(message, userId);
+            console.log(`🤖 AI Intent Result:`, JSON.stringify(intent, null, 2));
 
             if (!intent.isSurveyorRequest || intent.confidence < 60) {
+                console.log(`❌ Low confidence (${intent.confidence}%) or not a surveyor request`);
                 return {
                     success: true,
                     isSurveyorRequest: false,
@@ -654,21 +663,23 @@ Respond with ONLY the confirmation text.`;
                 };
             }
 
-            // If no property specified, ask for property selection
-            if (!propertyId && !intent.propertyMentioned) {
+            // If no property specified and user has properties, ask for property selection
+            if (!propertyId && !intent.propertyMentioned && userId) {
                 const Property = require('../models/Property');
                 const userProperties = await Property.find({ createdBy: userId })
                     .select('title location propertyType')
                     .limit(10);
 
-                return {
-                    success: true,
-                    isSurveyorRequest: true,
-                    needsPropertySelection: true,
-                    intent,
-                    availableProperties: userProperties,
-                    message: "I understand you need a surveyor. Which property would you like to attach the surveyor to?"
-                };
+                if (userProperties.length > 0) {
+                    return {
+                        success: true,
+                        isSurveyorRequest: true,
+                        needsPropertySelection: true,
+                        intent,
+                        availableProperties: userProperties,
+                        message: "I understand you need a surveyor. Which property would you like to attach the surveyor to?"
+                    };
+                }
             }
 
             // Find matching surveyors
@@ -686,6 +697,7 @@ Respond with ONLY the confirmation text.`;
             };
 
             const surveyors = await surveyorMatchingService.findMatchingSurveyors(criteria);
+            console.log(`✅ Found ${surveyors.length} matching surveyors`);
 
             if (surveyors.length === 0) {
                 return {
@@ -702,6 +714,13 @@ Respond with ONLY the confirmation text.`;
                 property || {},
                 intent.surveyType || 'general'
             );
+            console.log(`💡 AI Recommendation:`, recommendation.reasoning);
+
+            const responseMessage = property ?
+                `I found ${surveyors.length} qualified ${intent.surveyType || 'general'} surveyor${surveyors.length > 1 ? 's' : ''} for your property "${property.title}". ${recommendation.reasoning}` :
+                `I found ${surveyors.length} qualified surveyor${surveyors.length > 1 ? 's' : ''} matching your criteria. ${recommendation.reasoning}`;
+
+            console.log(`📤 Response:`, responseMessage);
 
             return {
                 success: true,
@@ -715,9 +734,7 @@ Respond with ONLY the confirmation text.`;
                 } : null,
                 surveyors,
                 recommendation,
-                message: property ?
-                    `I found ${surveyors.length} qualified ${intent.surveyType || 'general'} surveyor${surveyors.length > 1 ? 's' : ''} for your property "${property.title}". ${recommendation.reasoning}` :
-                    `I found ${surveyors.length} qualified surveyor${surveyors.length > 1 ? 's' : ''} matching your criteria.`
+                message: responseMessage
             };
 
         } catch (error) {

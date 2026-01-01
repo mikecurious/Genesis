@@ -1,11 +1,59 @@
 const User = require('../models/User');
 const Property = require('../models/Property');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const groqService = require('./groqService');
 
 class SurveyorMatchingService {
     constructor() {
-        this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        // Initialize Gemini if available
+        if (process.env.GEMINI_API_KEY) {
+            this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        }
+    }
+
+    /**
+     * Call AI with fallback (Gemini -> Groq)
+     */
+    async callAI(prompt, returnJSON = true) {
+        // Try Gemini first
+        if (this.model) {
+            try {
+                const result = await this.model.generateContent(prompt);
+                const response = result.response.text();
+
+                if (returnJSON) {
+                    const jsonMatch = response.match(/\{[\s\S]*\}/);
+                    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+                }
+                return response;
+            } catch (error) {
+                console.warn('Gemini AI failed, falling back to Groq:', error.message);
+            }
+        }
+
+        // Fallback to Groq
+        try {
+            const response = await groqService.chat([
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ], {
+                model: 'llama-3.3-70b-versatile',
+                temperature: 0.3,
+                max_tokens: 500
+            });
+
+            if (returnJSON) {
+                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+            }
+            return response;
+        } catch (error) {
+            console.error('Both Gemini and Groq failed:', error);
+            return null;
+        }
     }
 
     /**
@@ -42,19 +90,15 @@ Examples:
 - "What's the price?" -> {"isSurveyorRequest": false, "confidence": 10, ...}
 `;
 
-            const result = await this.model.generateContent(prompt);
-            const response = result.response.text();
+            const intent = await this.callAI(prompt, true);
 
-            // Parse JSON response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
+            if (!intent) {
                 return {
                     isSurveyorRequest: false,
                     confidence: 0
                 };
             }
 
-            const intent = JSON.parse(jsonMatch[0]);
             return intent;
 
         } catch (error) {
@@ -310,19 +354,15 @@ Return ONLY a JSON object:
 }
 `;
 
-            const result = await this.model.generateContent(prompt);
-            const response = result.response.text();
+            const aiRec = await this.callAI(prompt, true);
 
-            // Parse JSON response
-            const jsonMatch = response.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
+            if (!aiRec) {
                 return {
                     recommendation: surveyors[0],
                     reasoning: 'Top-ranked surveyor based on match score'
                 };
             }
 
-            const aiRec = JSON.parse(jsonMatch[0]);
             const recommendedIndex = Math.min(aiRec.recommendedSurveyorIndex || 0, surveyors.length - 1);
 
             return {
