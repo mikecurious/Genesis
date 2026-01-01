@@ -183,6 +183,8 @@ app.use('/api/features', require('./routes/newFeatures')); // New features route
 app.use('/api/tenants', require('./routes/tenants')); // Tenant management routes
 app.use('/api/financial-reports', require('./routes/financialReporting')); // Comprehensive financial reporting with AI insights
 app.use('/api/role-intelligence', require('./routes/roleIntelligence')); // AI-powered role detection and optimization
+app.use('/api/feature-settings', require('./routes/featureSettings')); // Feature control & settings panel
+app.use('/api/surveyor-chat', require('./routes/surveyorChat')); // Chat-based surveyor request and matching
 
 // Custom Error Handler Middleware
 app.use(errorHandler);

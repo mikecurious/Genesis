@@ -132,6 +132,31 @@ const PropertySchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    // Attached Surveyor
+    attachedSurveyor: {
+        surveyor: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+        },
+        surveyType: {
+            type: String,
+            enum: ['inspection', 'valuation', 'compliance', 'general'],
+            default: 'general'
+        },
+        attachedAt: Date,
+        status: {
+            type: String,
+            enum: ['pending', 'scheduled', 'in-progress', 'completed', 'cancelled'],
+            default: 'pending'
+        },
+        scheduledDate: Date,
+        completedDate: Date,
+        report: {
+            url: String,
+            uploadedAt: Date
+        },
+        notes: String
+    },
     createdAt: {
         type: Date,
         default: Date.now,
