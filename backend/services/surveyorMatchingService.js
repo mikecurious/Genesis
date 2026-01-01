@@ -8,7 +8,7 @@ class SurveyorMatchingService {
         // Initialize Gemini if available
         if (process.env.GEMINI_API_KEY) {
             this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
         }
     }
 
@@ -34,16 +34,30 @@ class SurveyorMatchingService {
 
         // Fallback to Groq
         try {
-            const response = await groqService.chat([
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ], {
+            if (!groqService.isAvailable()) {
+                console.error('Groq is not available - GROQ_API_KEY not set');
+                return null;
+            }
+
+            const completion = await groqService.client.chat.completions.create({
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
                 model: 'llama-3.3-70b-versatile',
                 temperature: 0.3,
-                max_tokens: 500
+                max_tokens: 500,
+                stream: false
             });
+
+            const response = completion.choices[0]?.message?.content;
+
+            if (!response) {
+                console.error('Groq returned empty response');
+                return null;
+            }
 
             if (returnJSON) {
                 const jsonMatch = response.match(/\{[\s\S]*\}/);
