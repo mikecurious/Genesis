@@ -614,6 +614,120 @@ Respond with ONLY the confirmation text.`;
             return "I'm sorry, I couldn't process that command. Please try again.";
         }
     }
+
+    /**
+     * Detect if user message is requesting a surveyor
+     */
+    detectSurveyorIntent(message) {
+        const messageLower = message.toLowerCase();
+
+        const surveyorKeywords = [
+            'surveyor',
+            'survey',
+            'valuation',
+            'valuer',
+            'inspection',
+            'inspect',
+            'compliance check',
+            'property assessment',
+            'land survey'
+        ];
+
+        return surveyorKeywords.some(keyword => messageLower.includes(keyword));
+    }
+
+    /**
+     * Process surveyor request using the surveyor chat service
+     */
+    async processSurveyorRequest(message, userId, propertyId = null) {
+        try {
+            const surveyorMatchingService = require('./surveyorMatchingService');
+
+            // Parse the intent using AI
+            const intent = await surveyorMatchingService.parseSurveyorIntent(message, userId);
+
+            if (!intent.isSurveyorRequest || intent.confidence < 60) {
+                return {
+                    success: true,
+                    isSurveyorRequest: false,
+                    message: "I'm not sure if you're requesting a surveyor. Could you please clarify? For example: 'I need a surveyor for property inspection' or 'Find a valuer for my apartment'"
+                };
+            }
+
+            // If no property specified, ask for property selection
+            if (!propertyId && !intent.propertyMentioned) {
+                const Property = require('../models/Property');
+                const userProperties = await Property.find({ createdBy: userId })
+                    .select('title location propertyType')
+                    .limit(10);
+
+                return {
+                    success: true,
+                    isSurveyorRequest: true,
+                    needsPropertySelection: true,
+                    intent,
+                    availableProperties: userProperties,
+                    message: "I understand you need a surveyor. Which property would you like to attach the surveyor to?"
+                };
+            }
+
+            // Find matching surveyors
+            const Property = require('../models/Property');
+            let property = null;
+
+            if (propertyId) {
+                property = await Property.findById(propertyId);
+            }
+
+            const criteria = {
+                propertyType: property?.propertyType || intent.extractedDetails?.propertyType,
+                location: property?.location || intent.extractedDetails?.location,
+                surveyType: intent.surveyType
+            };
+
+            const surveyors = await surveyorMatchingService.findMatchingSurveyors(criteria);
+
+            if (surveyors.length === 0) {
+                return {
+                    success: true,
+                    isSurveyorRequest: true,
+                    surveyors: [],
+                    message: "I couldn't find any surveyors matching your criteria. Would you like to broaden your search?"
+                };
+            }
+
+            // Get AI recommendation
+            const recommendation = await surveyorMatchingService.getAIRecommendation(
+                surveyors,
+                property || {},
+                intent.surveyType || 'general'
+            );
+
+            return {
+                success: true,
+                isSurveyorRequest: true,
+                intent,
+                property: property ? {
+                    id: property._id,
+                    title: property.title,
+                    location: property.location,
+                    type: property.propertyType
+                } : null,
+                surveyors,
+                recommendation,
+                message: property ?
+                    `I found ${surveyors.length} qualified ${intent.surveyType || 'general'} surveyor${surveyors.length > 1 ? 's' : ''} for your property "${property.title}". ${recommendation.reasoning}` :
+                    `I found ${surveyors.length} qualified surveyor${surveyors.length > 1 ? 's' : ''} matching your criteria.`
+            };
+
+        } catch (error) {
+            console.error('Error processing surveyor request:', error);
+            return {
+                success: false,
+                message: "I encountered an error processing your surveyor request. Please try again."
+            };
+        }
+    }
 }
 
 module.exports = new AIChatService();
