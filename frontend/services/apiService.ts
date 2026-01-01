@@ -81,7 +81,7 @@ export const authService = {
 // User Service
 export const userService = {
     getTenants: async () => {
-        return api.get('/api/users/tenants');
+        return api.get('/api/tenants/my-tenants');
     },
     inviteTenant: async (tenantData: any) => {
         return api.post('/api/tenants/add', tenantData);
