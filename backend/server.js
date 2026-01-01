@@ -185,6 +185,7 @@ app.use('/api/financial-reports', require('./routes/financialReporting')); // Co
 app.use('/api/role-intelligence', require('./routes/roleIntelligence')); // AI-powered role detection and optimization
 app.use('/api/feature-settings', require('./routes/featureSettings')); // Feature control & settings panel
 app.use('/api/surveyor-chat', require('./routes/surveyorChat')); // Chat-based surveyor request and matching
+app.use('/api/sales-automation', require('./routes/salesAutomation')); // AI sales & deal closure engine
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
