@@ -37,24 +37,38 @@ async function createDummySurveyor() {
             phone: '+254712345678',
             password: 'Surveyor123!',
             role: 'Surveyor',
-            location: 'Nairobi',
             isVerified: true,
             accountStatus: 'active',
             surveyorProfile: {
-                licenseNumber: 'SV-2024-001',
+                location: 'Nairobi',
                 specializations: ['Residential', 'Commercial', 'Land'],
-                experience: 8,
+                yearsOfExperience: 8,
                 certifications: [
                     'Licensed Land Surveyor',
                     'Registered Quantity Surveyor',
                     'RICS Certified'
                 ],
                 rating: 4.8,
-                totalJobs: 156,
-                completedJobs: 148,
+                completedSurveys: 148,
                 availability: 'Available',
-                hourlyRate: 5000,
-                description: 'Experienced surveyor specializing in residential, commercial, and land surveys. Over 8 years of professional experience in Nairobi and surrounding areas.'
+                bio: 'Experienced surveyor specializing in residential, commercial, and land surveys. Over 8 years of professional experience in Nairobi and surrounding areas.',
+                services: [
+                    {
+                        name: 'Property Valuation',
+                        description: 'Professional property valuation for residential and commercial properties',
+                        price: 15000
+                    },
+                    {
+                        name: 'Land Survey',
+                        description: 'Comprehensive land surveying and boundary marking',
+                        price: 25000
+                    },
+                    {
+                        name: 'Building Inspection',
+                        description: 'Detailed building inspection and compliance checking',
+                        price: 12000
+                    }
+                ]
             }
         });
 

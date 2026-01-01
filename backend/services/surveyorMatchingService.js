@@ -152,12 +152,12 @@ Examples:
 
             // Filter by location if provided
             if (criteria.location) {
-                query.location = new RegExp(criteria.location, 'i');
+                query['surveyorProfile.location'] = new RegExp(criteria.location, 'i');
             }
 
             // Find surveyors
             const surveyors = await User.find(query)
-                .select('name email phone location surveyorProfile')
+                .select('name email phone surveyorProfile')
                 .limit(limit);
 
             // Score and rank surveyors
@@ -194,16 +194,16 @@ Examples:
             }
 
             // Score for location proximity (simple string match for now)
-            if (criteria.location && surveyor.location) {
-                if (surveyor.location.toLowerCase().includes(criteria.location.toLowerCase()) ||
-                    criteria.location.toLowerCase().includes(surveyor.location.toLowerCase())) {
+            if (criteria.location && surveyor.surveyorProfile?.location) {
+                if (surveyor.surveyorProfile.location.toLowerCase().includes(criteria.location.toLowerCase()) ||
+                    criteria.location.toLowerCase().includes(surveyor.surveyorProfile.location.toLowerCase())) {
                     score += 25;
                 }
             }
 
             // Score for experience (years * 5, max 25)
-            if (surveyor.surveyorProfile?.experience) {
-                score += Math.min(25, surveyor.surveyorProfile.experience * 5);
+            if (surveyor.surveyorProfile?.yearsOfExperience) {
+                score += Math.min(25, surveyor.surveyorProfile.yearsOfExperience * 5);
             }
 
             // Score for rating (if available)
@@ -238,7 +238,7 @@ Examples:
             name: s.surveyor.name,
             email: s.surveyor.email,
             phone: s.surveyor.phone,
-            location: s.surveyor.location,
+            location: s.surveyor.surveyorProfile?.location,
             profile: s.surveyor.surveyorProfile,
             matchScore: s.score,
             matchReasons: s.matchReasons
@@ -268,14 +268,14 @@ Examples:
             }
         }
 
-        if (criteria.location && surveyor.location) {
-            if (surveyor.location.toLowerCase().includes(criteria.location.toLowerCase())) {
-                reasons.push(`Located in ${surveyor.location}`);
+        if (criteria.location && surveyor.surveyorProfile?.location) {
+            if (surveyor.surveyorProfile.location.toLowerCase().includes(criteria.location.toLowerCase())) {
+                reasons.push(`Located in ${surveyor.surveyorProfile.location}`);
             }
         }
 
-        if (surveyor.surveyorProfile?.experience) {
-            reasons.push(`${surveyor.surveyorProfile.experience} years of experience`);
+        if (surveyor.surveyorProfile?.yearsOfExperience) {
+            reasons.push(`${surveyor.surveyorProfile.yearsOfExperience} years of experience`);
         }
 
         if (surveyor.surveyorProfile?.rating >= 4.5) {
@@ -353,7 +353,7 @@ ${surveyors.slice(0, 3).map((s, i) => `
 ${i + 1}. ${s.name}
    - Location: ${s.location || 'Not specified'}
    - Specializations: ${s.profile?.specializations?.join(', ') || 'General'}
-   - Experience: ${s.profile?.experience || 'Not specified'} years
+   - Experience: ${s.profile?.yearsOfExperience || 'Not specified'} years
    - Rating: ${s.profile?.rating || 'Not rated'}/5
    - Match Score: ${s.matchScore}/100
 `).join('\n')}
