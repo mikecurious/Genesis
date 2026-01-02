@@ -91,6 +91,14 @@ exports.initiatePayment = asyncHandler(async (req, res, next) => {
     payment.status = 'processing';
     await payment.save();
 
+    console.log(`✅ Payment initiated successfully:`, {
+        paymentId: payment._id,
+        checkoutRequestID: stkResult.checkoutRequestID,
+        phoneNumber: phoneNumber,
+        amount: amount,
+        status: 'processing'
+    });
+
     res.status(200).json({
         success: true,
         message: stkResult.customerMessage || 'Payment initiated. Please check your phone to complete the transaction.',
@@ -165,6 +173,8 @@ exports.mpesaCallback = asyncHandler(async (req, res, next) => {
 exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
     const payment = await Payment.findById(req.params.paymentId);
 
+    console.log(`📊 Payment status query for ${req.params.paymentId}: ${payment?.status || 'NOT_FOUND'}`);
+
     if (!payment) {
         return res.status(404).json({
             success: false,
@@ -182,10 +192,18 @@ exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
 
     // If payment is still processing, query M-Pesa
     if (payment.status === 'processing' && payment.checkoutRequestID) {
+        console.log(`🔍 Payment still processing, querying M-Pesa for CheckoutRequestID: ${payment.checkoutRequestID}`);
+
         const queryResult = await mpesaService.querySTKPush(
             payment.checkoutRequestID,
             payment.mpesaMode || 'paybill'
         );
+
+        console.log(`📥 M-Pesa query result:`, {
+            success: queryResult.success,
+            resultCode: queryResult.resultCode,
+            resultDesc: queryResult.resultDesc
+        });
 
         if (queryResult.success) {
             // Update payment status based on query result
@@ -194,12 +212,16 @@ exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
                 payment.resultCode = queryResult.resultCode;
                 payment.resultDesc = queryResult.resultDesc;
                 await payment.save();
+                console.log(`✅ Payment completed via query: ${payment._id}`);
             } else if (queryResult.resultCode !== '0' && queryResult.resultCode !== '1032') {
                 // 1032 = Request cancelled by user, keep as processing
                 payment.status = 'failed';
                 payment.resultCode = queryResult.resultCode;
                 payment.resultDesc = queryResult.resultDesc;
                 await payment.save();
+                console.log(`❌ Payment failed via query: ${payment._id} - ${queryResult.resultDesc}`);
+            } else {
+                console.log(`⏳ Payment still pending (code ${queryResult.resultCode}), continuing to wait...`);
             }
         }
     }
@@ -296,6 +318,14 @@ exports.initiateGenericPayment = asyncHandler(async (req, res, next) => {
     payment.checkoutRequestID = stkResult.checkoutRequestID;
     payment.status = 'processing';
     await payment.save();
+
+    console.log(`✅ Payment initiated successfully:`, {
+        paymentId: payment._id,
+        checkoutRequestID: stkResult.checkoutRequestID,
+        phoneNumber: phoneNumber,
+        amount: amount,
+        status: 'processing'
+    });
 
     res.status(200).json({
         success: true,
