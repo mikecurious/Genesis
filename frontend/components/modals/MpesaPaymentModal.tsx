@@ -101,12 +101,21 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
 
         const formatted = paymentService.formatPhoneNumber(phoneNumber);
 
+        console.log('💳 Initiating payment:', {
+            phoneNumber: formatted,
+            amount,
+            paymentType,
+            description,
+            mpesaMode: selectedMethod
+        });
+
         try {
             setStatus('initiating');
 
             let response;
             if (plan) {
                 // Subscription payment
+                console.log('📝 Initiating subscription payment for plan:', plan);
                 response = await paymentService.initiateSubscriptionPayment({
                     plan,
                     phoneNumber: formatted,
@@ -114,6 +123,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                 });
             } else {
                 // Generic payment
+                console.log('📝 Initiating generic payment');
                 response = await paymentService.initiatePayment({
                     phoneNumber: formatted,
                     amount,
@@ -124,20 +134,26 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                 });
             }
 
+            console.log('📥 Payment initiation response:', response);
+
             if (response.success) {
+                console.log(`✅ STK push sent successfully! Payment ID: ${response.paymentId}`);
                 setStatus('pending_confirmation');
                 setCountdown(60);
 
                 // Start polling for payment status
                 const paymentId = response.paymentId;
+                console.log(`🔄 Starting to poll payment status for ${paymentId}`);
                 pollPaymentStatus(paymentId);
             } else {
+                console.error('❌ Payment initiation failed:', response.message);
                 setError(response.message || 'Failed to initiate payment');
                 setStatus('failed');
             }
         } catch (err: any) {
             // Extract error message from axios error response
             const errorMessage = err.response?.data?.message || err.message || 'Failed to initiate payment';
+            console.error('❌ Error initiating payment:', errorMessage, err);
             setError(errorMessage);
             setStatus('failed');
         }

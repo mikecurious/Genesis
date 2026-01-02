@@ -123,23 +123,48 @@ export const paymentService = {
         maxAttempts: number = 30,
         intervalMs: number = 2000
     ): Promise<Payment> {
+        console.log(`🔄 Starting payment status polling for ${paymentId} (max ${maxAttempts} attempts, ${intervalMs}ms interval)`);
+
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const response = await this.queryPaymentStatus(paymentId);
-            const payment = response.data as Payment;
+            try {
+                console.log(`📊 Polling attempt ${attempt + 1}/${maxAttempts} for payment ${paymentId}`);
 
-            if (onStatusChange) {
-                onStatusChange(payment);
+                const response = await this.queryPaymentStatus(paymentId);
+                const payment = response.data as Payment;
+
+                console.log(`📥 Payment status: ${payment.status}`, {
+                    paymentId: payment._id,
+                    status: payment.status,
+                    resultCode: payment.resultCode,
+                    resultDesc: payment.resultDesc
+                });
+
+                if (onStatusChange) {
+                    onStatusChange(payment);
+                }
+
+                // If payment is completed or failed, return
+                if (payment.status === 'completed') {
+                    console.log(`✅ Payment completed successfully!`, payment);
+                    return payment;
+                }
+
+                if (payment.status === 'failed') {
+                    console.log(`❌ Payment failed:`, payment.resultDesc || 'Unknown error');
+                    return payment;
+                }
+
+                // Wait before next poll
+                console.log(`⏳ Waiting ${intervalMs}ms before next poll...`);
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
+            } catch (error) {
+                console.error(`❌ Error during polling attempt ${attempt + 1}:`, error);
+                // Continue polling even if one attempt fails
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
             }
-
-            // If payment is completed or failed, return
-            if (payment.status === 'completed' || payment.status === 'failed') {
-                return payment;
-            }
-
-            // Wait before next poll
-            await new Promise(resolve => setTimeout(resolve, intervalMs));
         }
 
+        console.error(`⏱️ Payment polling timed out after ${maxAttempts} attempts`);
         throw new Error('Payment status polling timed out');
     },
 };
