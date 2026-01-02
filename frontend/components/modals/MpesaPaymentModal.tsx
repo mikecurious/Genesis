@@ -136,7 +136,9 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                 setStatus('failed');
             }
         } catch (err: any) {
-            setError(err.message || 'Failed to initiate payment');
+            // Extract error message from axios error response
+            const errorMessage = err.response?.data?.message || err.message || 'Failed to initiate payment';
+            setError(errorMessage);
             setStatus('failed');
         }
     };
