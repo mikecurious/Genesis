@@ -121,13 +121,19 @@ export const paymentService = {
         paymentId: string,
         onStatusChange?: (payment: Payment) => void,
         maxAttempts: number = 30,
-        intervalMs: number = 2000
+        intervalMs: number = 2000,
+        onAttemptUpdate?: (attempt: number) => void
     ): Promise<Payment> {
         console.log(`🔄 Starting payment status polling for ${paymentId} (max ${maxAttempts} attempts, ${intervalMs}ms interval)`);
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             try {
                 console.log(`📊 Polling attempt ${attempt + 1}/${maxAttempts} for payment ${paymentId}`);
+
+                // Notify UI of current attempt
+                if (onAttemptUpdate) {
+                    onAttemptUpdate(attempt + 1);
+                }
 
                 const response = await this.queryPaymentStatus(paymentId);
                 const payment = response.data as Payment;

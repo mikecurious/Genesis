@@ -31,10 +31,12 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
     const [error, setError] = useState('');
     const [status, setStatus] = useState<PaymentStatus>('idle');
     const [payment, setPayment] = useState<Payment | null>(null);
-    const [countdown, setCountdown] = useState(60);
+    const [countdown, setCountdown] = useState(120);
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [selectedMethod, setSelectedMethod] = useState<'paybill' | 'till'>('paybill');
     const [loadingMethods, setLoadingMethods] = useState(true);
+    const [pollingAttempt, setPollingAttempt] = useState(0);
+    const [maxPollingAttempts, setMaxPollingAttempts] = useState(60);
 
     useEffect(() => {
         if (isOpen) {
@@ -42,7 +44,8 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
             setStatus('idle');
             setError('');
             setPayment(null);
-            setCountdown(60);
+            setCountdown(120);
+            setPollingAttempt(0);
 
             // Fetch available payment methods
             fetchPaymentMethods();
@@ -139,7 +142,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
             if (response.success) {
                 console.log(`✅ STK push sent successfully! Payment ID: ${response.paymentId}`);
                 setStatus('pending_confirmation');
-                setCountdown(60);
+                setCountdown(120);
 
                 // Start polling for payment status
                 const paymentId = response.paymentId;
@@ -169,8 +172,13 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                         setStatus('processing');
                     }
                 },
-                30,
-                2000
+                60, // Increased to 60 attempts (2 minutes)
+                2000,
+                (attempt: number) => {
+                    // Update polling attempt in UI
+                    setPollingAttempt(attempt);
+                    setMaxPollingAttempts(60);
+                }
             );
 
             setPayment(completedPayment);
@@ -354,7 +362,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                         </p>
 
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center justify-center gap-2 mb-3">
                                 <svg className="animate-spin h-5 w-5 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -363,7 +371,36 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
                                     {status === 'processing' ? 'Processing payment...' : 'Waiting for confirmation...'}
                                 </span>
                             </div>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+
+                            {/* Polling Progress Indicator */}
+                            {pollingAttempt > 0 && (
+                                <div className="mb-3">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                            Checking with M-Pesa...
+                                        </span>
+                                        <span className="text-xs text-blue-600 dark:text-blue-400 font-mono">
+                                            {pollingAttempt}/{maxPollingAttempts}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                                        <div
+                                            className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full transition-all duration-300"
+                                            style={{ width: `${(pollingAttempt / maxPollingAttempts) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Payment Status */}
+                            {payment && (
+                                <div className="text-xs text-blue-600 dark:text-blue-400 mb-2 flex items-center justify-center gap-1">
+                                    <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                                    <span>Status: {payment.status === 'processing' ? 'Processing' : 'Pending'}</span>
+                                </div>
+                            )}
+
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
                                 Time remaining: {countdown}s
                             </p>
                         </div>
