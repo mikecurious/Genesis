@@ -320,10 +320,9 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                     onFailed={handlePaymentFailed}
                     amount={selectedPlan.name === PlanName.MyGF3_2 ? 25000 : 15000}
                     description={paymentAction === 'renew'
-                        ? `Renew ${selectedPlan.name}`
+                        ? `Renew ${selectedPlan.name} Subscription`
                         : `Upgrade to ${selectedPlan.name}`}
                     paymentType="subscription"
-                    plan={selectedPlan.name}
                     metadata={{
                         plan: selectedPlan.name,
                         action: paymentAction
