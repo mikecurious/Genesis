@@ -246,8 +246,8 @@ exports.boostProperty = asyncHandler(async (req, res, next) => {
         });
     }
 
-    // Verify payment amount is correct (6000 KES for boost)
-    if (payment.amount !== 6000) {
+    // Verify payment amount is correct (15 KES for boost - TEST AMOUNT)
+    if (payment.amount !== 15) {
         return res.status(400).json({
             success: false,
             message: 'Invalid payment amount for property boost'

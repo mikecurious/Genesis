@@ -4,9 +4,9 @@ const asyncHandler = require('express-async-handler');
 const mpesaService = require('../services/mpesaService');
 
 const planPrices = {
-    'Basic': 10000,
-    'MyGF 1.3': 15000,
-    'MyGF 3.2': 25000
+    'Basic': 15,
+    'MyGF 1.3': 15,
+    'MyGF 3.2': 15
 };
 
 // @desc    Get available M-Pesa payment methods
