@@ -5,7 +5,7 @@ import { AgentClientChat } from './AgentClientChat';
 import { AgentMarketing } from './AgentMarketing';
 import { AgentAiSettings } from './AgentAiSettings';
 import { ListingForm } from '../ListingForm';
-import { FeaturePaymentModal } from '../../modals/FeaturePaymentModal';
+import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
 import { DashboardSidebar, type DashboardSection } from '../DashboardSidebar';
 import { AutomationDashboard } from '../../AutomationDashboard';
 import { LeadViewer } from '../LeadViewer';
@@ -13,6 +13,8 @@ import { ProfileSettings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
 import { AIPropertyManager } from '../combined/AIPropertyManager';
+import { propertyService } from '../../../services/apiService';
+import type { Payment } from '../../../services/paymentService';
 
 interface AgentDashboardProps {
     user?: User; // NEW: User information
@@ -72,13 +74,23 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
         setIsBoostModalOpen(true);
     };
 
-    const handleConfirmBoostPayment = () => {
+    const handlePaymentSuccess = async (payment: Payment) => {
         if (listingToBoost) {
-            console.log(`Boosting property: ${listingToBoost.title} for 6,000 KSh`);
-            // In a real app, this would trigger an API call to the backend
-            // to mark the property as boosted and process the payment.
-            alert(`Payment successful! Your property "${listingToBoost.title}" is now boosted.`);
+            try {
+                await propertyService.boostProperty(listingToBoost.id, payment._id);
+                console.log(`✅ Property boosted successfully: ${listingToBoost.title}`);
+                alert(`Success! Your property "${listingToBoost.title}" is now boosted.`);
+            } catch (error: any) {
+                console.error('Failed to boost property:', error);
+                alert(`Payment processed but failed to boost property. Please contact support. Payment ID: ${payment._id}`);
+            }
         }
+        setIsBoostModalOpen(false);
+        setListingToBoost(null);
+    };
+
+    const handlePaymentFailed = () => {
+        console.log('Payment failed or cancelled');
         setIsBoostModalOpen(false);
         setListingToBoost(null);
     };
@@ -216,14 +228,20 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 onAddListing={handleAddListingSubmit}
                 userRole={user?.role}
             />
-            {isBoostModalOpen && listingToBoost && (
-                <FeaturePaymentModal
+            {listingToBoost && (
+                <MpesaPaymentModal
                     isOpen={isBoostModalOpen}
                     onClose={() => setIsBoostModalOpen(false)}
-                    onConfirm={handleConfirmBoostPayment}
-                    title={`Boost Property: ${listingToBoost.title}`}
-                    description="Promote your listing to get higher visibility, appear at the top of search results, and attract more potential clients."
-                    price="6,000 KSh"
+                    onSuccess={handlePaymentSuccess}
+                    onFailed={handlePaymentFailed}
+                    amount={6000}
+                    description={`Boost Property: ${listingToBoost.title}`}
+                    paymentType="service"
+                    metadata={{
+                        propertyId: listingToBoost.id,
+                        propertyTitle: listingToBoost.title,
+                        action: 'boost_property'
+                    }}
                 />
             )}
         </div>

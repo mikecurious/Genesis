@@ -202,17 +202,81 @@ exports.deleteProperty = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/properties/:id/boost
 // @access  Private
 exports.boostProperty = asyncHandler(async (req, res, next) => {
-    const property = await Property.findByIdAndUpdate(req.params.id, { boosted: true }, {
-        new: true,
-        runValidators: true,
-    }).populate('createdBy', 'name email');
+    const { paymentId } = req.body;
+    const Payment = require('../models/Payment');
+
+    // Verify payment exists and was successful
+    if (!paymentId) {
+        return res.status(400).json({
+            success: false,
+            message: 'Payment ID is required to boost property'
+        });
+    }
+
+    const payment = await Payment.findById(paymentId);
+
+    if (!payment) {
+        return res.status(404).json({
+            success: false,
+            message: 'Payment not found'
+        });
+    }
+
+    // Verify payment belongs to the requesting user
+    if (payment.user.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+            success: false,
+            message: 'Not authorized to use this payment'
+        });
+    }
+
+    // Verify payment was successful
+    if (payment.status !== 'completed') {
+        return res.status(400).json({
+            success: false,
+            message: `Payment is ${payment.status}. Only completed payments can be used to boost properties.`
+        });
+    }
+
+    // Verify payment is for property boost action
+    if (payment.metadata?.action !== 'boost_property') {
+        return res.status(400).json({
+            success: false,
+            message: 'This payment is not for property boosting'
+        });
+    }
+
+    // Verify payment amount is correct (6000 KES for boost)
+    if (payment.amount !== 6000) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid payment amount for property boost'
+        });
+    }
+
+    // Find and boost the property
+    const property = await Property.findByIdAndUpdate(
+        req.params.id,
+        { boosted: true },
+        {
+            new: true,
+            runValidators: true,
+        }
+    ).populate('createdBy', 'name email');
 
     if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
     }
 
-    // Here you could integrate with a payment check or plan feature check
-    console.log(`ADMIN NOTIFICATION: Property ${property.title} has been boosted.`);
+    // Verify property belongs to user
+    if (property.createdBy._id.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+            success: false,
+            message: 'Not authorized to boost this property'
+        });
+    }
+
+    console.log(`✅ Property ${property.title} has been boosted by ${req.user.name} (Payment: ${payment.mpesaReceiptNumber})`);
 
     res.status(200).json({ success: true, data: property });
 });

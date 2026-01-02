@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { type Listing } from '../../../types';
 import { MpesaPaymentModal } from '../../modals/MpesaPaymentModal';
+import { propertyService } from '../../../services/apiService';
+import type { Payment } from '../../../services/paymentService';
 
 interface CombinedMarketingProps {
     listings: Listing[];
@@ -16,10 +18,16 @@ export const CombinedMarketing: React.FC<CombinedMarketingProps> = ({ listings }
         setIsPaymentModalOpen(true);
     };
 
-    const handlePaymentSuccess = () => {
+    const handlePaymentSuccess = async (payment: Payment) => {
         if (selectedListing) {
-            console.log(`Payment successful! Property boosted: ${selectedListing.title}`);
-            // TODO: Update property boost status via API
+            try {
+                await propertyService.boostProperty(selectedListing.id, payment._id);
+                console.log(`✅ Property boosted successfully: ${selectedListing.title}`);
+                alert(`Success! Your property "${selectedListing.title}" is now boosted.`);
+            } catch (error: any) {
+                console.error('Failed to boost property:', error);
+                alert(`Payment processed but failed to boost property. Please contact support. Payment ID: ${payment._id}`);
+            }
         }
         setIsPaymentModalOpen(false);
         setSelectedListing(null);

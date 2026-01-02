@@ -121,6 +121,9 @@ export const propertyService = {
     deleteProperty: async (propertyId: string) => {
         return api.delete(`/api/properties/${propertyId}`);
     },
+    boostProperty: async (propertyId: string, paymentId: string) => {
+        return api.put(`/api/properties/${propertyId}/boost`, { paymentId });
+    },
 };
 
 // Maintenance Service
