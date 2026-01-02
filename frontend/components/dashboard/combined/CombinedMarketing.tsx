@@ -67,7 +67,7 @@ export const CombinedMarketing: React.FC<CombinedMarketingProps> = ({ listings }
                     onClose={() => setIsPaymentModalOpen(false)}
                     onSuccess={handlePaymentSuccess}
                     onFailed={handlePaymentFailed}
-                    amount={6000}
+                    amount={15}
                     description={`Boost Property: ${selectedListing.title}`}
                     paymentType="service"
                     metadata={{
