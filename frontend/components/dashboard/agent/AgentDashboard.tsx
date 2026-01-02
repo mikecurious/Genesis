@@ -234,7 +234,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     onClose={() => setIsBoostModalOpen(false)}
                     onSuccess={handlePaymentSuccess}
                     onFailed={handlePaymentFailed}
-                    amount={15}
+                    amount={1}
                     description={`Boost Property: ${listingToBoost.title}`}
                     paymentType="service"
                     metadata={{

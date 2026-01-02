@@ -67,7 +67,7 @@ export const OwnerMarketing: React.FC<OwnerMarketingProps> = ({ listings }) => {
                     onClose={() => setIsPaymentModalOpen(false)}
                     onSuccess={handlePaymentSuccess}
                     onFailed={handlePaymentFailed}
-                    amount={15}
+                    amount={1}
                     description={`Boost Property: ${selectedListing.title}`}
                     paymentType="service"
                     metadata={{

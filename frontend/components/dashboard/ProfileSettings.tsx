@@ -78,7 +78,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
 
     const handleRenewClick = () => {
         // Test amount
-        const currentPrice = '15 KSh';
+        const currentPrice = '1 KSh';
         setSelectedPlan({ name: user.subscription?.plan || PlanName.MyGF1_3, price: currentPrice });
         setPaymentAction('renew');
         setIsPaymentModalOpen(true);
@@ -318,7 +318,7 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
                     onClose={() => setIsPaymentModalOpen(false)}
                     onSuccess={handlePaymentSuccess}
                     onFailed={handlePaymentFailed}
-                    amount={15}
+                    amount={1}
                     description={paymentAction === 'renew'
                         ? `Renew ${selectedPlan.name} Subscription`
                         : `Upgrade to ${selectedPlan.name}`}
