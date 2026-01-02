@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Listing } from '../types';
 import { AgentIcon } from './icons/AgentIcon';
+import { formatPrice } from '../utils/formatPrice';
 
 interface PropertyCardProps {
     property: Listing;
@@ -51,7 +52,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                     {/* Price Tag */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 items-start">
                         <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-lg">
-                            <span className="text-green-600 dark:text-green-400 font-bold text-lg">{property.price}</span>
+                            <span className="text-green-600 dark:text-green-400 font-bold text-lg">
+                                {typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price}
+                            </span>
                         </div>
                         <div className={`px-3 py-1 rounded-full shadow-lg backdrop-blur-md text-xs font-bold text-white ${property.priceType === 'sale' ? 'bg-emerald-500/90' : 'bg-blue-500/90'}`}>
                             {property.priceType === 'sale' ? 'For Sale' : 'For Rent'}
