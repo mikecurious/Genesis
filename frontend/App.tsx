@@ -238,8 +238,11 @@ const App: React.FC = () => {
             await fetchAndSetTenantData();
           }
 
-          const { data: requests } = await maintenanceService.getRequests();
+          const response = await maintenanceService.getRequests();
           if (!isMounted) return; // Don't update state if unmounted
+
+          // Extract the data array from the response
+          const requests = response.data?.data || [];
 
           setMaintenanceRequests(
             requests.map((r: any) => ({
