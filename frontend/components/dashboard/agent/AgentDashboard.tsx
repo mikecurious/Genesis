@@ -79,14 +79,17 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             try {
                 await propertyService.boostProperty(listingToBoost.id, payment._id);
                 console.log(`✅ Property boosted successfully: ${listingToBoost.title}`);
-                alert(`Success! Your property "${listingToBoost.title}" is now boosted.`);
             } catch (error: any) {
                 console.error('Failed to boost property:', error);
                 alert(`Payment processed but failed to boost property. Please contact support. Payment ID: ${payment._id}`);
             }
         }
-        setIsBoostModalOpen(false);
-        setListingToBoost(null);
+
+        // Wait 3 seconds to let user see the success message in modal
+        setTimeout(() => {
+            setIsBoostModalOpen(false);
+            setListingToBoost(null);
+        }, 3000);
     };
 
     const handlePaymentFailed = () => {

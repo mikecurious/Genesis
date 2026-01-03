@@ -99,14 +99,17 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
         console.log(`✅ Payment successful for ${paymentAction}:`, selectedPlan?.name);
 
         // The subscription will be updated automatically by the backend callback
-        // Just show success message and close modal
+        // Show success message in modal, then close after delay
         setMessage({
             type: 'success',
             text: `Payment successful! Your plan has been ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} to ${selectedPlan?.name}.`
         });
 
-        setIsPaymentModalOpen(false);
-        setSelectedPlan(null);
+        // Wait 3 seconds to let user see the success message
+        setTimeout(() => {
+            setIsPaymentModalOpen(false);
+            setSelectedPlan(null);
+        }, 3000);
 
         // Optionally reload user data to show updated subscription
         // if (onUpdate) {
