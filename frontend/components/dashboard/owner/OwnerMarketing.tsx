@@ -29,11 +29,11 @@ export const OwnerMarketing: React.FC<OwnerMarketingProps> = ({ listings }) => {
             }
         }
 
-        // Wait 3 seconds to let user see the success message in modal
+        // Wait 5 seconds to let user see the success message in modal
         setTimeout(() => {
             setIsPaymentModalOpen(false);
             setSelectedListing(null);
-        }, 3000);
+        }, 5000);
     };
 
     const handlePaymentFailed = () => {

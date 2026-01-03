@@ -6,6 +6,7 @@ import { AiIcon } from './icons/AiIcon';
 import { AgentIcon } from './icons/AgentIcon';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
+import { formatPrice } from '../utils/formatPrice';
 
 interface ChatMessageProps {
   message: Message;
@@ -45,7 +46,9 @@ const PropertyCard: React.FC<{
 
     {/* Content section */}
     <div className="p-4 flex flex-col flex-grow">
-      <p className="text-green-600 dark:text-green-400 font-semibold text-lg">{property.price}</p>
+      <p className="text-green-600 dark:text-green-400 font-semibold text-lg">
+        {typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price}
+      </p>
       <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-3 flex-grow">{property.description}</p>
 
       {/* Agent Info & Action */}

@@ -105,11 +105,11 @@ export const ProfileSettings: React.FC<SettingsProps> = ({ user, onUpdate }) => 
             text: `Payment successful! Your plan has been ${paymentAction === 'renew' ? 'renewed' : 'upgraded'} to ${selectedPlan?.name}.`
         });
 
-        // Wait 3 seconds to let user see the success message
+        // Wait 5 seconds to let user see the success message
         setTimeout(() => {
             setIsPaymentModalOpen(false);
             setSelectedPlan(null);
-        }, 3000);
+        }, 5000);
 
         // Optionally reload user data to show updated subscription
         // if (onUpdate) {

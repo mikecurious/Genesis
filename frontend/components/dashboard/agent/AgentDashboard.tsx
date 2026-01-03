@@ -85,11 +85,11 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             }
         }
 
-        // Wait 3 seconds to let user see the success message in modal
+        // Wait 5 seconds to let user see the success message in modal
         setTimeout(() => {
             setIsBoostModalOpen(false);
             setListingToBoost(null);
-        }, 3000);
+        }, 5000);
     };
 
     const handlePaymentFailed = () => {
