@@ -38,6 +38,11 @@ export const adminService = {
         return response.data;
     },
 
+    async verifyUser(userId: string) {
+        const response = await api.post(`/api/admin/users/${userId}/verify`);
+        return response.data;
+    },
+
     // Property Management
     async getAllProperties() {
         const response = await api.get('/api/admin/properties');

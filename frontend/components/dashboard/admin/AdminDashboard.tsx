@@ -71,6 +71,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         }
     };
 
+    const handleVerifyUser = async (userId: string, userName: string) => {
+        if (confirm(`Verify ${userName}? This will give them full access to the platform.`)) {
+            try {
+                await adminService.verifyUser(userId);
+                alert('User verified successfully! They can now access the platform.');
+                await loadData();
+            } catch (error: any) {
+                alert('Failed to verify user: ' + error.message);
+            }
+        }
+    };
+
     const handleDeleteUser = async (userId: string, userName: string) => {
         if (confirm(`Are you sure you want to DELETE ${userName}? This action cannot be undone.`)) {
             try {
@@ -337,6 +349,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                                                {!u.isVerified && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleVerifyUser(u._id, u.name)}
+                                                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold hover:underline"
+                                                        >
+                                                            ✓ Verify
+                                                        </button>
+                                                        <span className="text-gray-300">•</span>
+                                                    </>
+                                                )}
                                                 {u.accountStatus !== 'suspended' && u.role !== 'Admin' && (
                                                     <button
                                                         onClick={() => handleSuspendUser(u._id, u.name)}
