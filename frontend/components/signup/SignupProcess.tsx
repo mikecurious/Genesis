@@ -8,6 +8,8 @@ import { AccountSetup } from "./AccountSetup";
 import { Confirmation } from "./Confirmation";
 import { UserRole, PlanName, User } from "../../types";
 import { authService } from "../../services/apiService";
+import { MpesaPaymentModal } from "../modals/MpesaPaymentModal";
+import type { Payment } from "../../services/paymentService";
 
 interface SignupProcessProps {
   onSignupSuccess: (token: string, user: User) => void;
@@ -30,6 +32,9 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
 
   // Store the temporary token received after verification
   const [tempAuthToken, setTempAuthToken] = useState<string | null>(null);
+
+  // Payment modal state
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const handleRegistrationSubmit = async (data: RegistrationFormData) => {
     setIsLoading(true);
@@ -82,7 +87,15 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
     setStep("confirm");
   };
 
-  const handlePayment = async () => {
+  const handlePayment = () => {
+    // Open payment modal instead of directly calling setupAccount
+    if (selectedRole && selectedPlan && tempAuthToken) {
+      setIsPaymentModalOpen(true);
+    }
+  };
+
+  const handlePaymentSuccess = async (payment: Payment) => {
+    // After successful payment, complete account setup
     if (selectedRole && selectedPlan && tempAuthToken) {
       setIsLoading(true);
       setError(null);
@@ -91,13 +104,21 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
           { role: selectedRole, plan: selectedPlan },
           tempAuthToken
         );
+        setIsPaymentModalOpen(false);
         onSignupSuccess(tempAuthToken, response.data.data);
       } catch (err: any) {
         setError(err.message || "Failed to set up account. Please try again.");
+        setIsPaymentModalOpen(false);
       } finally {
         setIsLoading(false);
       }
     }
+  };
+
+  const handlePaymentFailed = () => {
+    console.log('Payment failed or cancelled');
+    setIsPaymentModalOpen(false);
+    setError('Payment was not completed. Please try again.');
   };
 
   const renderContent = () => {
@@ -201,6 +222,41 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
           </button>
         </p>
       </div>
+
+      {/* M-Pesa Payment Modal */}
+      {isPaymentModalOpen && selectedPlan && (
+        <MpesaPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onSuccess={handlePaymentSuccess}
+          onFailed={handlePaymentFailed}
+          amount={getPlanAmount(selectedPlan)}
+          description={`${selectedPlan} Subscription - First Month`}
+          paymentType="subscription"
+          plan={selectedPlan}
+          metadata={{
+            role: selectedRole,
+            plan: selectedPlan,
+            action: 'signup_subscription'
+          }}
+        />
+      )}
     </div>
   );
+};
+
+// Helper function to get plan amount
+const getPlanAmount = (plan: PlanName): number => {
+  switch (plan) {
+    case PlanName.Basic:
+      return 1000;
+    case PlanName.MyGF1_3:
+      return 2500;
+    case PlanName.MyGF3_2:
+      return 5000;
+    case PlanName.None:
+      return 0;
+    default:
+      return 0;
+  }
 };
