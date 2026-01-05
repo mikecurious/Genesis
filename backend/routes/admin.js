@@ -8,6 +8,7 @@ const {
     getAllLeads,
     updateUser,
     deleteUser,
+    verifyUser,
     suspendUser,
     reactivateUser,
     moderateProperty,
@@ -31,6 +32,7 @@ router.get('/activity', getActivityLogs);
 router.get('/users', getUsers);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
+router.post('/users/:id/verify', verifyUser);
 router.post('/users/:id/suspend', suspendUser);
 router.post('/users/:id/reactivate', reactivateUser);
 

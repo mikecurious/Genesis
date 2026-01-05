@@ -304,6 +304,56 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc    Verify user account (one-click verification)
+// @route   POST /api/admin/users/:id/verify
+// @access  Private (Admin)
+exports.verifyUser = asyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'User not found'
+        });
+    }
+
+    // Check if already verified
+    if (user.isVerified) {
+        return res.status(400).json({
+            success: false,
+            message: 'User is already verified'
+        });
+    }
+
+    // Verify the user and clear verification tokens
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    // Send notification to user
+    await Notification.create({
+        user: user._id,
+        type: 'system',
+        title: 'Account Verified',
+        message: 'Your account has been verified by the administrator. You now have full access to the platform.',
+        priority: 'high'
+    });
+
+    res.status(200).json({
+        success: true,
+        message: 'User verified successfully',
+        data: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            isVerified: user.isVerified,
+            role: user.role
+        }
+    });
+});
+
 // @desc    Suspend user account
 // @route   POST /api/admin/users/:id/suspend
 // @access  Private (Admin)

@@ -9,13 +9,13 @@ const requiredEnvVars = [
     'MONGO_URI',
     'JWT_SECRET',
     'JWT_EXPIRE',
-    'EMAIL_HOST',
-    'EMAIL_USER',
-    'EMAIL_PASSWORD',
     'FRONTEND_URL'
 ];
 
 const optionalEnvVars = [
+    'EMAIL_HOST',
+    'EMAIL_USER',
+    'EMAIL_PASSWORD',
     'EMAIL_FROM',
     'EMAIL_SECURE',
     'CLOUDINARY_CLOUD_NAME',
