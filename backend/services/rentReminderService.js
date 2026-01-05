@@ -176,6 +176,11 @@ class RentReminderService {
      * Send email reminder
      */
     async sendEmailReminder(tenant, landlord, daysUntilDue) {
+        if (!emailService.isInitialized) {
+            console.warn('⚠️  Email service not initialized, skipping email reminder');
+            return;
+        }
+
         const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -219,18 +224,25 @@ class RentReminderService {
 </html>
         `;
 
-        await emailService.transporter.sendMail({
-            from: process.env.EMAIL_USER,
+        const mailOptions = {
+            from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
             to: tenant.email,
             subject: `🏠 Rent Payment Due in ${daysUntilDue} Day(s)`,
             html: emailHtml
-        });
+        };
+
+        await emailService.sendEmailWithRetry(mailOptions);
     }
 
     /**
      * Send email overdue notice
      */
     async sendEmailOverdueNotice(tenant, landlord, daysOverdue) {
+        if (!emailService.isInitialized) {
+            console.warn('⚠️  Email service not initialized, skipping overdue notice');
+            return;
+        }
+
         const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -273,12 +285,14 @@ class RentReminderService {
 </html>
         `;
 
-        await emailService.transporter.sendMail({
-            from: process.env.EMAIL_USER,
+        const mailOptions = {
+            from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
             to: tenant.email,
             subject: `⚠️ URGENT: Rent Payment ${daysOverdue} Day(s) Overdue`,
             html: emailHtml
-        });
+        };
+
+        await emailService.sendEmailWithRetry(mailOptions);
     }
 
     /**

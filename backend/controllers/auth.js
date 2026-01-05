@@ -20,6 +20,26 @@ exports.register = asyncHandler(async (req, res, next) => {
         return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
+    // Validate password strength
+    if (!password || password.length < 8) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must be at least 8 characters long'
+        });
+    }
+
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., Test@123)'
+        });
+    }
+
     // Create user but don't verify yet
     user = new User({ name, email, password, phone });
 
