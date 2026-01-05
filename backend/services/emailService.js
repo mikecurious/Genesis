@@ -29,7 +29,11 @@ class EmailService {
                 maxConnections: 5,
                 maxMessages: 100,
                 rateDelta: 1000, // limit to 1 email per second
-                rateLimit: 5
+                rateLimit: 5,
+                // Increased timeouts for cloud environments (Render, Heroku, etc.)
+                connectionTimeout: 30000, // 30 seconds
+                greetingTimeout: 30000,
+                socketTimeout: 30000
             });
 
             // Verify connection
