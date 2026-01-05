@@ -38,6 +38,12 @@ websocketService.initialize(server);
 // Initialize automated services (cron jobs)
 const rentReminderService = require('./services/rentReminderService');
 const leadScoringService = require('./services/leadScoringService');
+const emailService = require('./services/emailService');
+
+// Initialize email service
+emailService.initialize().catch(err => {
+    logger.warn('Email service initialization failed:', err.message);
+});
 
 // Start cron jobs
 rentReminderService.initialize();

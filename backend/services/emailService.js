@@ -3,38 +3,98 @@ const nodemailer = require('nodemailer');
 class EmailService {
     constructor() {
         this.transporter = null;
-        this.initialize();
+        this.isInitialized = false;
     }
 
     /**
      * Initialize email transporter
      */
-    initialize() {
-        // Use Nodemailer with Gmail or custom SMTP
-        const createTransporter = nodemailer.createTransporter || nodemailer.default?.createTransporter;
+    async initialize() {
+        try {
+            // Validate required environment variables
+            if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+                console.warn('⚠️  Email credentials not configured');
+                return;
+            }
 
-        if (!createTransporter) {
-            console.warn('⚠️  Email service not available - nodemailer not properly loaded');
-            return;
+            this.transporter = nodemailer.createTransport({
+                host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+                port: parseInt(process.env.EMAIL_PORT || '587'),
+                secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASSWORD
+                },
+                pool: true, // use pooled connection
+                maxConnections: 5,
+                maxMessages: 100,
+                rateDelta: 1000, // limit to 1 email per second
+                rateLimit: 5
+            });
+
+            // Verify connection
+            await this.transporter.verify();
+            this.isInitialized = true;
+            console.log('✅ Email service initialized and verified');
+        } catch (error) {
+            console.error('❌ Email service initialization failed:', error.message);
+            this.isInitialized = false;
+        }
+    }
+
+    /**
+     * Validate email address format
+     */
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    /**
+     * Send email with retry mechanism
+     */
+    async sendEmailWithRetry(mailOptions, maxRetries = 3) {
+        if (!this.isInitialized || !this.transporter) {
+            throw new Error('Email service not initialized');
         }
 
-        this.transporter = createTransporter({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.EMAIL_PORT || '587'),
-            secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD
+        let lastError;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const result = await this.transporter.sendMail(mailOptions);
+                console.log(`✅ Email sent successfully (attempt ${attempt})`);
+                return { success: true, result };
+            } catch (error) {
+                lastError = error;
+                console.warn(`⚠️  Email send attempt ${attempt} failed:`, error.message);
+                
+                if (attempt < maxRetries) {
+                    // Exponential backoff: 1s, 2s, 4s
+                    const delay = Math.pow(2, attempt - 1) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
-        });
-
-        console.log('✅ Email service initialized');
+        }
+        
+        console.error(`❌ Email failed after ${maxRetries} attempts:`, lastError.message);
+        return { success: false, error: lastError.message };
     }
 
     /**
      * Send lead notification email
      */
     async sendLeadNotification(ownerEmail, lead, property) {
+        try {
+            // Validate inputs
+            if (!this.validateEmail(ownerEmail)) {
+                throw new Error('Invalid owner email address');
+            }
+            if (!lead || !property) {
+                throw new Error('Lead and property data are required');
+            }
+            if (!lead.client || !lead.client.email) {
+                throw new Error('Lead client information is incomplete');
+            }
         const dealTypeLabels = {
             purchase: '🏠 Purchase Inquiry',
             rental: '🔑 Rental Inquiry',
@@ -94,18 +154,16 @@ class EmailService {
 </html>
         `;
 
-        try {
-            await this.transporter.sendMail({
+            const mailOptions = {
                 from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: ownerEmail,
                 subject: `New ${dealTypeLabels[lead.dealType]} - ${property.title}`,
                 html: emailHtml
-            });
+            };
 
-            console.log(`✅ Email sent to ${ownerEmail} for lead ${lead._id}`);
-            return { success: true };
+            return await this.sendEmailWithRetry(mailOptions);
         } catch (error) {
-            console.error('Email sending error:', error);
+            console.error('❌ Lead notification email failed:', error.message);
             return { success: false, error: error.message };
         }
     }
@@ -114,6 +172,14 @@ class EmailService {
      * Send welcome email to new user
      */
     async sendWelcomeEmail(userEmail, userName) {
+        try {
+            // Validate inputs
+            if (!this.validateEmail(userEmail)) {
+                throw new Error('Invalid user email address');
+            }
+            if (!userName) {
+                throw new Error('User name is required');
+            }
         const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -151,18 +217,16 @@ class EmailService {
 </html>
         `;
 
-        try {
-            await this.transporter.sendMail({
+            const mailOptions = {
                 from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: userEmail,
                 subject: 'Welcome to MyGF AI! 🎉',
                 html: emailHtml
-            });
+            };
 
-            console.log(`✅ Welcome email sent to ${userEmail}`);
-            return { success: true };
+            return await this.sendEmailWithRetry(mailOptions);
         } catch (error) {
-            console.error('Email sending error:', error);
+            console.error('❌ Welcome email failed:', error.message);
             return { success: false, error: error.message };
         }
     }
@@ -171,6 +235,14 @@ class EmailService {
      * Send property published notification
      */
     async sendPropertyPublishedEmail(ownerEmail, property) {
+        try {
+            // Validate inputs
+            if (!this.validateEmail(ownerEmail)) {
+                throw new Error('Invalid owner email address');
+            }
+            if (!property || !property.title) {
+                throw new Error('Property data is required');
+            }
         const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -203,18 +275,16 @@ class EmailService {
 </html>
         `;
 
-        try {
-            await this.transporter.sendMail({
+            const mailOptions = {
                 from: process.env.EMAIL_FROM || `"MyGF AI" <${process.env.EMAIL_USER}>`,
                 to: ownerEmail,
                 subject: `Property Published: ${property.title}`,
                 html: emailHtml
-            });
+            };
 
-            console.log(`✅ Property published email sent to ${ownerEmail}`);
-            return { success: true };
+            return await this.sendEmailWithRetry(mailOptions);
         } catch (error) {
-            console.error('Email sending error:', error);
+            console.error('❌ Property published email failed:', error.message);
             return { success: false, error: error.message };
         }
     }
@@ -223,10 +293,24 @@ class EmailService {
      * Send welcome email to new tenant
      */
     async sendTenantWelcomeEmail(tenant, tempPassword, property) {
-        if (!this.transporter) {
-            console.warn('Email service not available');
-            return;
-        }
+        try {
+            if (!this.isInitialized || !this.transporter) {
+                throw new Error('Email service not initialized');
+            }
+
+            // Validate inputs
+            if (!tenant || !tenant.email) {
+                throw new Error('Tenant information is required');
+            }
+            if (!this.validateEmail(tenant.email)) {
+                throw new Error('Invalid tenant email address');
+            }
+            if (!tempPassword) {
+                throw new Error('Temporary password is required');
+            }
+            if (!property || !property.title) {
+                throw new Error('Property information is required');
+            }
 
         const emailHtml = `
 <!DOCTYPE html>
@@ -295,18 +379,54 @@ class EmailService {
 </html>
         `;
 
-        try {
-            await this.transporter.sendMail({
+            const mailOptions = {
                 from: process.env.EMAIL_USER,
                 to: tenant.email,
                 subject: `Welcome to ${property.title} - Your Login Credentials`,
                 html: emailHtml
-            });
-            console.log(`✅ Welcome email sent to tenant: ${tenant.email}`);
+            };
+
+            const result = await this.sendEmailWithRetry(mailOptions);
+            if (result.success) {
+                console.log(`✅ Welcome email sent to tenant: ${tenant.email}`);
+            }
+            return result;
         } catch (error) {
-            console.error('Error sending tenant welcome email:', error);
+            console.error('❌ Tenant welcome email failed:', error.message);
             throw error;
         }
+    }
+
+    /**
+     * Health check for email service
+     */
+    async healthCheck() {
+        try {
+            if (!this.isInitialized || !this.transporter) {
+                return { status: 'unhealthy', message: 'Email service not initialized' };
+            }
+
+            await this.transporter.verify();
+            return { status: 'healthy', message: 'Email service is working correctly' };
+        } catch (error) {
+            return { status: 'unhealthy', message: error.message };
+        }
+    }
+
+    /**
+     * Get email service statistics
+     */
+    getStats() {
+        return {
+            isInitialized: this.isInitialized,
+            hasTransporter: !!this.transporter,
+            config: {
+                host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+                port: process.env.EMAIL_PORT || '587',
+                secure: process.env.EMAIL_SECURE === 'true',
+                user: process.env.EMAIL_USER ? '***configured***' : 'not configured'
+            }
+        };
     }
 }
 
