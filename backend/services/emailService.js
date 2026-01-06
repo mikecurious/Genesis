@@ -85,6 +85,40 @@ class EmailService {
     }
 
     /**
+     * Generic email sender used by multiple services
+     */
+    async sendEmail({ to, subject, html, text, cc, bcc, attachments, from }) {
+        if (!to || !subject || (!html && !text)) {
+            throw new Error('Missing required email fields (to, subject, html/text)');
+        }
+
+        // Lazily initialize if startup initialization failed
+        if (!this.isInitialized || !this.transporter) {
+            await this.initialize();
+        }
+
+        if (!this.isInitialized || !this.transporter) {
+            throw new Error('Email service not initialized');
+        }
+
+        const defaultFrom = process.env.EMAIL_FROM
+            || (process.env.EMAIL_USER ? `"MyGF AI" <${process.env.EMAIL_USER}>` : 'MyGF AI <noreply@mygf.ai>');
+
+        const mailOptions = {
+            from: from || defaultFrom,
+            to,
+            subject,
+            html,
+            text,
+            cc,
+            bcc,
+            attachments
+        };
+
+        return this.sendEmailWithRetry(mailOptions);
+    }
+
+    /**
      * Send lead notification email
      */
     async sendLeadNotification(ownerEmail, lead, property) {

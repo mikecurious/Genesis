@@ -2,7 +2,7 @@ const SurveyTask = require('../models/SurveyTask');
 const SurveyReport = require('../models/SurveyReport');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
-const { sendEmail } = require('../services/emailService');
+const emailService = require('../services/emailService');
 
 // ==================== SURVEYOR REGISTRATION ====================
 
@@ -77,7 +77,7 @@ exports.registerSurveyor = asyncHandler(async (req, res) => {
             </div>
         `;
 
-        await sendEmail({
+        await emailService.sendEmail({
             to: email,
             subject: 'Verify Your Surveyor Account - MyGF AI',
             html

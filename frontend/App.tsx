@@ -70,6 +70,28 @@ type View =
 type Theme = "light" | "dark";
 
 const App: React.FC = () => {
+  const normalizeUserRole = (role: User["role"]): UserRole => {
+    if (!role) return UserRole.Agent;
+    const key = role.toString().trim().toLowerCase();
+    const roleMap: Record<string, UserRole> = {
+      agent: UserRole.Agent,
+      landlord: UserRole.Landlord,
+      "property seller": UserRole.PropertySeller,
+      seller: UserRole.PropertySeller,
+      "property owner": UserRole.PropertyOwner,
+      owner: UserRole.PropertyOwner,
+      tenant: UserRole.Tenant,
+      surveyor: UserRole.Surveyor,
+      admin: UserRole.Admin,
+    };
+    return roleMap[key] || (role as UserRole);
+  };
+
+  const normalizeUser = (user: User): User => ({
+    ...user,
+    role: normalizeUserRole(user.role),
+  });
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [chatHasStarted, setChatHasStarted] = useState(false);
@@ -224,7 +246,7 @@ const App: React.FC = () => {
           const { data: user } = await authService.getMe();
           if (!isMounted) return; // Don't update state if unmounted
 
-          setCurrentUser(user);
+          setCurrentUser(normalizeUser(user));
           setIsUserLoggedIn(true);
 
           // Fetch data based on user role
@@ -642,17 +664,18 @@ const App: React.FC = () => {
         password: pass,
       });
       const { token, user } = response.data;
+      const normalizedUser = normalizeUser(user);
       localStorage.setItem("token", token);
-      setCurrentUser(user);
+      setCurrentUser(normalizedUser);
       setIsUserLoggedIn(true);
       if (
         [UserRole.PropertyOwner, UserRole.Landlord, UserRole.Agent].includes(
-          user.role
+          normalizedUser.role
         )
       ) {
         await fetchAndSetTenantData();
       }
-      if (user.subscription?.status === "inactive") {
+      if (normalizedUser.subscription?.status === "inactive") {
         // Let view logic handle showing PaymentPending
       } else {
         handleSetView("dashboard");
@@ -674,11 +697,12 @@ const App: React.FC = () => {
         password: pass,
       });
       const { token, user } = response.data;
-      if (user.role !== UserRole.Tenant) {
+      const normalizedUser = normalizeUser(user);
+      if (normalizedUser.role !== UserRole.Tenant) {
         throw new Error("Access denied. This portal is for tenants only.");
       }
       localStorage.setItem("token", token);
-      setCurrentUser(user);
+      setCurrentUser(normalizedUser);
       setIsUserLoggedIn(true);
       handleSetView("dashboard");
     } catch (error: any) {
@@ -699,7 +723,7 @@ const App: React.FC = () => {
 
   const handleSignupSuccess = (token: string, user: User) => {
     localStorage.setItem("token", token);
-    setCurrentUser(user);
+    setCurrentUser(normalizeUser(user));
     setIsUserLoggedIn(true);
     // If plan requires payment, this logic would route to a payment page
     // For now, we assume success and go to dashboard
@@ -903,7 +927,7 @@ const App: React.FC = () => {
       const response = await authService.resetPassword(token, newPassword);
       const { token: newToken, user } = response.data;
       localStorage.setItem("token", newToken);
-      setCurrentUser(user);
+      setCurrentUser(normalizeUser(user));
       setIsUserLoggedIn(true);
       setTimeout(() => handleSetView("dashboard"), 1500);
     } catch (error: any) {
