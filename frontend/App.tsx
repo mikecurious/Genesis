@@ -9,6 +9,8 @@ import { ChatMessage } from "./components/ChatMessage";
 import { ChatInput } from "./components/ChatInput";
 import { SignupProcess } from "./components/signup/SignupProcess";
 import { AgentSignIn } from "./components/signin/AgentSignIn";
+import { SurveyorLogin } from "./components/surveyor/SurveyorLogin";
+import { SurveyorSignup } from "./components/surveyor/SurveyorSignup";
 import { PaymentPending } from "./components/signin/PaymentPending";
 import { Features } from "./components/Features";
 import { AgentDashboard } from "./components/dashboard/agent/AgentDashboard";
@@ -53,6 +55,7 @@ import {
   userService,
   propertyService,
   maintenanceService,
+  surveyorService,
 } from "./services/apiService";
 
 type View =
@@ -65,6 +68,8 @@ type View =
   | "propertyAgent"
   | "aiPropertySearch"
   | "signIn"
+  | "surveyorSignIn"
+  | "surveyorSignup"
   | "forgotPassword"
   | "resetPassword";
 type Theme = "light" | "dark";
@@ -716,6 +721,41 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSurveyorSignIn = async (email: string, pass: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+        const response = await authService.login({ email, password: pass });
+        const { token, user } = response.data;
+        const normalizedUser = normalizeUser(user);
+        if (normalizedUser.role !== UserRole.Surveyor) {
+          throw new Error("Access denied. This portal is for surveyors only.");
+        }
+        localStorage.setItem("token", token);
+        setCurrentUser(normalizedUser);
+        setIsUserLoggedIn(true);
+        handleSetView("dashboard");
+    } catch (error: any) {
+      setAuthError(error.message || "Invalid email or password.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSurveyorSignup = async (name: string, email: string, password: string, phone?: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      await surveyorService.register({ name, email, password, phone });
+      // After registration, prompt login
+      handleSetView("surveyorSignIn");
+    } catch (error: any) {
+      setAuthError(error.response?.data?.message || error.message || "Failed to create surveyor account.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setCurrentUser(null);
@@ -1011,6 +1051,24 @@ const App: React.FC = () => {
             error={authError}
           />
         );
+      case "surveyorSignIn":
+        return (
+          <SurveyorLogin
+            onLogin={handleSurveyorSignIn}
+            onGoToSignup={() => handleSetView("surveyorSignup")}
+            error={authError}
+            isLoading={isLoading}
+          />
+        );
+      case "surveyorSignup":
+        return (
+          <SurveyorSignup
+            onSignup={handleSurveyorSignup}
+            onGoToLogin={() => handleSetView("surveyorSignIn")}
+            error={authError}
+            isLoading={isLoading}
+          />
+        );
       case "features":
         return <Features />;
       case "interaction":
@@ -1235,6 +1293,7 @@ const App: React.FC = () => {
           <Navbar
             onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
             onGoToAgentPortal={() => handleSetView("signIn")}
+            onGoToSurveyorPortal={() => handleSetView("surveyorSignIn")}
             onFeaturesClick={() => handleSetView("features")}
             onLogoClick={handleNewChat}
             theme={theme}

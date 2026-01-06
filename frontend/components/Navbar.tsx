@@ -9,6 +9,7 @@ import { Logo } from './Logo';
 interface NavbarProps {
   onMenuClick: () => void;
   onGoToAgentPortal: () => void;
+  onGoToSurveyorPortal: () => void;
   onFeaturesClick: () => void;
   onLogoClick: () => void;
   theme: 'light' | 'dark';
@@ -20,6 +21,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   onMenuClick,
   onGoToAgentPortal,
+  onGoToSurveyorPortal,
   onFeaturesClick,
   onLogoClick,
   theme,
@@ -66,12 +68,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="hidden sm:inline">Logout</span>
               </button>
             ) : (
-              <button
-                onClick={onGoToAgentPortal}
-                className="text-white bg-green-600 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium shadow-lg"
-              >
-                Agent Portal
-              </button>
+              <>
+                <button
+                  onClick={onGoToSurveyorPortal}
+                  className="text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded-md text-sm font-medium shadow-lg"
+                >
+                  Surveyor Portal
+                </button>
+                <button
+                  onClick={onGoToAgentPortal}
+                  className="text-white bg-green-600 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium shadow-lg"
+                >
+                  Agent Portal
+                </button>
+              </>
             )}
 
             <button
