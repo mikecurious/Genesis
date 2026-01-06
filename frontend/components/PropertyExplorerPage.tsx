@@ -378,7 +378,10 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                             <ChatMessage
                                 key={msg.id}
                                 message={msg}
-                                onConnect={() => { }}
+                                onConnect={() => {
+                                    setDealType(property.priceType === 'sale' ? 'purchase' : 'rental');
+                                    setShowLeadForm(true);
+                                }}
                                 onOpenImageViewer={() => { }}
                             />
                         ))}
