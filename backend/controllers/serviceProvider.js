@@ -45,8 +45,9 @@ exports.getProvider = asyncHandler(async (req, res) => {
         });
     }
 
-    // Check if user has access to this provider
-    if (req.user.role !== 'Admin' && provider.addedBy.toString() !== req.user._id.toString()) {
+    // Check if user has access to this provider (handle populated addedBy)
+    const addedById = provider.addedBy?._id ? provider.addedBy._id.toString() : provider.addedBy.toString();
+    if (req.user.role !== 'Admin' && addedById !== req.user._id.toString()) {
         return res.status(403).json({
             success: false,
             message: 'Not authorized to view this provider'
