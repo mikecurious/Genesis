@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const {
+    registerSurveyor,
     getSurveyorTasks,
     getPendingTasks,
     getTask,
@@ -53,6 +54,9 @@ const upload = multer({
 });
 
 // ==================== SURVEYOR ROUTES ====================
+
+// Surveyor Registration (Public)
+router.post('/register', registerSurveyor);
 
 // Task Management (Surveyor only)
 router.route('/tasks')

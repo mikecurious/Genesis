@@ -2,6 +2,101 @@ const SurveyTask = require('../models/SurveyTask');
 const SurveyReport = require('../models/SurveyReport');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
+const { sendEmail } = require('../services/emailService');
+
+// ==================== SURVEYOR REGISTRATION ====================
+
+// @desc    Register a new surveyor
+// @route   POST /api/surveyor/register
+// @access  Public
+exports.registerSurveyor = asyncHandler(async (req, res) => {
+    const { name, email, password, phone } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+        return res.status(400).json({
+            success: false,
+            message: 'Please provide name, email, and password'
+        });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+        return res.status(400).json({ success: false, message: 'User with this email already exists' });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must be at least 8 characters long'
+        });
+    }
+
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        return res.status(400).json({
+            success: false,
+            message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., Test@123)'
+        });
+    }
+
+    // Create user with Surveyor role
+    user = new User({
+        name,
+        email,
+        password,
+        phone,
+        role: 'Surveyor',
+        isVerified: false // Surveyors need verification before accessing platform
+    });
+
+    const verificationToken = user.getVerificationToken();
+    await user.save();
+
+    // Send verification email
+    try {
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #10B981;">Welcome to MyGF AI Surveyor Platform!</h2>
+                <p>Hello ${name},</p>
+                <p>Thank you for registering as a surveyor. Please use the verification code below to verify your account:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
+                        <span style="font-size: 32px; font-weight: bold; color: #10B981; letter-spacing: 5px;">${verificationToken}</span>
+                    </div>
+                </div>
+                <p>This code will expire in 10 minutes.</p>
+                <p>Once verified, you'll be able to access the surveyor dashboard and start accepting tasks.</p>
+                <p>Best regards,<br>The MyGF AI Team</p>
+            </div>
+        `;
+
+        await sendEmail({
+            to: email,
+            subject: 'Verify Your Surveyor Account - MyGF AI',
+            html
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Surveyor account created successfully! Please check your email for the verification code.'
+        });
+    } catch (error) {
+        console.error('Email send error:', error);
+        // Still return success since user was created
+        res.status(201).json({
+            success: true,
+            message: 'Surveyor account created successfully! Please check your email for the verification code.',
+            warning: 'Verification email may be delayed'
+        });
+    }
+});
 
 // ==================== TASK MANAGEMENT ====================
 
