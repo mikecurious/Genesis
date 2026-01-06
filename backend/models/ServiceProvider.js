@@ -127,8 +127,10 @@ ServiceProviderSchema.methods.calculateAverageRating = function() {
     }
 
     const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
-    this.rating = (sum / this.reviews.length).toFixed(1);
-    return this.rating;
+    // Keep rating as a number for aggregations/analytics; store to 1dp
+    const average = Number((sum / this.reviews.length).toFixed(1));
+    this.rating = average;
+    return average;
 };
 
 module.exports = mongoose.model('ServiceProvider', ServiceProviderSchema);
