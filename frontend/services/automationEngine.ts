@@ -185,7 +185,9 @@ export class AutomationEngine {
             case 'auto_pricing':
                 // Auto-optimize pricing
                 const optimalPrice = await this.calculateOptimalPrice(data.listing);
-                const currentPrice = parseFloat(data.listing.price.replace(/[^0-9]/g, ''));
+                const currentPrice = typeof data.listing.price === 'number'
+                    ? data.listing.price
+                    : parseFloat(String(data.listing.price).replace(/[^0-9]/g, ''));
                 const difference = optimalPrice - currentPrice;
 
                 actions.push(`Current price: ${currentPrice.toLocaleString()} KSh`);
@@ -376,7 +378,9 @@ Keep each concise and engaging.`;
 
     private async calculateOptimalPrice(listing: Listing): Promise<number> {
         // Simplified - in production, use market data
-        const current = parseFloat(listing.price.replace(/[^0-9]/g, ''));
+        const current = typeof listing.price === 'number'
+            ? listing.price
+            : parseFloat(String(listing.price).replace(/[^0-9]/g, ''));
         return Math.round(current * 1.05); // 5% increase suggestion
     }
 
