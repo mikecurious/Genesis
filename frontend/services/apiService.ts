@@ -159,6 +159,51 @@ export const leadService = {
     },
 };
 
+// Surveyor Service
+export const surveyorService = {
+    register: async (surveyorData: { name: string; email: string; password: string; phone?: string }) => {
+        return api.post('/api/surveyor/register', surveyorData);
+    },
+    getSurveyors: async () => {
+        return api.get('/api/surveyor/available');
+    },
+    searchSurveyors: async (criteria: any) => {
+        return api.post('/api/surveyor/search', criteria);
+    },
+};
+
+// Service Provider Management
+export const providerService = {
+    getProviders: async (filters?: { specialty?: string; availability?: string; status?: string }) => {
+        const params = new URLSearchParams();
+        if (filters?.specialty) params.append('specialty', filters.specialty);
+        if (filters?.availability) params.append('availability', filters.availability);
+        if (filters?.status) params.append('status', filters.status);
+        return api.get(`/api/providers?${params.toString()}`);
+    },
+    getProvider: async (id: string) => {
+        return api.get(`/api/providers/${id}`);
+    },
+    createProvider: async (providerData: any) => {
+        return api.post('/api/providers', providerData);
+    },
+    updateProvider: async (id: string, updates: any) => {
+        return api.put(`/api/providers/${id}`, updates);
+    },
+    deleteProvider: async (id: string) => {
+        return api.delete(`/api/providers/${id}`);
+    },
+    addReview: async (id: string, review: { rating: number; comment?: string }) => {
+        return api.post(`/api/providers/${id}/reviews`, review);
+    },
+    updateAvailability: async (id: string, availability: string) => {
+        return api.patch(`/api/providers/${id}/availability`, { availability });
+    },
+    getStats: async () => {
+        return api.get('/api/providers/stats');
+    },
+};
+
 // Notification API Service (for backend notifications)
 export const notificationApiService = {
     getNotifications: async (page: number = 1, limit: number = 10) => {

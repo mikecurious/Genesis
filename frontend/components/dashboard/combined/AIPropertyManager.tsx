@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { type Tenant, type MaintenanceRequest, Role, type Message, type Technician, type FinancialStatement, type AutomationRule } from '../../../types';
+import React, { useState, useEffect } from 'react';
+import { type Tenant, type MaintenanceRequest, Role, type Message, type Technician, type ServiceProvider, type FinancialStatement, type AutomationRule } from '../../../types';
 import { generateTenantManagementResponse } from '../../../services/geminiService';
+import { providerService } from '../../../services/apiService';
 import { ChatHistoryModal } from '../../modals/ChatHistoryModal';
 import { TenantDetailsModal } from '../../modals/TenantDetailsModal';
+import { AddProviderModal } from '../../modals/AddProviderModal';
 import { TenantList } from '../ai-manager/TenantList';
 import { TenantOnboarding } from '../ai-manager/TenantOnboarding';
 import { MaintenanceCenter } from '../ai-manager/MaintenanceCenter';
@@ -64,6 +66,31 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [activeHistory, setActiveHistory] = useState<{ tenant: Tenant; messages: Message[] } | null>(null);
     const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+    const [providers, setProviders] = useState<ServiceProvider[]>([]);
+    const [isAddProviderModalOpen, setIsAddProviderModalOpen] = useState(false);
+    const [isLoadingProviders, setIsLoadingProviders] = useState(false);
+
+    // Fetch providers on mount
+    useEffect(() => {
+        fetchProviders();
+    }, []);
+
+    const fetchProviders = async () => {
+        setIsLoadingProviders(true);
+        try {
+            const { data } = await providerService.getProviders();
+            setProviders(data.data || []);
+        } catch (error) {
+            console.error('Failed to fetch providers:', error);
+        } finally {
+            setIsLoadingProviders(false);
+        }
+    };
+
+    const handleAddProvider = async (providerData: Partial<ServiceProvider>) => {
+        await providerService.createProvider(providerData);
+        await fetchProviders();
+    };
 
     // Mock handlers
     const handleAssignTechnician = (requestId: string) => {
@@ -253,7 +280,11 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                                     <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">1 High Priority</p>
                                 </div>
                             </div>
-                            <TechnicianList technicians={mockTechnicians} />
+                            <TechnicianList
+                                technicians={providers}
+                                onAddProvider={() => setIsAddProviderModalOpen(true)}
+                                onRefresh={fetchProviders}
+                            />
                         </div>
                     )}
 
@@ -299,6 +330,12 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                 isOpen={!!selectedTenant}
                 onClose={() => setSelectedTenant(null)}
                 tenant={selectedTenant}
+            />
+
+            <AddProviderModal
+                isOpen={isAddProviderModalOpen}
+                onClose={() => setIsAddProviderModalOpen(false)}
+                onSubmit={handleAddProvider}
             />
         </div>
     );

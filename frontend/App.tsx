@@ -664,25 +664,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDemoSignIn = () => {
-    const mockAgentUser: User = {
-      id: "demo-agent-123",
-      name: "Demo Agent",
-      email: "demo.agent@mygf.ai",
-      role: UserRole.Agent,
-      subscription: {
-        plan: PlanName.MyGF1_3,
-        status: "active",
-      },
-    };
-    setCurrentUser(mockAgentUser);
-    setIsUserLoggedIn(true);
-    handleSetView("dashboard");
-  };
-
-  const handleAdminLogin = () => {
-    // Admin login handled through normal login form
-  };
 
   const handleTenantSignIn = async (email: string, pass: string) => {
     setIsLoading(true);
@@ -997,9 +978,7 @@ const App: React.FC = () => {
           <AgentSignIn
             onSignIn={handleSignIn}
             onGoToSignup={() => handleSetView("signup")}
-            onDemoSignIn={handleDemoSignIn}
             onForgotPassword={() => handleSetView("forgotPassword")}
-            onAdminLogin={handleAdminLogin}
             isLoading={isLoading}
             error={authError}
           />

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 
 interface SurveyorLoginProps {
     onLogin: (email: string, password: string) => void;
+    onGoToSignup: () => void;
     error?: string | null;
     isLoading?: boolean;
 }
 
-export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, isLoading }) => {
+export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, onGoToSignup, error, isLoading }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -77,7 +78,10 @@ export const SurveyorLogin: React.FC<SurveyorLoginProps> = ({ onLogin, error, is
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Need access? Contact your administrator
+                            Don't have an account?{' '}
+                            <button onClick={onGoToSignup} className="font-medium text-green-600 dark:text-green-400 hover:underline">
+                                Sign Up
+                            </button>
                         </p>
                     </div>
                 </div>

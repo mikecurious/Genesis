@@ -177,10 +177,40 @@ export interface MaintenanceRequest {
 export interface Technician {
   id: string;
   name: string;
-  specialty: 'Plumbing' | 'Electrical' | 'General' | 'HVAC';
+  specialty: 'Plumbing' | 'Electrical' | 'General' | 'HVAC' | 'Carpentry' | 'Painting' | 'Roofing' | 'Landscaping' | 'Cleaning' | 'Security' | 'Other';
   phone: string;
   rating: number;
-  availability: 'Available' | 'Busy';
+  availability: 'Available' | 'Busy' | 'Inactive';
+}
+
+export interface ServiceProvider {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  specialty: 'Plumbing' | 'Electrical' | 'General' | 'HVAC' | 'Carpentry' | 'Painting' | 'Roofing' | 'Landscaping' | 'Cleaning' | 'Security' | 'Other';
+  rating: number;
+  availability: 'Available' | 'Busy' | 'Inactive';
+  yearsOfExperience: number;
+  certifications?: string[];
+  serviceArea?: string;
+  hourlyRate?: number;
+  description?: string;
+  companyName?: string;
+  imageUrl?: string;
+  status?: 'active' | 'inactive' | 'suspended';
+  completedJobs?: number;
+  totalEarnings?: number;
+  reviews?: Array<{
+    user: string;
+    rating: number;
+    comment?: string;
+    date: Date;
+  }>;
+  addedBy?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface FinancialStatement {

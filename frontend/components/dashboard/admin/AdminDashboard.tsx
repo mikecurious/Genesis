@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../../services/adminService';
-import type { User } from '../../../types';
+import { providerService } from '../../../services/apiService';
+import type { User, ServiceProvider } from '../../../types';
+import { AddProviderModal } from '../../modals/AddProviderModal';
 
 interface AdminDashboardProps {
     user: User;
 }
 
-type TabType = 'overview' | 'users' | 'properties' | 'leads' | 'activity' | 'settings';
+type TabType = 'overview' | 'users' | 'properties' | 'leads' | 'providers' | 'activity' | 'settings';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     const [analytics, setAnalytics] = useState<any>(null);
     const [users, setUsers] = useState<any[]>([]);
     const [properties, setProperties] = useState<any[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
+    const [providers, setProviders] = useState<ServiceProvider[]>([]);
     const [activity, setActivity] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<TabType>('overview');
     const [announcement, setAnnouncement] = useState('');
     const [surveyorData, setSurveyorData] = useState({ name: '', email: '', password: '', phone: '' });
+    const [isAddProviderModalOpen, setIsAddProviderModalOpen] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -26,23 +30,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [analyticsData, usersData, propertiesData, leadsData, activityData] = await Promise.all([
+            const [analyticsData, usersData, propertiesData, leadsData, providersData, activityData] = await Promise.all([
                 adminService.getAnalytics(),
                 adminService.getAllUsers(),
                 adminService.getAllProperties(),
                 adminService.getAllLeads(),
+                providerService.getProviders(),
                 adminService.getActivityLogs(),
             ]);
             setAnalytics(analyticsData.data);
             setUsers(usersData.data);
             setProperties(propertiesData.data);
             setLeads(leadsData.data);
+            setProviders(providersData.data.data || []);
             setActivity(activityData.data);
         } catch (error: any) {
             console.error('Error loading admin data:', error);
             alert('Failed to load admin data: ' + error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAddProvider = async (providerData: Partial<ServiceProvider>) => {
+        try {
+            await providerService.createProvider(providerData);
+            await loadData();
+            setIsAddProviderModalOpen(false);
+        } catch (error: any) {
+            alert('Failed to add provider: ' + error.message);
+        }
+    };
+
+    const handleDeleteProvider = async (providerId: string, providerName: string) => {
+        if (confirm(`Are you sure you want to DELETE "${providerName}"? This action cannot be undone.`)) {
+            try {
+                await providerService.deleteProvider(providerId);
+                alert('Provider deleted successfully');
+                await loadData();
+            } catch (error: any) {
+                alert('Failed to delete provider: ' + error.message);
+            }
+        }
+    };
+
+    const handleUpdateProviderStatus = async (providerId: string, availability: string) => {
+        try {
+            await providerService.updateAvailability(providerId, availability);
+            await loadData();
+        } catch (error: any) {
+            alert('Failed to update provider status: ' + error.message);
         }
     };
 
@@ -199,6 +236,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                             { id: 'users', label: `Users (${users.length})`, icon: '👥' },
                             { id: 'properties', label: `Properties (${properties.length})`, icon: '🏠' },
                             { id: 'leads', label: `Leads (${leads.length})`, icon: '📈' },
+                            { id: 'providers', label: `Providers (${providers.length})`, icon: '🛠️' },
                             { id: 'activity', label: 'Activity Logs', icon: '📋' },
                             { id: 'settings', label: 'Settings', icon: '⚙️' },
                         ].map((tab) => (
@@ -534,6 +572,114 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                     </div>
                 )}
 
+                {/* Providers Tab */}
+                {activeTab === 'providers' && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in">
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Provider Management</h3>
+                                <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all service providers across the platform</p>
+                            </div>
+                            <button
+                                onClick={() => setIsAddProviderModalOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Add Provider
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Specialty</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Contact</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Experience</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Rating</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Availability</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Added By</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                                    {providers.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <svg className="w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                    <div>
+                                                        <p className="font-medium">No service providers found</p>
+                                                        <p className="text-sm mt-1">Click "Add Provider" to add your first service provider</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        providers.map((provider: ServiceProvider) => (
+                                            <tr key={provider._id || provider.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div>
+                                                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{provider.name}</div>
+                                                        {provider.companyName && (
+                                                            <div className="text-xs text-gray-500 dark:text-gray-400">{provider.companyName}</div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-xs font-medium">
+                                                        {provider.specialty}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                                    <div>{provider.email}</div>
+                                                    <div className="text-xs">{provider.phone}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    {provider.yearsOfExperience} years
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    {provider.rating.toFixed(1)} ⭐
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <select
+                                                        value={provider.availability}
+                                                        onChange={(e) => handleUpdateProviderStatus(provider._id || provider.id || '', e.target.value)}
+                                                        className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                            provider.availability === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                                            provider.availability === 'Busy' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                        }`}
+                                                    >
+                                                        <option value="Available">Available</option>
+                                                        <option value="Busy">Busy</option>
+                                                        <option value="Inactive">Inactive</option>
+                                                    </select>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    {typeof provider.addedBy === 'object' ? (provider.addedBy as any)?.name || 'N/A' : 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <button
+                                                        onClick={() => handleDeleteProvider(provider._id || provider.id || '', provider.name)}
+                                                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
                 {/* Activity Tab */}
                 {activeTab === 'activity' && activity && (
                     <div className="space-y-6 animate-fade-in">
@@ -681,6 +827,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                     </div>
                 )}
             </div>
+
+            <AddProviderModal
+                isOpen={isAddProviderModalOpen}
+                onClose={() => setIsAddProviderModalOpen(false)}
+                onSubmit={handleAddProvider}
+            />
         </div>
     );
 };

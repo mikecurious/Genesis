@@ -73,7 +73,7 @@ const allSections = [
     { id: 'chat' as DashboardSection, label: 'Client Chat', icon: ChatIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'verification' as DashboardSection, label: 'Verification Center', icon: VerificationIcon, roles: ['Agent', 'Property Seller', 'Property Owner'] }, // NEW: Verification Center
     { id: 'ai-manager' as DashboardSection, label: 'AI Manager', icon: AiManagerIcon, roles: ['Agent', 'Landlord'] }, // Agent & Landlord only
-    { id: 'automation' as DashboardSection, label: 'Automation', icon: AutomationIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
+    { id: 'automation' as DashboardSection, label: 'Automation', icon: AutomationIcon, roles: ['Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'marketing' as DashboardSection, label: 'Marketing', icon: MarketingIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'ai-settings' as DashboardSection, label: 'AI Settings', icon: AiIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'analytics' as DashboardSection, label: 'Analytics', icon: AnalyticsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },

@@ -5,13 +5,12 @@ import { Logo } from '../Logo';
 interface AgentSignInProps {
     onSignIn: (email: string, pass: string) => Promise<void>;
     onGoToSignup: () => void;
-    onDemoSignIn: () => void;
     onForgotPassword: () => void;
     isLoading: boolean;
     error: string | null;
 }
 
-export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup, onDemoSignIn, onForgotPassword, isLoading, error: apiError }) => {
+export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup, onForgotPassword, isLoading, error: apiError }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({ email: '', password: '' });
@@ -104,20 +103,6 @@ export const AgentSignIn: React.FC<AgentSignInProps> = ({ onSignIn, onGoToSignup
                             </button>
                         </div>
                     </form>
-
-                    <div className="relative flex py-4 items-center">
-                        <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                        <span className="flex-shrink mx-4 text-gray-500 dark:text-gray-400 text-sm">OR</span>
-                        <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                    </div>
-
-                    <button
-                        onClick={onDemoSignIn}
-                        disabled={isLoading}
-                        className="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        Continue as Demo Agent
-                    </button>
                 </div>
 
                 <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
