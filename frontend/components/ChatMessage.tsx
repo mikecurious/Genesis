@@ -176,7 +176,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <div
           className={`rounded-2xl ${isUser
             ? 'bg-blue-600 text-white rounded-br-none max-w-xl p-4'
-            : `bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white rounded-bl-none ${hasProperties ? 'max-w-4xl p-0 overflow-hidden' : 'max-w-xl p-4'}`
+            : `rounded-bl-none border border-green-100 dark:border-green-900/60 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/30 text-gray-900 dark:text-green-50 shadow-sm ${hasProperties ? 'max-w-4xl p-0 overflow-hidden' : 'max-w-xl p-4'}`
             }`}
         >
           {isLoading && !message.text ? (

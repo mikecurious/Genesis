@@ -87,11 +87,27 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
     setStep("confirm");
   };
 
-  const handlePayment = () => {
-    // Open payment modal instead of directly calling setupAccount
-    if (selectedRole && selectedPlan && tempAuthToken) {
-      setIsPaymentModalOpen(true);
+  const handlePayment = async () => {
+    if (!selectedRole || !selectedPlan || !tempAuthToken) return;
+
+    // Surveyors (and any role with plan None) skip payment and finalize immediately
+    if (selectedPlan === PlanName.None) {
+      try {
+        setIsLoading(true);
+        const response = await authService.setupAccount(
+          { role: selectedRole, plan: selectedPlan },
+          tempAuthToken
+        );
+        onSignupSuccess(tempAuthToken, response.data.data);
+      } catch (err: any) {
+        setError(err.message || "Failed to set up account. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
     }
+
+    setIsPaymentModalOpen(true);
   };
 
   const handlePaymentSuccess = async (payment: Payment) => {
