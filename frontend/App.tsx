@@ -70,6 +70,18 @@ type View =
 type Theme = "light" | "dark";
 
 const App: React.FC = () => {
+  const applyThemeClass = (mode: "light" | "dark") => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (mode === "dark") {
+      root.classList.add("dark");
+      body.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+      body.classList.remove("dark");
+    }
+  };
+
   const normalizeUserRole = (role: User["role"]): UserRole => {
     if (!role) return UserRole.Agent;
     const key = role.toString().trim().toLowerCase();
@@ -171,14 +183,10 @@ const App: React.FC = () => {
     if (typeof window !== "undefined" && localStorage.getItem("theme")) {
       const savedTheme = localStorage.getItem("theme") as "light" | "dark";
       // Apply the theme immediately on initialization
-      if (savedTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+      if (savedTheme) applyThemeClass(savedTheme);
       return savedTheme;
     }
-    document.documentElement.classList.remove("dark");
+    applyThemeClass("light");
     return "light";
   });
 
@@ -324,11 +332,7 @@ const App: React.FC = () => {
   }, [messages, currentView, isLoading]);
 
   useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    applyThemeClass(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
