@@ -193,6 +193,7 @@ app.use('/api/feature-settings', require('./routes/featureSettings')); // Featur
 app.use('/api/surveyor-chat', require('./routes/surveyorChat')); // Chat-based surveyor request and matching
 app.use('/api/sales-automation', require('./routes/salesAutomation')); // AI sales & deal closure engine
 app.use('/api/providers', require('./routes/serviceProvider')); // Service provider management routes
+app.use('/api/africastalking', require('./routes/africastalking')); // Africa's Talking webhooks
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
