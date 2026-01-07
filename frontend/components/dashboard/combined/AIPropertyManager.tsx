@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { type Tenant, type MaintenanceRequest, Role, type Message, type Technician, type ServiceProvider, type FinancialStatement, type AutomationRule } from '../../../types';
 import { generateTenantManagementResponse } from '../../../services/geminiService';
-import { providerService } from '../../../services/apiService';
+import { providerService, surveyorService } from '../../../services/apiService';
 import { ChatHistoryModal } from '../../modals/ChatHistoryModal';
 import { TenantDetailsModal } from '../../modals/TenantDetailsModal';
 import { AddProviderModal } from '../../modals/AddProviderModal';
@@ -19,6 +19,19 @@ interface AIPropertyManagerProps {
     maintenanceRequests: MaintenanceRequest[];
     onAddTenant: (tenant: Omit<Tenant, 'id' | 'rentStatus'>) => void;
 }
+
+type SurveyorSummary = {
+    _id?: string;
+    id?: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    specializations?: string[];
+    rating?: number;
+    availability?: string;
+    profileImage?: string;
+    bio?: string;
+};
 
 // Mock Data
 const mockTechnicians: Technician[] = [
@@ -69,10 +82,13 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
     const [providers, setProviders] = useState<ServiceProvider[]>([]);
     const [isAddProviderModalOpen, setIsAddProviderModalOpen] = useState(false);
     const [isLoadingProviders, setIsLoadingProviders] = useState(false);
+    const [surveyors, setSurveyors] = useState<SurveyorSummary[]>([]);
+    const [isLoadingSurveyors, setIsLoadingSurveyors] = useState(false);
 
     // Fetch providers on mount
     useEffect(() => {
         fetchProviders();
+        fetchSurveyors();
     }, []);
 
     const fetchProviders = async () => {
@@ -85,6 +101,30 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
         } finally {
             setIsLoadingProviders(false);
         }
+    };
+
+    const fetchSurveyors = async () => {
+        setIsLoadingSurveyors(true);
+        try {
+            const { data } = await surveyorService.getSurveyors();
+            setSurveyors(data?.data || data || []);
+        } catch (error) {
+            console.error('Failed to fetch surveyors:', error);
+        } finally {
+            setIsLoadingSurveyors(false);
+        }
+    };
+
+    const handleContactSurveyor = (surveyor: SurveyorSummary) => {
+        if (surveyor.email) {
+            window.location.href = `mailto:${surveyor.email}?subject=Survey Request&body=Hi ${surveyor.name}, I'd like to book a survey.`;
+            return;
+        }
+        if (surveyor.phone) {
+            window.location.href = `tel:${surveyor.phone}`;
+            return;
+        }
+        alert('Contact details not available for this surveyor.');
     };
 
     const handleAddProvider = async (providerData: Partial<ServiceProvider>) => {
@@ -263,6 +303,88 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                 <div className="p-6">
                     {activeTab === 'overview' && (
                         <div className="space-y-8">
+                            <div className="bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                            <span className="text-2xl">🧭</span> Surveyor Network
+                                        </h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Find and contact available surveyors.</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={fetchSurveyors}
+                                            className="px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                        >
+                                            Refresh
+                                        </button>
+                                    </div>
+                                </div>
+                                {isLoadingSurveyors ? (
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Loading surveyors...</p>
+                                ) : surveyors.length === 0 ? (
+                                    <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                                        No surveyors available right now. Try refreshing.
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                        {surveyors.map((sv) => {
+                                            const surveyorId = sv._id || sv.id || `surveyor-${sv.name}-${Math.random().toString(36).slice(2)}`;
+                                            const availability = sv.availability || 'Available';
+                                            const badgeColor = availability === 'Busy'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300'
+                                                : availability === 'Unavailable'
+                                                    ? 'bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                                                    : 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+                                            return (
+                                                <div key={surveyorId} className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shadow-sm">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-lg font-bold text-emerald-700 dark:text-emerald-200 overflow-hidden">
+                                                            {sv.profileImage ? (
+                                                                <img src={sv.profileImage} alt={sv.name} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                (sv.name || 'S')[0]
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between">
+                                                                <h4 className="font-semibold text-gray-900 dark:text-white">{sv.name}</h4>
+                                                                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${badgeColor}`}>
+                                                                    {availability}
+                                                                </span>
+                                                            </div>
+                                                            {sv.specializations && (
+                                                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate">
+                                                                    {sv.specializations.join(', ')}
+                                                                </p>
+                                                            )}
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{sv.email || sv.phone || 'No contact on file'}</p>
+                                                            {sv.rating !== undefined && (
+                                                                <p className="text-xs text-amber-600 dark:text-amber-300 mt-1">Rating: {sv.rating.toFixed ? sv.rating.toFixed(1) : sv.rating} ⭐</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {sv.bio && <p className="text-sm text-gray-700 dark:text-gray-300 mt-3 line-clamp-2">{sv.bio}</p>}
+                                                    <div className="flex items-center gap-2 mt-4">
+                                                        <button
+                                                            onClick={() => handleContactSurveyor(sv)}
+                                                            className="flex-1 bg-green-600 text-white text-sm font-semibold py-2 px-3 rounded-lg hover:bg-green-700 transition-colors"
+                                                        >
+                                                            Contact Now
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setCommand(`Connect me with surveyor ${sv.name} for a property survey.`)}
+                                                            className="px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                                        >
+                                                            Ask AI
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-100 dark:border-green-800">
                                     <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">Occupancy Rate</h3>
