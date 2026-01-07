@@ -132,6 +132,18 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
         await fetchProviders();
     };
 
+    const handleContactProvider = (provider: ServiceProvider) => {
+        if (provider.phone) {
+            window.location.href = `tel:${provider.phone}`;
+            return;
+        }
+        if (provider.email) {
+            window.location.href = `mailto:${provider.email}?subject=Service Request&body=Hi ${provider.name}, I'd like to book your services.`;
+            return;
+        }
+        alert('No contact details available for this provider.');
+    };
+
     // Mock handlers
     const handleAssignTechnician = (requestId: string) => {
         console.log('Assign technician to request:', requestId);
@@ -406,6 +418,7 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                                 technicians={providers}
                                 onAddProvider={() => setIsAddProviderModalOpen(true)}
                                 onRefresh={fetchProviders}
+                                onContact={handleContactProvider}
                             />
                         </div>
                     )}

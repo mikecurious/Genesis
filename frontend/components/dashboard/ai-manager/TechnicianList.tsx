@@ -5,9 +5,10 @@ interface TechnicianListProps {
     technicians: Technician[] | ServiceProvider[];
     onAddProvider: () => void;
     onRefresh?: () => void;
+    onContact?: (tech: Technician | ServiceProvider) => void;
 }
 
-export const TechnicianList: React.FC<TechnicianListProps> = ({ technicians, onAddProvider, onRefresh }) => {
+export const TechnicianList: React.FC<TechnicianListProps> = ({ technicians, onAddProvider, onRefresh, onContact }) => {
     return (
         <div className="space-y-4">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -51,18 +52,24 @@ export const TechnicianList: React.FC<TechnicianListProps> = ({ technicians, onA
                         const techId = 'id' in tech ? tech.id : tech._id || '';
                         return (
                             <div key={techId} className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center gap-4 hover:shadow-lg transition-shadow">
-                                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xl">
-                                    {tech.specialty === 'Plumbing' && '🔧'}
-                                    {tech.specialty === 'Electrical' && '⚡'}
-                                    {tech.specialty === 'HVAC' && '❄️'}
-                                    {tech.specialty === 'General' && '🔨'}
-                                    {tech.specialty === 'Carpentry' && '🪚'}
-                                    {tech.specialty === 'Painting' && '🎨'}
-                                    {tech.specialty === 'Roofing' && '🏠'}
-                                    {tech.specialty === 'Landscaping' && '🌳'}
-                                    {tech.specialty === 'Cleaning' && '🧹'}
-                                    {tech.specialty === 'Security' && '🔒'}
-                                    {tech.specialty === 'Other' && '🛠️'}
+                                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xl overflow-hidden">
+                                    {'imageUrl' in tech && tech.imageUrl ? (
+                                        <img src={tech.imageUrl} alt={tech.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <>
+                                        {tech.specialty === 'Plumbing' && '🔧'}
+                                        {tech.specialty === 'Electrical' && '⚡'}
+                                        {tech.specialty === 'HVAC' && '❄️'}
+                                        {tech.specialty === 'General' && '🔨'}
+                                        {tech.specialty === 'Carpentry' && '🪚'}
+                                        {tech.specialty === 'Painting' && '🎨'}
+                                        {tech.specialty === 'Roofing' && '🏠'}
+                                        {tech.specialty === 'Landscaping' && '🌳'}
+                                        {tech.specialty === 'Cleaning' && '🧹'}
+                                        {tech.specialty === 'Security' && '🔒'}
+                                        {tech.specialty === 'Other' && '🛠️'}
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="font-medium text-gray-900 dark:text-white">{tech.name}</h4>
@@ -78,6 +85,14 @@ export const TechnicianList: React.FC<TechnicianListProps> = ({ technicians, onA
                                 }`}>
                                     {tech.availability}
                                 </span>
+                                {onContact && (
+                                    <button
+                                        onClick={() => onContact(tech)}
+                                        className="ml-3 px-3 py-2 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                    >
+                                        Contact Now
+                                    </button>
+                                )}
                             </div>
                         );
                     })
