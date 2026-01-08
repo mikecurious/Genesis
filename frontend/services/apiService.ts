@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import type { User, Listing, Tenant, MaintenanceRequest, Lead } from '../types';
+import type { User, Listing, Tenant, MaintenanceRequest, Lead, NewListingInput } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -17,6 +17,12 @@ api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.data instanceof FormData) {
+        const headers = config.headers || {};
+        delete headers['Content-Type'];
+        delete headers['content-type'];
+        config.headers = headers;
     }
     console.log('API Request:', {
         method: config.method?.toUpperCase(),
@@ -96,14 +102,23 @@ export const propertyService = {
     getProperties: async () => {
         return api.get('/api/properties');
     },
-    createProperty: async (propertyData: any) => {
+    createProperty: async (propertyData: NewListingInput) => {
         const formData = new FormData();
 
         // Append text fields
         Object.keys(propertyData).forEach(key => {
-            if (key !== 'images') {
-                formData.append(key, propertyData[key]);
+            if (key === 'images' || key === 'documents' || key === 'hasRequiredDocuments') {
+                return;
             }
+            const value = propertyData[key as keyof NewListingInput];
+            if (value === undefined || value === null) {
+                return;
+            }
+            if (Array.isArray(value)) {
+                value.forEach((item) => formData.append(key, String(item)));
+                return;
+            }
+            formData.append(key, String(value));
         });
 
         // Append images
@@ -126,6 +141,18 @@ export const propertyService = {
     },
 };
 
+export const verificationService = {
+    uploadDocument: async (documentType: string, document: File, propertyId?: string) => {
+        const formData = new FormData();
+        formData.append('documentType', documentType);
+        formData.append('document', document);
+        if (propertyId) {
+            formData.append('propertyId', propertyId);
+        }
+        return api.post('/api/verification/documents', formData);
+    },
+};
+
 // Maintenance Service
 export const maintenanceService = {
     getRequests: async () => {
@@ -133,6 +160,12 @@ export const maintenanceService = {
     },
     createRequest: async (requestData: { description: string }) => {
         return api.post('/api/maintenance', requestData);
+    },
+};
+
+export const tenantService = {
+    downloadTenantReport: async () => {
+        return api.get('/api/tenants/my-tenants/export', { responseType: 'blob' });
     },
 };
 

@@ -448,8 +448,14 @@ class AIChatService {
                 throw new Error('Property not found');
             }
 
-            property.attachedSurveyor = surveyorId;
-            property.surveyorAttachedAt = new Date();
+            const attachedAt = new Date();
+            property.attachedSurveyor = {
+                surveyor: surveyorId,
+                surveyType: property.attachedSurveyor?.surveyType || 'general',
+                attachedAt,
+                status: 'pending'
+            };
+            property.surveyorAttachedAt = attachedAt;
             property.surveyStatus = 'pending';
 
             await property.save();

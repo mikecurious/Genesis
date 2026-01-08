@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type Listing, type Message, type User, type Tenant, type MaintenanceRequest } from '../../../types';
+import { type Listing, type Message, type User, type Tenant, type MaintenanceRequest, type NewListingInput } from '../../../types';
 import { AgentListingManager } from './AgentListingManager';
 import { AgentClientChat } from './AgentClientChat';
 import { AgentMarketing } from './AgentMarketing';
@@ -13,13 +13,13 @@ import { ProfileSettings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
 import { AIPropertyManager } from '../combined/AIPropertyManager';
-import { propertyService } from '../../../services/apiService';
+import { propertyService, tenantService } from '../../../services/apiService';
 import type { Payment } from '../../../services/paymentService';
 
 interface AgentDashboardProps {
     user?: User; // NEW: User information
     listings: Listing[];
-    onAddListing: (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => void;
+    onAddListing: (newListing: NewListingInput) => void;
     onEditListing?: (propertyId: string, updatedData: Partial<Omit<Listing, 'id' | 'imageUrls'>>) => Promise<void>;
     onDeleteListing?: (propertyId: string) => Promise<void>;
     interactionChats: Record<string, Message[]>;
@@ -58,13 +58,14 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
     const [listingToBoost, setListingToBoost] = useState<Listing | null>(null);
+    const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
     // AI Manager State
     const [isTenantManagementActive, setIsTenantManagementActive] = useState(false);
     const [tenants, setTenants] = useState<Tenant[]>([]);
     const [maintenanceRequests, setMaintenanceRequests] = useState<MaintenanceRequest[]>([]);
 
-    const handleAddListingSubmit = (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => {
+    const handleAddListingSubmit = (newListing: NewListingInput) => {
         onAddListing(newListing);
         setIsFormOpen(false);
     };
@@ -90,6 +91,28 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
             setIsBoostModalOpen(false);
             setListingToBoost(null);
         }, 5000);
+    };
+
+    const handleDownloadTenantReport = async () => {
+        try {
+            setIsDownloadingReport(true);
+            const response = await tenantService.downloadTenantReport();
+            const blob = new Blob([response.data], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const dateStamp = new Date().toISOString().split('T')[0];
+            link.href = url;
+            link.download = `tenant-report-${dateStamp}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download tenant report:', error);
+            alert('Failed to download tenant report. Please try again.');
+        } finally {
+            setIsDownloadingReport(false);
+        }
     };
 
     const handlePaymentFailed = () => {
@@ -207,6 +230,16 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                             </div>
                             <div className="flex items-center gap-4">
                                 <NotificationBadge onViewAll={() => setActiveSection('notifications')} />
+                                <button
+                                    onClick={handleDownloadTenantReport}
+                                    disabled={isDownloadingReport}
+                                    className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                                    </svg>
+                                    {isDownloadingReport ? 'Preparing...' : 'Download Tenant Report'}
+                                </button>
                             </div>
                         </div>
                     </header>

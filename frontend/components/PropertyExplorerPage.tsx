@@ -10,6 +10,8 @@ import { ValuationPanel } from './propertyActions/ValuationPanel';
 import { VerificationPanel } from './propertyActions/VerificationPanel';
 import { LandSearchPanel } from './propertyActions/LandSearchPanel';
 import { ScheduleViewingPanel } from './propertyActions/ScheduleViewingPanel';
+import { notificationService } from '../services/notificationService';
+import { SurveyorProfileModal } from './surveyor/SurveyorProfileModal';
 
 interface PropertyExplorerPageProps {
     property: Listing;
@@ -39,6 +41,17 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
     const [showVerificationPanel, setShowVerificationPanel] = useState(false);
     const [showLandSearchPanel, setShowLandSearchPanel] = useState(false);
     const [showScheduleViewingPanel, setShowScheduleViewingPanel] = useState(false);
+    const hasDocuments = Boolean(property.documentsUploaded);
+    const [isSurveyorModalOpen, setIsSurveyorModalOpen] = useState(false);
+    const attachedSurveyor = property.attachedSurveyor?.surveyor;
+
+    const requireDocuments = (action: () => void) => {
+        if (!hasDocuments) {
+            notificationService.error('This feature is available once the property documents are uploaded.');
+            return;
+        }
+        action();
+    };
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
@@ -310,14 +323,30 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{property.description}</p>
                         </div>
 
+                        {attachedSurveyor && (
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Surveyor</p>
+                                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{attachedSurveyor.name}</h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{attachedSurveyor.surveyorProfile?.specializations?.join(', ') || 'Survey specialist'}</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsSurveyorModalOpen(true)}
+                                    className="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600"
+                                >
+                                    Contact Surveyor
+                                </button>
+                            </div>
+                        )}
+
                         {/* Property Actions Section */}
                         <PropertyActionsSection
                             property={property}
-                            onOpenMortgage={() => setShowMortgagePanel(true)}
+                            onOpenMortgage={() => requireDocuments(() => setShowMortgagePanel(true))}
                             onOpenValuation={() => setShowValuationPanel(true)}
-                            onOpenVerification={() => setShowVerificationPanel(true)}
+                            onOpenVerification={() => requireDocuments(() => setShowVerificationPanel(true))}
                             onOpenLandSearch={() => setShowLandSearchPanel(true)}
-                            onScheduleViewing={() => setShowScheduleViewingPanel(true)}
+                            onScheduleViewing={() => requireDocuments(() => setShowScheduleViewingPanel(true))}
                         />
                     </div>
                 </div>
@@ -346,7 +375,7 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                     {/* Action Bar - Quick Actions */}
                     <div className="bg-green-50 dark:bg-green-900/20 p-2 flex gap-2 overflow-x-auto border-b border-green-100 dark:border-green-900/50 flex-shrink-0 scrollbar-hide">
                         <button
-                            onClick={() => handleSendMessage("I'd like to schedule a viewing")}
+                            onClick={() => requireDocuments(() => handleSendMessage("I'd like to schedule a viewing"))}
                             className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-gray-800 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full border border-green-200 dark:border-green-800 hover:bg-green-50 dark:hover:bg-green-900 transition-colors shadow-sm"
                         >
                             📅 Schedule Viewing
@@ -446,6 +475,11 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                 isOpen={showScheduleViewingPanel}
                 onClose={() => setShowScheduleViewingPanel(false)}
                 property={property}
+            />
+            <SurveyorProfileModal
+                isOpen={isSurveyorModalOpen}
+                onClose={() => setIsSurveyorModalOpen(false)}
+                surveyor={attachedSurveyor || null}
             />
         </div>
     );

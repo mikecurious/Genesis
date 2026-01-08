@@ -12,6 +12,21 @@ export interface Listing {
   price: number; // Changed from string to number (migration completed)
   currency: 'KSh' | 'USD' | 'EUR' | 'GBP'; // Currency code for the listing
   priceType: 'sale' | 'rental'; // NEW: Distinguish sale vs rental
+  documentsUploaded?: boolean;
+  documentsUploadedAt?: string;
+  attachedSurveyor?: {
+    surveyor?: User;
+    surveyType?: 'inspection' | 'valuation' | 'compliance' | 'general';
+    attachedAt?: string;
+    status?: 'pending' | 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+    scheduledDate?: string;
+    completedDate?: string;
+    report?: {
+      url?: string;
+      uploadedAt?: string;
+    };
+    notes?: string;
+  };
   agentName?: string; // Optional, will be populated from createdBy
   agentContact?: string; // Optional
   imageUrls: string[];
@@ -26,6 +41,23 @@ export interface Listing {
     badge?: string;
   };
 }
+
+export interface ListingDocuments {
+  titleDeed?: File | null;
+  saleAgreement?: File | null;
+  kraPin?: File | null;
+  ownershipDocs?: File[];
+  valuationReport?: File | null;
+}
+
+export type NewListingInput = Omit<
+  Listing,
+  "id" | "agentName" | "agentContact" | "createdBy" | "imageUrls"
+> & {
+  images: File[];
+  documents?: ListingDocuments;
+  hasRequiredDocuments?: boolean;
+};
 
 export interface MessageMetadata {
   dealClosure?: boolean;
@@ -255,6 +287,7 @@ export interface Lead {
 export interface DocumentVerification {
   id: string;
   userId: string;
+  propertyId?: string | null;
   documentType: 'title_deed' | 'sale_agreement' | 'id_document' | 'other';
   fileName: string;
   fileUrl: string;

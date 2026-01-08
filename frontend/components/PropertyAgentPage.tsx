@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Listing } from '../types';
 import { formatPrice } from '../utils/formatPrice';
+import { SurveyorProfileModal } from './surveyor/SurveyorProfileModal';
 
 interface PropertyAgentPageProps {
     property: Listing;
@@ -37,6 +38,8 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [agentData, setAgentData] = useState<AgentData | null>(null);
     const [isLoadingAgent, setIsLoadingAgent] = useState(true);
+    const [isSurveyorModalOpen, setIsSurveyorModalOpen] = useState(false);
+    const attachedSurveyor = property.attachedSurveyor?.surveyor;
 
     const images = property.imageUrls && property.imageUrls.length > 0
         ? property.imageUrls
@@ -208,12 +211,28 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                                 </div>
                             )}
 
-                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                    {property.description}
-                                </p>
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                {property.description}
+                            </p>
+                        </div>
+
+                        {attachedSurveyor && (
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Surveyor</p>
+                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{attachedSurveyor.name}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{attachedSurveyor.surveyorProfile?.specializations?.join(', ') || 'Survey specialist'}</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsSurveyorModalOpen(true)}
+                                    className="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600"
+                                >
+                                    Contact Surveyor
+                                </button>
                             </div>
+                        )}
 
                             {property.amenities && property.amenities.length > 0 && (
                                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
@@ -434,5 +453,10 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                 </div>
             </div>
         </div>
+        <SurveyorProfileModal
+            isOpen={isSurveyorModalOpen}
+            onClose={() => setIsSurveyorModalOpen(false)}
+            surveyor={attachedSurveyor || null}
+        />
     );
 };

@@ -1,4 +1,5 @@
 const DocumentVerification = require('../models/DocumentVerification');
+const Property = require('../models/Property');
 const LandSearchRequest = require('../models/LandSearchRequest');
 const ValuationRequest = require('../models/ValuationRequest');
 const asyncHandler = require('express-async-handler');
@@ -9,21 +10,40 @@ const asyncHandler = require('express-async-handler');
 // @route   POST /api/verification/documents
 // @access  Private
 exports.uploadDocument = asyncHandler(async (req, res) => {
-    const { documentType } = req.body;
+    const { documentType, propertyId } = req.body;
 
     if (!req.file) {
         return res.status(400).json({ success: false, message: 'Please upload a document' });
+    }
+
+    let property = null;
+    if (propertyId) {
+        property = await Property.findById(propertyId);
+        if (!property) {
+            return res.status(404).json({ success: false, message: 'Property not found' });
+        }
+
+        if (req.user.role !== 'Admin' && property.createdBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: 'Not authorized to upload documents for this property' });
+        }
     }
 
     const fileUrl = `/uploads/${req.file.filename}`;
 
     const verification = await DocumentVerification.create({
         userId: req.user._id,
+        propertyId: propertyId || null,
         documentType,
         fileName: req.file.originalname,
         fileUrl,
         status: 'pending',
     });
+
+    if (property) {
+        property.documentsUploaded = true;
+        property.documentsUploadedAt = new Date();
+        await property.save();
+    }
 
     res.status(201).json({ success: true, data: verification });
 });

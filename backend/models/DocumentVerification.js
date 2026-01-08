@@ -6,6 +6,11 @@ const DocumentVerificationSchema = new mongoose.Schema({
         ref: 'User',
         required: [true, 'User ID is required'],
     },
+    propertyId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Property',
+        default: null,
+    },
     documentType: {
         type: String,
         enum: ['title_deed', 'sale_agreement', 'id_document', 'other'],
@@ -52,5 +57,6 @@ const DocumentVerificationSchema = new mongoose.Schema({
 
 // Index for faster queries
 DocumentVerificationSchema.index({ userId: 1, createdAt: -1 });
+DocumentVerificationSchema.index({ propertyId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('DocumentVerification', DocumentVerificationSchema);

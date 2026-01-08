@@ -3,6 +3,7 @@ const router = express.Router();
 const {
     getAllTenants,
     getMyTenants,
+    exportMyTenantsCsv,
     getTenantsByProperty,
     addTenantToProperty,
     getTenant,
@@ -25,6 +26,7 @@ router.get('/', authorize('Admin'), getAllTenants);
 
 // Get my tenants (Landlord/Agent)
 router.get('/my-tenants', authorize('Landlord', 'Agent', 'Admin'), getMyTenants);
+router.get('/my-tenants/export', authorize('Landlord', 'Agent', 'Admin'), exportMyTenantsCsv);
 
 // Get tenants by property
 router.get('/property/:propertyId', getTenantsByProperty);

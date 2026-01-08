@@ -47,7 +47,9 @@ exports.getProperties = asyncHandler(async (req, res, next) => {
         filter.createdBy = req.query.userId;
     }
 
-    query = Property.find(filter).populate('createdBy', 'name email');
+    query = Property.find(filter)
+        .populate('createdBy', 'name email')
+        .populate('attachedSurveyor.surveyor', 'name email phone whatsappNumber surveyorProfile');
 
     // Sort
     if (req.query.sort) {
@@ -67,7 +69,10 @@ exports.getProperties = asyncHandler(async (req, res, next) => {
 // @route   GET /api/properties/:id
 // @access  Public
 exports.getProperty = asyncHandler(async (req, res, next) => {
-    const property = await Property.findById(req.params.id).populate('createdBy', 'name email').lean();
+    const property = await Property.findById(req.params.id)
+        .populate('createdBy', 'name email')
+        .populate('attachedSurveyor.surveyor', 'name email phone whatsappNumber surveyorProfile')
+        .lean();
     if (!property) {
         return res.status(404).json({ success: false, message: 'Property not found' });
     }

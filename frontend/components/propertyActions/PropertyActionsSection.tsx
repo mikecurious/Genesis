@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActionCard } from './ActionCard';
 import { Listing } from '../../types';
+import { notificationService } from '../../services/notificationService';
 
 interface PropertyActionsSectionProps {
     property: Listing;
@@ -19,6 +20,15 @@ export const PropertyActionsSection: React.FC<PropertyActionsSectionProps> = ({
     onOpenLandSearch,
     onScheduleViewing
 }) => {
+    const hasDocuments = Boolean(property.documentsUploaded);
+    const requireDocuments = (action: () => void) => {
+        if (!hasDocuments) {
+            notificationService.error('Upload property documents to unlock this feature.');
+            return;
+        }
+        action();
+    };
+
     return (
         <div className="mt-8 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-900/20 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
             <div className="text-center mb-8">
@@ -38,7 +48,8 @@ export const PropertyActionsSection: React.FC<PropertyActionsSectionProps> = ({
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                     title="Calculate Mortgage"
                     description="See monthly payments and compare bank offers"
-                    onClick={onOpenMortgage}
+                    onClick={() => requireDocuments(onOpenMortgage)}
+                    disabled={!hasDocuments}
                     color="green"
                     badge="Popular"
                 />
@@ -55,7 +66,8 @@ export const PropertyActionsSection: React.FC<PropertyActionsSectionProps> = ({
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                     title="Request Verification"
                     description="Verify documents and ownership"
-                    onClick={onOpenVerification}
+                    onClick={() => requireDocuments(onOpenVerification)}
+                    disabled={!hasDocuments}
                     color="purple"
                 />
 
@@ -71,7 +83,8 @@ export const PropertyActionsSection: React.FC<PropertyActionsSectionProps> = ({
                     icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>}
                     title="Schedule Viewing"
                     description="Book a surveyor site visit"
-                    onClick={onScheduleViewing}
+                    onClick={() => requireDocuments(onScheduleViewing)}
+                    disabled={!hasDocuments}
                     color="indigo"
                     badge="New"
                 />

@@ -88,6 +88,82 @@ exports.getMyTenants = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Export tenants for a specific landlord/agent as CSV
+// @route   GET /api/tenants/my-tenants/export
+// @access  Private (Landlord/Agent)
+exports.exportMyTenantsCsv = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+
+    const properties = await Property.find({ createdBy: userId });
+    const propertyIds = properties.map(p => p._id);
+
+    const tenants = await User.find({
+        role: 'Tenant',
+        $or: [
+            { landlordId: userId },
+            { propertyId: { $in: propertyIds } }
+        ]
+    })
+        .populate('propertyId', 'title location')
+        .select('-password -verificationToken -resetPasswordToken')
+        .sort({ createdAt: -1 });
+
+    const escapeCsv = (value) => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes('"') || stringValue.includes(',') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        return new Date(date).toISOString().split('T')[0];
+    };
+
+    const headers = [
+        'Tenant Name',
+        'Email',
+        'Phone',
+        'WhatsApp',
+        'Property',
+        'Unit',
+        'Rent Amount',
+        'Deposit Amount',
+        'Rent Status',
+        'Last Payment Date',
+        'Next Due Date',
+        'Lease Start',
+        'Lease End'
+    ];
+
+    const rows = tenants.map((tenant) => ([
+        tenant.name,
+        tenant.email,
+        tenant.phone,
+        tenant.whatsappNumber,
+        tenant.propertyId ? `${tenant.propertyId.title} (${tenant.propertyId.location || 'N/A'})` : '',
+        tenant.unit,
+        tenant.rentAmount,
+        tenant.depositAmount,
+        tenant.rentStatus,
+        formatDate(tenant.lastPaymentDate),
+        formatDate(tenant.nextPaymentDue),
+        formatDate(tenant.leaseStartDate),
+        formatDate(tenant.leaseEndDate)
+    ]));
+
+    const csv = [headers, ...rows]
+        .map((row) => row.map(escapeCsv).join(','))
+        .join('\n');
+
+    const filename = `tenant-report-${new Date().toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(csv);
+});
+
 // @desc    Get tenants for a specific property
 // @route   GET /api/tenants/property/:propertyId
 // @access  Private

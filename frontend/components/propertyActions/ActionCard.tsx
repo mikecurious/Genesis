@@ -7,6 +7,7 @@ interface ActionCardProps {
     onClick: () => void;
     badge?: string;
     color?: 'indigo' | 'green' | 'blue' | 'purple' | 'orange';
+    disabled?: boolean;
 }
 
 export const ActionCard: React.FC<ActionCardProps> = ({
@@ -15,7 +16,8 @@ export const ActionCard: React.FC<ActionCardProps> = ({
     description,
     onClick,
     badge,
-    color = 'indigo'
+    color = 'indigo',
+    disabled = false
 }) => {
     const colorClasses = {
         indigo: 'hover:border-green-500 hover:shadow-green-500/20',
@@ -28,7 +30,8 @@ export const ActionCard: React.FC<ActionCardProps> = ({
     return (
         <button
             onClick={onClick}
-            className={`relative group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-xl ${colorClasses[color]} text-left w-full`}
+            disabled={disabled}
+            className={`relative group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 transition-all duration-300 text-left w-full ${disabled ? 'opacity-60 cursor-not-allowed' : `hover:scale-105 hover:shadow-xl ${colorClasses[color]}`}`}
         >
             {badge && (
                 <span className="absolute top-3 right-3 px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 text-xs font-semibold rounded-full">
@@ -42,7 +45,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
                 </div>
 
                 <div className="flex-1">
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                    <h4 className={`text-lg font-bold text-gray-900 dark:text-white mb-1 transition-colors ${disabled ? '' : 'group-hover:text-green-600 dark:group-hover:text-green-400'}`}>
                         {title}
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -51,7 +54,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
                 </div>
 
                 <svg
-                    className="w-5 h-5 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 group-hover:translate-x-1 transition-all duration-300"
+                    className={`w-5 h-5 text-gray-400 transition-all duration-300 ${disabled ? '' : 'group-hover:text-green-600 dark:group-hover:text-green-400 group-hover:translate-x-1'}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

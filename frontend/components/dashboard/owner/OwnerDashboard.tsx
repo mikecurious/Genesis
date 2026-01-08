@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { type Listing, type Message, type Tenant, type MaintenanceRequest, type User } from '../../../types';
+import { type Listing, type Message, type Tenant, type MaintenanceRequest, type User, type NewListingInput } from '../../../types';
 import { OwnerListingManager } from './OwnerListingManager';
 import { OwnerClientChat } from './OwnerClientChat';
 import { OwnerMarketing } from './OwnerMarketing';
@@ -15,7 +15,7 @@ import { NotificationPanel } from '../NotificationPanel';
 interface OwnerDashboardProps {
     user?: User; // NEW
     listings: Listing[];
-    onAddListing: (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => void;
+    onAddListing: (newListing: NewListingInput) => void;
     onEditListing?: (propertyId: string, updatedData: Partial<Omit<Listing, 'id' | 'imageUrls'>>) => Promise<void>;
     onDeleteListing?: (propertyId: string) => Promise<void>;
     interactionChats: Record<string, Message[]>;
@@ -50,7 +50,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
     const [activeTab, setActiveTab] = useState<OwnerDashboardTab>('listings');
     const [isFormOpen, setIsFormOpen] = useState(false);
 
-    const handleAddListingSubmit = (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => {
+    const handleAddListingSubmit = (newListing: NewListingInput) => {
         onAddListing(newListing);
         setIsFormOpen(false);
     };

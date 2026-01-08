@@ -5,6 +5,7 @@ import { providerService, surveyorService } from '../../../services/apiService';
 import { ChatHistoryModal } from '../../modals/ChatHistoryModal';
 import { TenantDetailsModal } from '../../modals/TenantDetailsModal';
 import { AddProviderModal } from '../../modals/AddProviderModal';
+import { SurveyorProfileModal } from '../../surveyor/SurveyorProfileModal';
 import { TenantList } from '../ai-manager/TenantList';
 import { TenantOnboarding } from '../ai-manager/TenantOnboarding';
 import { MaintenanceCenter } from '../ai-manager/MaintenanceCenter';
@@ -26,6 +27,7 @@ type SurveyorSummary = {
     name: string;
     email?: string;
     phone?: string;
+    whatsappNumber?: string;
     specializations?: string[];
     rating?: number;
     availability?: string;
@@ -84,6 +86,8 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
     const [isLoadingProviders, setIsLoadingProviders] = useState(false);
     const [surveyors, setSurveyors] = useState<SurveyorSummary[]>([]);
     const [isLoadingSurveyors, setIsLoadingSurveyors] = useState(false);
+    const [selectedSurveyor, setSelectedSurveyor] = useState<SurveyorSummary | null>(null);
+    const [isSurveyorModalOpen, setIsSurveyorModalOpen] = useState(false);
 
     // Fetch providers on mount
     useEffect(() => {
@@ -107,7 +111,19 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
         setIsLoadingSurveyors(true);
         try {
             const { data } = await surveyorService.getSurveyors();
-            setSurveyors(data?.data || data || []);
+            const rawSurveyors = data?.data || data || [];
+            const normalized = rawSurveyors.map((surveyor: any) => {
+                const profile = surveyor.surveyorProfile || {};
+                return {
+                    ...surveyor,
+                    specializations: surveyor.specializations || profile.specializations,
+                    rating: surveyor.rating ?? profile.rating,
+                    availability: surveyor.availability || profile.availability,
+                    profileImage: surveyor.profileImage || profile.profileImage,
+                    bio: surveyor.bio || profile.bio
+                };
+            });
+            setSurveyors(normalized);
         } catch (error) {
             console.error('Failed to fetch surveyors:', error);
         } finally {
@@ -116,15 +132,8 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
     };
 
     const handleContactSurveyor = (surveyor: SurveyorSummary) => {
-        if (surveyor.email) {
-            window.location.href = `mailto:${surveyor.email}?subject=Survey Request&body=Hi ${surveyor.name}, I'd like to book a survey.`;
-            return;
-        }
-        if (surveyor.phone) {
-            window.location.href = `tel:${surveyor.phone}`;
-            return;
-        }
-        alert('Contact details not available for this surveyor.');
+        setSelectedSurveyor(surveyor);
+        setIsSurveyorModalOpen(true);
     };
 
     const handleAddProvider = async (providerData: Partial<ServiceProvider>) => {
@@ -471,6 +480,27 @@ const UnlockedView: React.FC<AIPropertyManagerProps> = ({ tenants, maintenanceRe
                 isOpen={isAddProviderModalOpen}
                 onClose={() => setIsAddProviderModalOpen(false)}
                 onSubmit={handleAddProvider}
+            />
+            <SurveyorProfileModal
+                isOpen={isSurveyorModalOpen}
+                onClose={() => setIsSurveyorModalOpen(false)}
+                surveyor={
+                    selectedSurveyor
+                        ? {
+                            name: selectedSurveyor.name,
+                            email: selectedSurveyor.email,
+                            phone: selectedSurveyor.phone,
+                            whatsappNumber: selectedSurveyor.whatsappNumber,
+                            surveyorProfile: {
+                                profileImage: selectedSurveyor.profileImage,
+                                bio: selectedSurveyor.bio,
+                                specializations: selectedSurveyor.specializations,
+                                rating: selectedSurveyor.rating,
+                                availability: selectedSurveyor.availability
+                            }
+                        }
+                        : null
+                }
             />
         </div>
     );

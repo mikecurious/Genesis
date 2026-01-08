@@ -1,16 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { DocumentVerification } from '../../../types';
+import { DocumentVerification, Listing } from '../../../types';
 
 interface AIDocumentVerificationProps {
     userId: string;
+    userProperties?: Listing[];
 }
 
-export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ userId }) => {
+export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ userId, userProperties }) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [documentType, setDocumentType] = useState<'title_deed' | 'sale_agreement' | 'id_document' | 'other'>('title_deed');
     const [uploading, setUploading] = useState(false);
     const [verifications, setVerifications] = useState<DocumentVerification[]>([]);
     const [dragActive, setDragActive] = useState(false);
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDrag = (e: React.DragEvent) => {
@@ -46,6 +48,9 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
         const formData = new FormData();
         formData.append('document', selectedFile);
         formData.append('documentType', documentType);
+        if (selectedPropertyId) {
+            formData.append('propertyId', selectedPropertyId);
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -62,6 +67,9 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                 alert('Document uploaded successfully! Verification in progress...');
                 setSelectedFile(null);
                 loadVerifications();
+                if (selectedPropertyId) {
+                    setSelectedPropertyId('');
+                }
             } else {
                 alert('Upload failed: ' + data.message);
             }
@@ -127,6 +135,26 @@ export const AIDocumentVerification: React.FC<AIDocumentVerificationProps> = ({ 
                         <option value="other">Other</option>
                     </select>
                 </div>
+
+                {userProperties && userProperties.length > 0 && (
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Link to Property
+                        </label>
+                        <select
+                            value={selectedPropertyId}
+                            onChange={(e) => setSelectedPropertyId(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500"
+                        >
+                            <option value="">Select a property (optional)</option>
+                            {userProperties.map((property) => (
+                                <option key={property.id} value={property.id}>
+                                    {property.title} - {property.location}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {/* Drag & Drop Area */}
                 <div

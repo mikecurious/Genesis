@@ -42,6 +42,7 @@ import {
   type Conversation,
   type Tenant,
   type MaintenanceRequest,
+  type NewListingInput,
 } from "./types";
 import {
   generatePropertyResponse,
@@ -56,6 +57,7 @@ import {
   propertyService,
   maintenanceService,
   surveyorService,
+  verificationService,
 } from "./services/apiService";
 
 type View =
@@ -185,14 +187,18 @@ const App: React.FC = () => {
   const [isLiveSessionActive, setIsLiveSessionActive] = useState(false);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("theme")) {
-      const savedTheme = localStorage.getItem("theme") as "light" | "dark";
-      // Apply the theme immediately on initialization
-      if (savedTheme) applyThemeClass(savedTheme);
+    if (typeof window === "undefined") {
+      return "light";
+    }
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    if (savedTheme === "light" || savedTheme === "dark") {
+      applyThemeClass(savedTheme);
       return savedTheme;
     }
-    applyThemeClass("light");
-    return "light";
+    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    const initialTheme: "light" | "dark" = prefersDark ? "dark" : "light";
+    applyThemeClass(initialTheme);
+    return initialTheme;
   });
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -340,6 +346,21 @@ const App: React.FC = () => {
     applyThemeClass(theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hasStoredTheme = localStorage.getItem("theme");
+    if (hasStoredTheme) return;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setTheme(event.matches ? "dark" : "light");
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -809,23 +830,57 @@ const App: React.FC = () => {
     []
   );
 
-  const handleAddListing = async (
-    newListingData: Omit<
-      Listing,
-      "id" | "agentName" | "agentContact" | "createdBy" | "imageUrls"
-    > & { images: File[] }
-  ) => {
+  const handleAddListing = async (newListingData: NewListingInput) => {
     try {
-      const { data: createdProperty } = await propertyService.createProperty(
-        newListingData
+      const response = await propertyService.createProperty(newListingData);
+      const createdProperty = response.data?.data || response.data;
+      const hasAnyDocuments = Boolean(
+        newListingData.documents?.titleDeed ||
+          newListingData.documents?.saleAgreement ||
+          newListingData.documents?.kraPin ||
+          (newListingData.documents?.ownershipDocs &&
+            newListingData.documents.ownershipDocs.length > 0) ||
+          newListingData.documents?.valuationReport
       );
+
       const mappedProperty = {
         ...createdProperty,
         id: createdProperty._id,
         agentName: currentUser?.name || "MyGF AI",
         agentContact: currentUser?.email || "N/A",
+        documentsUploaded: hasAnyDocuments,
       };
       setListings((prev) => [mappedProperty, ...prev]);
+
+      const documents = newListingData.documents;
+      if (documents) {
+        const uploads: Array<Promise<unknown>> = [];
+        if (documents.titleDeed) {
+          uploads.push(verificationService.uploadDocument("title_deed", documents.titleDeed, mappedProperty.id));
+        }
+        if (documents.saleAgreement) {
+          uploads.push(verificationService.uploadDocument("sale_agreement", documents.saleAgreement, mappedProperty.id));
+        }
+        if (documents.kraPin) {
+          uploads.push(verificationService.uploadDocument("id_document", documents.kraPin, mappedProperty.id));
+        }
+        if (documents.ownershipDocs && documents.ownershipDocs.length > 0) {
+          documents.ownershipDocs.forEach((doc) => {
+            uploads.push(verificationService.uploadDocument("other", doc, mappedProperty.id));
+          });
+        }
+        if (documents.valuationReport) {
+          uploads.push(verificationService.uploadDocument("other", documents.valuationReport, mappedProperty.id));
+        }
+
+        if (uploads.length > 0) {
+          const results = await Promise.allSettled(uploads);
+          const failed = results.filter((result) => result.status === "rejected");
+          if (failed.length > 0) {
+            notificationService.error("Some documents failed to upload. Please retry in Verification Center.");
+          }
+        }
+      }
     } catch (error: any) {
       console.error("Failed to add listing:", error);
       let errorMessage = "Unknown error";

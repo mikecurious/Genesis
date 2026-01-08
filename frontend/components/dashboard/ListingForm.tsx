@@ -1,13 +1,14 @@
 
 import React, { useState, FormEvent, ChangeEvent, useEffect } from 'react';
-import { type Listing, UserRole, type UserRoleType } from '../../types';
+import { type Listing, type ListingDocuments, type NewListingInput, UserRole, type UserRoleType } from '../../types';
 import { SparklesIcon } from '../icons/SparklesIcon';
 import { generatePropertyDescription } from '../../services/geminiService';
 
 interface ListingFormProps {
     isOpen: boolean;
     onClose: () => void;
-    onAddListing: (listing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => void;
+    onAddListing: (listing: NewListingInput) => void;
+    onRequireVerification?: () => void;
     userRole?: UserRoleType; // Updated to accept UserRoleType
 }
 
@@ -34,7 +35,7 @@ const InputField: React.FC<{ label: string; name: string; value: string; onChang
 
 const MAX_IMAGES = 5;
 
-export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAddListing, userRole }) => {
+export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAddListing, onRequireVerification, userRole }) => {
     const [formState, setFormState] = useState(initialFormState);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -138,15 +139,39 @@ export const ListingForm: React.FC<ListingFormProps> = ({ isOpen, onClose, onAdd
             return;
         }
 
+        const documents: ListingDocuments = {
+            titleDeed,
+            saleAgreement,
+            kraPin,
+            ownershipDocs,
+            valuationReport,
+        };
+
+        const hasRequiredDocuments = Boolean(titleDeed && saleAgreement && kraPin);
+
         try {
-            onAddListing({ ...formState, images: imageFiles });
+            onAddListing({
+                ...formState,
+                images: imageFiles,
+                documents,
+                hasRequiredDocuments,
+            });
             console.log('onAddListing called');
 
             setFormState(initialFormState);
             setImageFiles([]);
             setImagePreviews([]);
             setTagInput('');
+            setTitleDeed(null);
+            setSaleAgreement(null);
+            setKraPin(null);
+            setOwnershipDocs([]);
+            setValuationReport(null);
             onClose(); // Close modal on submit
+
+            if (!hasRequiredDocuments && onRequireVerification) {
+                onRequireVerification();
+            }
         } catch (error) {
             console.error('Error in handleSubmit:', error);
         }

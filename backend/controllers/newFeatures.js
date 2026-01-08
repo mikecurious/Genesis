@@ -236,7 +236,7 @@ exports.attachSurveyor = asyncHandler(async (req, res) => {
 // @access  Private
 exports.getPropertySurveyor = asyncHandler(async (req, res) => {
     const property = await Property.findById(req.params.propertyId)
-        .populate('attachedSurveyor', 'name email phone surveyorProfile');
+        .populate('attachedSurveyor.surveyor', 'name email phone whatsappNumber surveyorProfile');
 
     if (!property) {
         return res.status(404).json({
@@ -245,7 +245,7 @@ exports.getPropertySurveyor = asyncHandler(async (req, res) => {
         });
     }
 
-    if (!property.attachedSurveyor) {
+    if (!property.attachedSurveyor?.surveyor) {
         return res.status(200).json({
             success: true,
             message: 'No surveyor attached to this property',
@@ -256,10 +256,11 @@ exports.getPropertySurveyor = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         data: {
-            surveyor: property.attachedSurveyor,
-            attachedAt: property.surveyorAttachedAt,
-            status: property.surveyStatus,
-            notes: property.surveyorNotes
+            surveyor: property.attachedSurveyor.surveyor,
+            attachedAt: property.attachedSurveyor.attachedAt || property.surveyorAttachedAt,
+            status: property.attachedSurveyor.status || property.surveyStatus,
+            notes: property.attachedSurveyor.notes || property.surveyorNotes,
+            surveyType: property.attachedSurveyor.surveyType || 'general'
         }
     });
 });
@@ -280,7 +281,7 @@ exports.updateSurveyStatus = asyncHandler(async (req, res) => {
     }
 
     // Verify user is the attached surveyor
-    if (property.attachedSurveyor?.toString() !== req.user._id.toString()) {
+    if (property.attachedSurveyor?.surveyor?.toString() !== req.user._id.toString()) {
         return res.status(403).json({
             success: false,
             message: 'You are not the surveyor for this property'
@@ -289,13 +290,22 @@ exports.updateSurveyStatus = asyncHandler(async (req, res) => {
 
     if (status) {
         property.surveyStatus = status;
+        if (property.attachedSurveyor) {
+            property.attachedSurveyor.status = status;
+        }
         if (status === 'completed') {
             property.surveyCompletedAt = new Date();
+            if (property.attachedSurveyor) {
+                property.attachedSurveyor.completedDate = property.surveyCompletedAt;
+            }
         }
     }
 
     if (notes) {
         property.surveyorNotes = notes;
+        if (property.attachedSurveyor) {
+            property.attachedSurveyor.notes = notes;
+        }
     }
 
     await property.save();

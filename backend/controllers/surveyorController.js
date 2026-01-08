@@ -153,7 +153,7 @@ exports.getAvailableSurveyors = asyncHandler(async (req, res) => {
     }
 
     const surveyors = await User.find(query)
-        .select('name email phone surveyorProfile')
+        .select('name email phone whatsappNumber surveyorProfile')
         .sort({ 'surveyorProfile.rating': -1, 'surveyorProfile.completedSurveys': -1 });
 
     res.status(200).json({
@@ -197,7 +197,7 @@ exports.searchSurveyors = asyncHandler(async (req, res) => {
     }
 
     const surveyors = await User.find(query)
-        .select('name email phone surveyorProfile')
+        .select('name email phone whatsappNumber surveyorProfile')
         .sort({ 'surveyorProfile.rating': -1, 'surveyorProfile.completedSurveys': -1 })
         .limit(10);
 

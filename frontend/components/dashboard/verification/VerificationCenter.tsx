@@ -94,7 +94,7 @@ export const VerificationCenter: React.FC<VerificationCenterProps> = ({ userId, 
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">AI Document Verification</h2>
                         <p className="text-gray-600 dark:text-gray-400 mb-6">Upload property documents for AI-powered verification and data extraction.</p>
 
-                        <AIDocumentVerification userId={userId} />
+                        <AIDocumentVerification userId={userId} userProperties={userProperties} />
                     </div>
                 )}
 

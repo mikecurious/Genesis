@@ -151,7 +151,7 @@ exports.login = asyncHandler(async (req, res, next) => {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    if (!user.isVerified) {
+    if (!user.isVerified && user.role !== 'Surveyor') {
         return res.status(401).json({ success: false, message: 'Account not verified. Please check your email.' });
     }
 

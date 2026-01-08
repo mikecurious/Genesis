@@ -53,7 +53,7 @@ exports.registerSurveyor = asyncHandler(async (req, res) => {
         password,
         phone,
         role: 'Surveyor',
-        isVerified: false // Surveyors need verification before accessing platform
+        isVerified: true
     });
 
     const verificationToken = user.getVerificationToken();

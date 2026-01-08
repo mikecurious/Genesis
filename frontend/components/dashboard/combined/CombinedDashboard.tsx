@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { type Listing, type Message, type Tenant, type MaintenanceRequest } from '../../../types';
+import { type Listing, type Message, type Tenant, type MaintenanceRequest, type NewListingInput } from '../../../types';
 import { ListingForm } from '../ListingForm';
 import { CombinedListingManager } from './CombinedListingManager';
 import { CombinedClientChat } from './CombinedClientChat';
@@ -15,7 +15,7 @@ import { type User } from '../../../types';
 
 interface CombinedDashboardProps {
     listings: Listing[];
-    onAddListing: (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => void;
+    onAddListing: (newListing: NewListingInput) => void;
     interactionChats: Record<string, Message[]>;
     humanTakeoverChats: Record<string, boolean>;
     onTakeoverChat: (propertyId: string) => void;
@@ -50,7 +50,7 @@ export const CombinedDashboard: React.FC<CombinedDashboardProps> = ({
     const [activeTab, setActiveTab] = useState<CombinedDashboardTab>('listings');
     const [isFormOpen, setIsFormOpen] = useState(false);
 
-    const handleAddListingSubmit = (newListing: Omit<Listing, 'id' | 'agentName' | 'agentContact' | 'createdBy' | 'imageUrls'> & { images: File[] }) => {
+    const handleAddListingSubmit = (newListing: NewListingInput) => {
         onAddListing(newListing);
         setIsFormOpen(false);
     };
