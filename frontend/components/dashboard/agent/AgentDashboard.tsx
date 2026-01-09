@@ -21,6 +21,7 @@ interface AgentDashboardProps {
     user?: User; // NEW: User information
     listings: Listing[];
     onAddListing: (newListing: NewListingInput) => void;
+    onViewProperty?: (property: Listing) => void;
     onEditListing?: (propertyId: string, updatedData: Partial<Omit<Listing, 'id' | 'imageUrls'>>) => Promise<void>;
     onDeleteListing?: (propertyId: string) => Promise<void>;
     interactionChats: Record<string, Message[]>;
@@ -47,6 +48,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     user,
     listings,
     onAddListing,
+    onViewProperty,
     onEditListing,
     onDeleteListing,
     interactionChats,
@@ -140,7 +142,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
     const renderContent = () => {
         switch (activeSection) {
             case 'overview':
-                return <AgentListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
+                return <AgentListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onViewProperty={onViewProperty} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
             case 'leads':
                 return <LeadViewer />;
             case 'analytics':
@@ -204,7 +206,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                     </div>
                 );
             default:
-                return <AgentListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
+                return <AgentListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onViewProperty={onViewProperty} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
         }
     };
 

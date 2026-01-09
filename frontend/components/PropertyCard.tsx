@@ -7,6 +7,7 @@ interface PropertyCardProps {
     property: Listing;
     onConnect?: (property: Listing) => void;
     onImageClick?: () => void;
+    onCardClick?: (property: Listing) => void;
     onEdit?: (property: Listing) => void;
     onDelete?: (property: Listing) => void;
     showConnectButton?: boolean;
@@ -16,10 +17,19 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     property,
     onConnect,
     onImageClick,
+    onCardClick,
     onEdit,
     onDelete,
     showConnectButton = true
 }) => {
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Don't trigger if clicking on buttons or interactive elements
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('a')) {
+            return;
+        }
+        onCardClick?.(property);
+    };
     const images = property.imageUrls.length > 0
         ? property.imageUrls
         : [`https://picsum.photos/seed/${encodeURIComponent(property.title)}/800/600`];
@@ -37,7 +47,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     };
 
     return (
-        <div className="group relative w-full bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full">
+        <div
+            className="group relative w-full bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full cursor-pointer"
+            onClick={handleCardClick}
+        >
             {/* Image Section - Horizontal Carousel */}
             <div className="relative h-64 overflow-hidden cursor-pointer" onClick={onImageClick}>
                 {/* Current Image */}

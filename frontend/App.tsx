@@ -1216,6 +1216,7 @@ const App: React.FC = () => {
         const dashboardProps = {
           listings,
           onAddListing: handleAddListing,
+          onViewProperty: handleConnect,
           onEditListing: handleEditListing,
           onDeleteListing: handleDeleteListing,
           interactionChats,

@@ -5,6 +5,7 @@ import { PropertyCard } from '../../PropertyCard';
 interface AgentListingManagerProps {
     listings: Listing[];
     onOpenAddListingModal: () => void;
+    onViewProperty?: (property: Listing) => void;
     onEditListing?: (propertyId: string, updatedData: Partial<Omit<Listing, 'id' | 'imageUrls'>>) => Promise<void>;
     onDeleteListing?: (propertyId: string) => Promise<void>;
 }
@@ -12,6 +13,7 @@ interface AgentListingManagerProps {
 export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
     listings,
     onOpenAddListingModal,
+    onViewProperty,
     onEditListing,
     onDeleteListing
 }) => {
@@ -77,6 +79,7 @@ export const AgentListingManager: React.FC<AgentListingManagerProps> = ({
                                 property={listing}
                                 onConnect={() => { }}
                                 onImageClick={() => { }}
+                                onCardClick={onViewProperty}
                                 showConnectButton={false}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
