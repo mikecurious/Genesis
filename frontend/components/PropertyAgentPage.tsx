@@ -83,21 +83,41 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
     const handleCall = () => {
         const phone = agentData?.phone || property.createdBy?.phone;
         if (phone) {
-            window.location.href = `tel:${phone}`;
+            // Clean phone number and use tel: protocol
+            const cleanPhone = phone.replace(/[^0-9+]/g, '');
+            window.location.href = `tel:${cleanPhone}`;
+        } else {
+            alert('Phone number not available');
         }
     };
 
     const handleWhatsApp = () => {
         const whatsapp = agentData?.whatsappNumber || property.createdBy?.whatsappNumber;
         if (whatsapp) {
-            window.open(`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`, '_blank');
+            // Remove all non-numeric characters for WhatsApp
+            const cleanWhatsapp = whatsapp.replace(/[^0-9]/g, '');
+            window.open(`https://wa.me/${cleanWhatsapp}`, '_blank');
+        } else {
+            alert('WhatsApp number not available');
         }
     };
 
     const handleEmail = () => {
         const email = agentData?.email || property.createdBy?.email;
         if (email) {
-            window.location.href = `mailto:${email}?subject=Inquiry about ${property.title}`;
+            // Create email with pre-filled subject and body
+            const subject = encodeURIComponent(`Inquiry about ${property.title}`);
+            const body = encodeURIComponent(
+                `Hi ${agentData?.name || property.agentName || 'there'},\n\n` +
+                `I'm interested in the property: ${property.title}\n` +
+                `Location: ${property.location}\n` +
+                `Price: ${typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price}\n\n` +
+                `Please contact me with more details.\n\n` +
+                `Best regards`
+            );
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        } else {
+            alert('Email address not available');
         }
     };
 
