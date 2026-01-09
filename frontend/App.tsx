@@ -1162,13 +1162,13 @@ const App: React.FC = () => {
         );
       case "propertyAgent":
         if (!activeAgentProperty) {
-          handleSetView("chat");
+          handleSetView("dashboard");
           return null;
         }
         return (
           <PropertyAgentPage
             property={activeAgentProperty}
-            onBack={() => handleSetView("chat")}
+            onBack={() => handleSetView("dashboard")}
             onChatWithAI={async () => {
               // Transition to interaction page with AI chat
               setActiveInteractionPropertyId(activeAgentProperty.id);
