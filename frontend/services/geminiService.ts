@@ -175,6 +175,51 @@ ${JSON.stringify(listings, null, 2)}
     }
 };
 
+export const generateSurveyorResponse = async (
+    prompt: string
+): Promise<Message> => {
+    try {
+        // Fetch surveyors from backend
+        const { surveyorService } = await import('./apiService');
+        const response = await surveyorService.getAvailableSurveyors();
+
+        const surveyors = response.data?.data || [];
+
+        if (surveyors.length === 0) {
+            return {
+                id: Date.now().toString(),
+                role: Role.MODEL,
+                text: "I'm sorry, there are no surveyors available at the moment. Please try again later or contact support for assistance.",
+            };
+        }
+
+        // Map surveyors to the format expected by the message
+        const mappedSurveyors = surveyors.map((surveyor: any) => ({
+            id: surveyor._id || surveyor.id,
+            name: surveyor.name,
+            email: surveyor.email,
+            phone: surveyor.phone,
+            whatsappNumber: surveyor.whatsappNumber,
+            surveyorProfile: surveyor.surveyorProfile,
+        }));
+
+        return {
+            id: Date.now().toString(),
+            role: Role.MODEL,
+            text: `Great! I found ${surveyors.length} professional surveyor${surveyors.length > 1 ? 's' : ''} for you! 🎯\n\nThey're all verified and ready to assist with your property surveying needs. You can view their full profiles and connect directly with them.`,
+            surveyors: mappedSurveyors,
+        };
+
+    } catch (error) {
+        console.error("Error fetching surveyors:", error);
+        return {
+            id: Date.now().toString(),
+            role: Role.MODEL,
+            text: "I apologize, but I had trouble loading the surveyor list. Please try again in a moment.",
+        };
+    }
+};
+
 export async function* generateGroundedResponseStream(prompt: string): AsyncGenerator<GenerateContentResponse> {
     try {
         const responseStream = await ai.models.generateContentStream({

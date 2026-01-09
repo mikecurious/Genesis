@@ -6,6 +6,21 @@ const emailService = require('../services/emailService');
 
 // ==================== SURVEYOR REGISTRATION ====================
 
+// @desc    Get all surveyors with their profiles
+// @route   GET /api/surveyor/list
+// @access  Public
+exports.getAllSurveyors = asyncHandler(async (req, res) => {
+    const surveyors = await User.find({ role: 'Surveyor' })
+        .select('name email phone whatsappNumber surveyorProfile')
+        .sort('-createdAt');
+
+    res.status(200).json({
+        success: true,
+        count: surveyors.length,
+        data: surveyors
+    });
+});
+
 // @desc    Register a new surveyor
 // @route   POST /api/surveyor/register
 // @access  Public

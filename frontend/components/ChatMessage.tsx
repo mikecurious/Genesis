@@ -7,11 +7,13 @@ import { AgentIcon } from './icons/AgentIcon';
 import { ChevronLeftIcon } from './icons/ChevronLeftIcon';
 import { ChevronRightIcon } from './icons/ChevronRightIcon';
 import { formatPrice } from '../utils/formatPrice';
+import { SurveyorCard, type SurveyorData } from './SurveyorCard';
 
 interface ChatMessageProps {
   message: Message;
   isLoading?: boolean;
   onConnect?: (property: Listing) => void;
+  onConnectSurveyor?: (surveyor: SurveyorData) => void;
   onOpenImageViewer?: (imageUrls: string[]) => void;
 }
 
@@ -109,9 +111,10 @@ const GroundingSources: React.FC<{ metadata: any }> = ({ metadata }) => {
 };
 
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = false, onConnect, onOpenImageViewer }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = false, onConnect, onConnectSurveyor, onOpenImageViewer }) => {
   const isUser = message.role === Role.USER;
   const hasProperties = message.properties && message.properties.length > 0;
+  const hasSurveyors = message.surveyors && message.surveyors.length > 0;
   const hasGrounding = message.groundingMetadata && message.groundingMetadata.groundingChunks?.length > 0;
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -141,7 +144,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         resizeObserver.unobserve(el);
       };
     }
-  }, [hasProperties, checkScrollButtons, message.properties]); // Re-check when properties change
+  }, [hasProperties, hasSurveyors, checkScrollButtons, message.properties, message.surveyors]); // Re-check when properties or surveyors change
 
   const handleScroll = (direction: 'left' | 'right') => {
     const el = scrollContainerRef.current;
@@ -176,20 +179,20 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <div
           className={`rounded-2xl ${isUser
             ? 'bg-blue-600 text-white rounded-br-none max-w-xl p-4'
-            : `rounded-bl-none border border-green-100 dark:border-green-900/60 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/30 text-gray-900 dark:text-green-50 shadow-sm ${hasProperties ? 'max-w-4xl p-0 overflow-hidden' : 'max-w-xl p-4'}`
+            : `rounded-bl-none border border-green-100 dark:border-green-900/60 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/30 text-gray-900 dark:text-green-50 shadow-sm ${hasProperties || hasSurveyors ? 'max-w-4xl p-0 overflow-hidden' : 'max-w-xl p-4'}`
             }`}
         >
           {isLoading && !message.text ? (
             <div className="p-4"><LoadingDots /></div>
           ) : (
             <>
-              <div className={`whitespace-pre-wrap prose dark:prose-invert prose-p:my-0 ${hasProperties ? 'p-4' : ''}`}>
+              <div className={`whitespace-pre-wrap prose dark:prose-invert prose-p:my-0 ${hasProperties || hasSurveyors ? 'p-4' : ''}`}>
                 {message.text.split('\n').map((line, index) => (
                   <p key={index} className="text-inherit" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') || '\u00A0' }}></p>
                 ))}
               </div>
 
-              {hasGrounding && !hasProperties && (
+              {hasGrounding && !hasProperties && !hasSurveyors && (
                 <div className="p-4 pt-0">
                   <GroundingSources metadata={message.groundingMetadata} />
                 </div>
@@ -204,6 +207,20 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
                         property={prop}
                         onConnect={onConnect}
                         onImageClick={() => onOpenImageViewer?.(prop.imageUrls)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {hasSurveyors && (
+                <div className="px-4 pt-2 pb-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    {message.surveyors?.map((surveyor) => (
+                      <SurveyorCard
+                        key={surveyor.id}
+                        surveyor={surveyor}
+                        onConnect={onConnectSurveyor!}
                       />
                     ))}
                   </div>

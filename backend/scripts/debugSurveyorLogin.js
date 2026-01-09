@@ -27,8 +27,8 @@ const debugLogin = async () => {
         console.log('  Subscription Status:', surveyor.subscription?.status);
         console.log('  Password exists:', !!surveyor.password);
 
-        // Test password
-        const testPassword = 'password123';
+        // Test password that meets requirements (uppercase, lowercase, number, special)
+        const testPassword = 'Test@123';
         const isMatch = await surveyor.matchPassword(testPassword);
         console.log('\n🔐 Password Test:');
         console.log('  Password matches:', isMatch ? '✅ YES' : '❌ NO');
@@ -59,7 +59,7 @@ const debugLogin = async () => {
         console.log('\n✅ All checks passed! Login should work now.');
         console.log('\n📝 Login Credentials:');
         console.log('   Email: surveyor@test.com');
-        console.log('   Password: password123');
+        console.log('   Password: Test@123');
 
         process.exit(0);
     } catch (error) {

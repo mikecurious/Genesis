@@ -70,6 +70,29 @@ export interface Message {
   role: Role;
   text: string;
   properties?: Listing[];
+  surveyors?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    whatsappNumber?: string;
+    surveyorProfile?: {
+      profileImage?: string;
+      bio?: string;
+      specializations?: string[];
+      services?: Array<{
+        name: string;
+        description: string;
+        price: number;
+        currency: string;
+      }>;
+      yearsOfExperience?: number;
+      location?: string;
+      rating?: number;
+      completedSurveys?: number;
+      availability?: string;
+    };
+  }>;
   senderName?: string; // To specify if the sender is a specific agent
   isSystemMessage?: boolean; // For messages like "Agent has joined"
   groundingMetadata?: any; // For Google Search/Maps grounding results

@@ -24,6 +24,8 @@ import { GoogleSignInModal } from "./components/GoogleSignInModal";
 import { InteractionPage } from "./components/interaction/InteractionPage";
 import { PropertyExplorerPage } from "./components/PropertyExplorerPage";
 import { PropertyAgentPage } from "./components/PropertyAgentPage";
+import { SurveyorDetailPage } from "./components/SurveyorDetailPage";
+import type { SurveyorData } from "./components/SurveyorCard";
 import { AIPropertySearch } from "./components/AIPropertySearch";
 import { FeaturePaymentModal } from "./components/modals/FeaturePaymentModal";
 import { AddTenantModal } from "./components/modals/AddTenantModal";
@@ -50,6 +52,7 @@ import {
   generateChatTitle,
   generateInitialPitch,
   generateInteractionResponse,
+  generateSurveyorResponse,
 } from "./services/geminiService";
 import {
   authService,
@@ -68,6 +71,7 @@ type View =
   | "interaction"
   | "propertyExplorer"
   | "propertyAgent"
+  | "surveyorDetail"
   | "aiPropertySearch"
   | "signIn"
   | "surveyorSignIn"
@@ -180,6 +184,9 @@ const App: React.FC = () => {
   >(null);
   const activeAgentProperty =
     listings.find((l) => l.id === activeAgentPropertyId) || null;
+
+  // State for Surveyor Detail Page
+  const [activeSurveyor, setActiveSurveyor] = useState<SurveyorData | null>(null);
 
   // State for premium feature payment modal
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -483,9 +490,39 @@ const App: React.FC = () => {
         inputText.toLowerCase().includes(kw)
       );
 
+      const surveyorKeywords = [
+        "surveyor",
+        "surveyors",
+        "survey",
+        "land survey",
+        "property survey",
+        "valuation",
+        "inspection",
+        "measure",
+        "measurement",
+        "boundary",
+        "need a surveyor",
+        "find surveyor",
+        "get surveyor",
+      ];
+      const isSurveyorQuery = surveyorKeywords.some((kw) =>
+        inputText.toLowerCase().includes(kw)
+      );
+
       try {
-        if (isPropertyQuery) {
-          // Path A: Structured property search (not streamed)
+        if (isSurveyorQuery) {
+          // Path A: Surveyor search (not streamed)
+          const aiMessage = await generateSurveyorResponse(inputText);
+          setMessages((prev) => [...prev, aiMessage]);
+          setConversations((prev) => ({
+            ...prev,
+            [conversationId!]: {
+              ...prev[conversationId!],
+              messages: [...prev[conversationId!].messages, aiMessage],
+            },
+          }));
+        } else if (isPropertyQuery) {
+          // Path B: Structured property search (not streamed)
           const aiMessage = await generatePropertyResponse(inputText, messages, listings);
           setMessages((prev) => [...prev, aiMessage]);
           setConversations((prev) => ({
@@ -496,7 +533,7 @@ const App: React.FC = () => {
             },
           }));
         } else {
-          // Path B: Grounded, streaming search
+          // Path C: Grounded, streaming search
           const modelMessage: Message = {
             id: (Date.now() + 1).toString(),
             role: Role.MODEL,
@@ -572,6 +609,11 @@ const App: React.FC = () => {
     },
     []
   );
+
+  const handleConnectSurveyor = useCallback((surveyor: SurveyorData) => {
+    setActiveSurveyor(surveyor);
+    setCurrentView("surveyorDetail");
+  }, []);
 
   const handleExploreProperty = useCallback((property: Listing) => {
     setActiveExplorerPropertyId(property.id);
@@ -1053,6 +1095,7 @@ const App: React.FC = () => {
     setIsSidebarOpen(false);
     if (view !== "interaction") setActiveInteractionPropertyId(null);
     if (view !== "propertyAgent") setActiveAgentPropertyId(null);
+    if (view !== "surveyorDetail") setActiveSurveyor(null);
   };
 
   const renderView = () => {
@@ -1203,6 +1246,17 @@ const App: React.FC = () => {
             }}
           />
         );
+      case "surveyorDetail":
+        if (!activeSurveyor) {
+          handleSetView("chat");
+          return null;
+        }
+        return (
+          <SurveyorDetailPage
+            surveyor={activeSurveyor}
+            onBack={() => handleSetView("chat")}
+          />
+        );
       case "aiPropertySearch":
         return <AIPropertySearch />;
       case "dashboard":
@@ -1294,6 +1348,7 @@ const App: React.FC = () => {
                     key={msg.id}
                     message={msg}
                     onConnect={handleExploreProperty}
+                    onConnectSurveyor={handleConnectSurveyor}
                     onOpenImageViewer={handleOpenImageViewer}
                   />
                 ))}
