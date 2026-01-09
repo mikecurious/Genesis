@@ -78,15 +78,15 @@ html {
   background: rgba(9, 136, 39, 0.8);
 }
 
-.dark ::-webkit-scrollbar-track {
+.dark::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.dark ::-webkit-scrollbar-thumb {
+.dark::-webkit-scrollbar-thumb {
   background: rgba(9, 136, 39, 0.7);
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
+.dark::-webkit-scrollbar-thumb:hover {
   background: rgba(9, 136, 39, 0.9);
 }
 

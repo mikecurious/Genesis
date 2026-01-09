@@ -56,46 +56,12 @@ exports.registerSurveyor = asyncHandler(async (req, res) => {
         isVerified: true
     });
 
-    const verificationToken = user.getVerificationToken();
     await user.save();
 
-    // Send verification email
-    try {
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #10B981;">Welcome to MyGF AI Surveyor Platform!</h2>
-                <p>Hello ${name},</p>
-                <p>Thank you for registering as a surveyor. Please use the verification code below to verify your account:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; display: inline-block;">
-                        <span style="font-size: 32px; font-weight: bold; color: #10B981; letter-spacing: 5px;">${verificationToken}</span>
-                    </div>
-                </div>
-                <p>This code will expire in 10 minutes.</p>
-                <p>Once verified, you'll be able to access the surveyor dashboard and start accepting tasks.</p>
-                <p>Best regards,<br>The MyGF AI Team</p>
-            </div>
-        `;
-
-        await emailService.sendEmail({
-            to: email,
-            subject: 'Verify Your Surveyor Account - MyGF AI',
-            html
-        });
-
-        res.status(201).json({
-            success: true,
-            message: 'Surveyor account created successfully! Please check your email for the verification code.'
-        });
-    } catch (error) {
-        console.error('Email send error:', error);
-        // Still return success since user was created
-        res.status(201).json({
-            success: true,
-            message: 'Surveyor account created successfully! Please check your email for the verification code.',
-            warning: 'Verification email may be delayed'
-        });
-    }
+    res.status(201).json({
+        success: true,
+        message: 'Surveyor account created successfully. You can log in now.'
+    });
 });
 
 // ==================== TASK MANAGEMENT ====================

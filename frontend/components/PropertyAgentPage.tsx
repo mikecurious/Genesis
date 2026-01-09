@@ -111,8 +111,8 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
 
     return (
         <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900 overflow-hidden flex flex-col pt-16">
-            {/* Header */}
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center gap-4 flex-shrink-0">
+                {/* Header */}
+                <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center gap-4 flex-shrink-0">
                 <button
                     onClick={onBack}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -125,10 +125,10 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">{property.title}</h1>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{property.location}</p>
                 </div>
-            </div>
+                </div>
 
-            {/* Main Content */}
-            <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+                {/* Main Content */}
+                <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
                 {/* Property Details Section - Left (70%) */}
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="max-w-4xl mx-auto space-y-6">
@@ -211,28 +211,28 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                                 </div>
                             )}
 
-                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                                {property.description}
-                            </p>
-                        </div>
-
-                        {attachedSurveyor && (
-                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex items-center justify-between gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Surveyor</p>
-                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{attachedSurveyor.name}</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">{attachedSurveyor.surveyorProfile?.specializations?.join(', ') || 'Survey specialist'}</p>
-                                </div>
-                                <button
-                                    onClick={() => setIsSurveyorModalOpen(true)}
-                                    className="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600"
-                                >
-                                    Contact Surveyor
-                                </button>
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {property.description}
+                                </p>
                             </div>
-                        )}
+
+                            {attachedSurveyor && (
+                                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Surveyor</p>
+                                        <p className="text-lg font-semibold text-gray-900 dark:text-white">{attachedSurveyor.name}</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">{attachedSurveyor.surveyorProfile?.specializations?.join(', ') || 'Survey specialist'}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsSurveyorModalOpen(true)}
+                                        className="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600"
+                                    >
+                                        Contact Surveyor
+                                    </button>
+                                </div>
+                            )}
 
                             {property.amenities && property.amenities.length > 0 && (
                                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
@@ -452,11 +452,11 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                     </div>
                 </div>
             </div>
+            <SurveyorProfileModal
+                isOpen={isSurveyorModalOpen}
+                onClose={() => setIsSurveyorModalOpen(false)}
+                surveyor={attachedSurveyor || null}
+            />
         </div>
-        <SurveyorProfileModal
-            isOpen={isSurveyorModalOpen}
-            onClose={() => setIsSurveyorModalOpen(false)}
-            surveyor={attachedSurveyor || null}
-        />
     );
 };

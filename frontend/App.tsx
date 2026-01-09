@@ -130,6 +130,7 @@ const App: React.FC = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isAddTenantModalOpen, setIsAddTenantModalOpen] = useState(false);
+  const [searchMode, setSearchMode] = useState<'buy' | 'rent' | 'general'>('general');
 
   // State for Maintenance
   const [maintenanceRequests, setMaintenanceRequests] = useState<
@@ -736,7 +737,7 @@ const App: React.FC = () => {
       setIsUserLoggedIn(true);
       handleSetView("dashboard");
     } catch (error: any) {
-      setAuthError(error.message || "Invalid email or password.");
+      setAuthError(error.response?.data?.message || error.message || "Invalid email or password.");
     } finally {
       setIsLoading(false);
     }
@@ -757,7 +758,7 @@ const App: React.FC = () => {
         setIsUserLoggedIn(true);
         handleSetView("dashboard");
     } catch (error: any) {
-      setAuthError(error.message || "Invalid email or password.");
+      setAuthError(error.response?.data?.message || error.message || "Invalid email or password.");
     } finally {
       setIsLoading(false);
     }
@@ -1303,7 +1304,12 @@ const App: React.FC = () => {
                     />
                   )}
               </div>
-              <HeroIntro isVisible={!chatHasStarted} />
+              <HeroIntro
+                isVisible={!chatHasStarted}
+                listings={listings}
+                searchMode={searchMode}
+                onSearchModeChange={setSearchMode}
+              />
             </div>
             <ChatInput
               onSendMessage={handleSendMessage}

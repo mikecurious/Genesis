@@ -11,6 +11,8 @@ import { OwnerMaintenance } from './OwnerMaintenance';
 import { ProfileSettings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
+import { VerificationCenter } from '../verification/VerificationCenter';
+import { tenantService } from '../../../services/apiService';
 
 interface OwnerDashboardProps {
     user?: User; // NEW
@@ -49,16 +51,45 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
 }) => {
     const [activeTab, setActiveTab] = useState<OwnerDashboardTab>('listings');
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [isDownloadingReport, setIsDownloadingReport] = useState(false);
 
     const handleAddListingSubmit = (newListing: NewListingInput) => {
         onAddListing(newListing);
         setIsFormOpen(false);
     };
 
+    const handleDownloadTenantReport = async () => {
+        try {
+            setIsDownloadingReport(true);
+            const response = await tenantService.downloadTenantReport();
+            const blob = new Blob([response.data], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const dateStamp = new Date().toISOString().split('T')[0];
+            link.href = url;
+            link.download = `tenant-report-${dateStamp}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download tenant report:', error);
+            alert('Failed to download tenant report. Please try again.');
+        } finally {
+            setIsDownloadingReport(false);
+        }
+    };
+
+    // Filter listings to show only those created by the current user
+    const userListings = listings.filter(listing => {
+        const createdById = listing.createdBy?._id || listing.createdBy;
+        return createdById === user?.id;
+    });
+
     const renderContent = () => {
         switch (activeTab) {
             case 'listings':
-                return <OwnerListingManager listings={listings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
+                return <OwnerListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
             case 'chat':
                 return (
                     <OwnerClientChat
@@ -70,7 +101,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                     />
                 );
             case 'marketing':
-                return <OwnerMarketing listings={listings} />;
+                return <OwnerMarketing listings={userListings} />;
             case 'settings':
                 return <OwnerAiSettings />;
             case 'tenantAi':
@@ -86,6 +117,8 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                 return <OwnerMaintenance requests={maintenanceRequests} />;
             case 'notifications':
                 return <NotificationPanel />;
+            case 'verification':
+                return <VerificationCenter userId={user?.id || user?._id || ''} userProperties={userListings} />;
             case 'profile':
                 return user ? (
                     <ProfileSettings user={user} onUpdate={(updatedUser) => {
@@ -120,6 +153,19 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
+                            {tenants.length > 0 && (
+                                <button
+                                    onClick={handleDownloadTenantReport}
+                                    disabled={isDownloadingReport}
+                                    className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                    title="Download tenant report"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                                    </svg>
+                                    {isDownloadingReport ? 'Preparing...' : 'Download Tenant Report'}
+                                </button>
+                            )}
                             <NotificationBadge onViewAll={() => setActiveTab('notifications')} />
                         </div>
                     </div>
@@ -147,6 +193,7 @@ export const OwnerDashboard: React.FC<OwnerDashboardProps> = ({
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
                 onAddListing={handleAddListingSubmit}
+                onRequireVerification={() => setActiveTab('verification')}
                 userRole={user?.role}
             />
         </div>

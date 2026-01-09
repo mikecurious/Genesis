@@ -38,10 +38,16 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
         setIsFormOpen(false);
     };
 
+    // Filter listings to show only those created by the current user
+    const userListings = listings.filter(listing => {
+        const createdById = listing.createdBy?._id || listing.createdBy;
+        return createdById === user?.id;
+    });
+
     const renderContent = () => {
         switch (activeSection) {
             case 'overview':
-                return <OwnerListingManager listings={listings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
+                return <OwnerListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
             case 'leads':
                 return <LeadViewer />;
             case 'chat':
@@ -55,7 +61,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                     />
                 );
             case 'marketing':
-                return <OwnerMarketing listings={listings} />;
+                return <OwnerMarketing listings={userListings} />;
             case 'ai-settings':
                 return <OwnerAiSettings />;
             case 'analytics':
@@ -65,7 +71,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Properties</p>
-                                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{listings.length}</p>
+                                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{userListings.length}</p>
                             </div>
                             <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">Active Chats</p>
@@ -83,7 +89,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
             case 'notifications':
                 return <NotificationPanel />;
             case 'verification':
-                return <VerificationCenter userId={user?.id || user?._id || ''} userProperties={listings} />;
+                return <VerificationCenter userId={user?.id || user?._id || ''} userProperties={userListings} />;
             case 'settings':
                 return user ? (
                     <Settings user={user} onUpdate={(updatedUser) => {
@@ -95,7 +101,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                     </div>
                 );
             default:
-                return <OwnerListingManager listings={listings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
+                return <OwnerListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} onEditListing={onEditListing} onDeleteListing={onDeleteListing} />;
         }
     };
 

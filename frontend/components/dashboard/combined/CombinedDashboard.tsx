@@ -55,10 +55,16 @@ export const CombinedDashboard: React.FC<CombinedDashboardProps> = ({
         setIsFormOpen(false);
     };
 
+    // Filter listings to show only those created by the current user
+    const userListings = listings.filter(listing => {
+        const createdById = listing.createdBy?._id || listing.createdBy;
+        return createdById === user?.id;
+    });
+
     const renderContent = () => {
         switch (activeTab) {
             case 'listings':
-                return <CombinedListingManager listings={listings} onOpenAddListingModal={() => setIsFormOpen(true)} />;
+                return <CombinedListingManager listings={userListings} onOpenAddListingModal={() => setIsFormOpen(true)} />;
             case 'chat':
                 return (
                     <CombinedClientChat
