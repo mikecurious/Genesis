@@ -195,6 +195,7 @@ app.use('/api/sales-automation', require('./routes/salesAutomation')); // AI sal
 app.use('/api/providers', require('./routes/serviceProvider')); // Service provider management routes
 app.use('/api/africastalking', require('./routes/africastalking')); // Africa's Talking webhooks
 app.use('/api/emails', require('./routes/email')); // Email sending routes
+app.use('/api/twilio', require('./routes/twilio')); // Twilio SMS, WhatsApp, Email integration
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
