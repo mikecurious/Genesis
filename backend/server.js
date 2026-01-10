@@ -194,6 +194,7 @@ app.use('/api/surveyor-chat', require('./routes/surveyorChat')); // Chat-based s
 app.use('/api/sales-automation', require('./routes/salesAutomation')); // AI sales & deal closure engine
 app.use('/api/providers', require('./routes/serviceProvider')); // Service provider management routes
 app.use('/api/africastalking', require('./routes/africastalking')); // Africa's Talking webhooks
+app.use('/api/emails', require('./routes/email')); // Email sending routes
 
 // Custom Error Handler Middleware
 app.use(errorHandler);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Listing } from '../types';
 import { formatPrice } from '../utils/formatPrice';
 import { SurveyorProfileModal } from './surveyor/SurveyorProfileModal';
+import { EmailModal } from './modals/EmailModal';
 
 interface PropertyAgentPageProps {
     property: Listing;
@@ -39,6 +40,7 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
     const [agentData, setAgentData] = useState<AgentData | null>(null);
     const [isLoadingAgent, setIsLoadingAgent] = useState(true);
     const [isSurveyorModalOpen, setIsSurveyorModalOpen] = useState(false);
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const attachedSurveyor = property.attachedSurveyor?.surveyor;
 
     const images = property.imageUrls && property.imageUrls.length > 0
@@ -105,17 +107,7 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
     const handleEmail = () => {
         const email = agentData?.email || property.createdBy?.email;
         if (email) {
-            // Create email with pre-filled subject and body
-            const subject = encodeURIComponent(`Inquiry about ${property.title}`);
-            const body = encodeURIComponent(
-                `Hi ${agentData?.name || property.agentName || 'there'},\n\n` +
-                `I'm interested in the property: ${property.title}\n` +
-                `Location: ${property.location}\n` +
-                `Price: ${typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price}\n\n` +
-                `Please contact me with more details.\n\n` +
-                `Best regards`
-            );
-            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            setIsEmailModalOpen(true);
         } else {
             alert('Email address not available');
         }
@@ -476,6 +468,21 @@ export const PropertyAgentPage: React.FC<PropertyAgentPageProps> = ({
                 isOpen={isSurveyorModalOpen}
                 onClose={() => setIsSurveyorModalOpen(false)}
                 surveyor={attachedSurveyor || null}
+            />
+
+            {/* Email Modal */}
+            <EmailModal
+                isOpen={isEmailModalOpen}
+                onClose={() => setIsEmailModalOpen(false)}
+                recipientName={agentData?.name || property.agentName || 'Agent'}
+                recipientEmail={agentData?.email || property.createdBy?.email || ''}
+                subject={`Inquiry about ${property.title}`}
+                defaultMessage={`Hi ${agentData?.name || property.agentName || 'there'},\n\nI'm interested in the property: ${property.title}\nLocation: ${property.location}\nPrice: ${typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price}\n\nPlease contact me with more details.\n\nBest regards`}
+                context={{
+                    propertyTitle: property.title,
+                    propertyLocation: property.location,
+                    propertyPrice: typeof property.price === 'number' ? formatPrice(property.price, property.currency || 'KSh') : property.price
+                }}
             />
         </div>
     );
