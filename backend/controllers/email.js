@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const nodemailer = require('nodemailer');
+const twilioService = require('../services/twilioService');
 
 // @desc    Send email through the platform
 // @route   POST /api/emails/send
@@ -81,36 +82,64 @@ exports.sendEmail = asyncHandler(async (req, res) => {
     try {
         // Check if SMTP is configured
         const isSmtpConfigured = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS;
+        const isSendGridConfigured = process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM_EMAIL;
 
+        let emailSent = false;
+        let method = '';
+
+        // Try SMTP first if configured
         if (isSmtpConfigured) {
-            // Create transporter with SMTP
-            const transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST,
-                port: process.env.SMTP_PORT || 587,
-                secure: process.env.SMTP_PORT === '465',
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS,
-                },
-            });
+            try {
+                const transporter = nodemailer.createTransport({
+                    host: process.env.SMTP_HOST,
+                    port: process.env.SMTP_PORT || 587,
+                    secure: process.env.SMTP_PORT === '465',
+                    auth: {
+                        user: process.env.SMTP_USER,
+                        pass: process.env.SMTP_PASS,
+                    },
+                });
 
-            // Send email
-            await transporter.sendMail({
-                from: `"MyGF AI Platform" <${process.env.SMTP_USER}>`,
-                to: to,
-                replyTo: senderEmail,
-                subject: subject,
+                await transporter.sendMail({
+                    from: `"MyGF AI Platform" <${process.env.SMTP_USER}>`,
+                    to: to,
+                    replyTo: senderEmail,
+                    subject: subject,
+                    text: `From: ${senderName} (${senderEmail})\n${senderPhone ? `Phone: ${senderPhone}\n` : ''}\n\n${message}`,
+                    html: emailHTML,
+                });
+
+                emailSent = true;
+                method = 'SMTP';
+            } catch (smtpError) {
+                console.error('SMTP failed, trying SendGrid:', smtpError.message);
+            }
+        }
+
+        // Try SendGrid (Twilio) if SMTP failed or not configured
+        if (!emailSent && isSendGridConfigured) {
+            const result = await twilioService.sendEmail({
+                to,
+                subject,
                 text: `From: ${senderName} (${senderEmail})\n${senderPhone ? `Phone: ${senderPhone}\n` : ''}\n\n${message}`,
                 html: emailHTML,
+                replyTo: senderEmail
             });
 
+            if (result.success) {
+                emailSent = true;
+                method = 'SendGrid (Twilio)';
+            }
+        }
+
+        if (emailSent) {
             res.status(200).json({
                 success: true,
-                message: 'Email sent successfully'
+                message: `Email sent successfully via ${method}`
             });
         } else {
-            // SMTP not configured - log the email instead
-            console.log('📧 EMAIL (SMTP NOT CONFIGURED):', {
+            // Neither service configured - log the email
+            console.log('📧 EMAIL (NO SERVICE CONFIGURED):', {
                 to,
                 subject,
                 senderName,
@@ -122,8 +151,8 @@ exports.sendEmail = asyncHandler(async (req, res) => {
 
             res.status(200).json({
                 success: true,
-                message: 'Email logged successfully (SMTP not configured)',
-                note: 'Configure SMTP environment variables to send real emails'
+                message: 'Email logged successfully (no email service configured)',
+                note: 'Configure SMTP or SendGrid to send real emails'
             });
         }
     } catch (error) {
