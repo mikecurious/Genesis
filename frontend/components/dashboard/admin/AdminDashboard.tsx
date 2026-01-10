@@ -38,7 +38,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                 adminService.getAllProperties(),
                 adminService.getAllLeads(),
                 providerService.getProviders(),
-                surveyorService.getAvailableSurveyors(),
+                surveyorService.getSurveyors(),
                 adminService.getActivityLogs(),
             ]);
             setAnalytics(analyticsData.data);
@@ -46,7 +46,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             setProperties(propertiesData.data);
             setLeads(leadsData.data);
             setProviders(providersData.data.data || []);
-            setSurveyors(surveyorsData.data.data || []);
+            setSurveyors(surveyorsData.data.data || surveyorsData.data || []);
             setActivity(activityData.data);
         } catch (error: any) {
             console.error('Error loading admin data:', error);

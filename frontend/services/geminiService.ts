@@ -181,9 +181,9 @@ export const generateSurveyorResponse = async (
     try {
         // Fetch surveyors from backend
         const { surveyorService } = await import('./apiService');
-        const response = await surveyorService.getAvailableSurveyors();
+        const response = await surveyorService.getSurveyors();
 
-        const surveyors = response.data?.data || [];
+        const surveyors = response.data?.data || response.data || [];
 
         if (surveyors.length === 0) {
             return {
