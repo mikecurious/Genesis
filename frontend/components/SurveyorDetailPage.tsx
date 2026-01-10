@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { SurveyorData } from './SurveyorCard';
+import { EmailModal } from './modals/EmailModal';
 
 interface SurveyorDetailPageProps {
     surveyor: SurveyorData;
@@ -8,6 +9,7 @@ interface SurveyorDetailPageProps {
 
 export const SurveyorDetailPage: React.FC<SurveyorDetailPageProps> = ({ surveyor, onBack }) => {
     const profile = surveyor.surveyorProfile;
+    const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
     const handleCall = () => {
         if (surveyor.phone) {
@@ -29,14 +31,7 @@ export const SurveyorDetailPage: React.FC<SurveyorDetailPageProps> = ({ surveyor
 
     const handleEmail = () => {
         if (surveyor.email) {
-            const subject = encodeURIComponent(`Inquiry about surveyor services`);
-            const body = encodeURIComponent(
-                `Hi ${surveyor.name},\n\n` +
-                `I found your profile and I'm interested in your surveyor services.\n\n` +
-                `Please contact me with more details about availability and pricing.\n\n` +
-                `Best regards`
-            );
-            window.location.href = `mailto:${surveyor.email}?subject=${subject}&body=${body}`;
+            setIsEmailModalOpen(true);
         } else {
             alert('Email address not available');
         }
@@ -254,6 +249,19 @@ export const SurveyorDetailPage: React.FC<SurveyorDetailPageProps> = ({ surveyor
                     </div>
                 </div>
             </div>
+
+            {/* Email Modal */}
+            <EmailModal
+                isOpen={isEmailModalOpen}
+                onClose={() => setIsEmailModalOpen(false)}
+                recipientName={surveyor.name}
+                recipientEmail={surveyor.email}
+                subject="Inquiry about surveyor services"
+                defaultMessage={`Hi ${surveyor.name},\n\nI found your profile and I'm interested in your surveyor services.\n\nPlease contact me with more details about availability and pricing.\n\nBest regards`}
+                context={{
+                    surveyorName: surveyor.name
+                }}
+            />
         </div>
     );
 };
