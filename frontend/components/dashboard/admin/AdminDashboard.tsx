@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../../services/adminService';
-import { providerService } from '../../../services/apiService';
+import { providerService, surveyorService } from '../../../services/apiService';
 import type { User, ServiceProvider } from '../../../types';
 import { AddProviderModal } from '../../modals/AddProviderModal';
 
@@ -16,12 +16,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     const [properties, setProperties] = useState<any[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
     const [providers, setProviders] = useState<ServiceProvider[]>([]);
+    const [surveyors, setSurveyors] = useState<any[]>([]);
     const [activity, setActivity] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<TabType>('overview');
     const [announcement, setAnnouncement] = useState('');
     const [surveyorData, setSurveyorData] = useState({ name: '', email: '', password: '', phone: '' });
     const [isAddProviderModalOpen, setIsAddProviderModalOpen] = useState(false);
+    const [providerFilter, setProviderFilter] = useState<'all' | 'providers' | 'surveyors'>('all');
 
     useEffect(() => {
         loadData();
@@ -30,12 +32,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [analyticsData, usersData, propertiesData, leadsData, providersData, activityData] = await Promise.all([
+            const [analyticsData, usersData, propertiesData, leadsData, providersData, surveyorsData, activityData] = await Promise.all([
                 adminService.getAnalytics(),
                 adminService.getAllUsers(),
                 adminService.getAllProperties(),
                 adminService.getAllLeads(),
                 providerService.getProviders(),
+                surveyorService.getAvailableSurveyors(),
                 adminService.getActivityLogs(),
             ]);
             setAnalytics(analyticsData.data);
@@ -43,6 +46,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             setProperties(propertiesData.data);
             setLeads(leadsData.data);
             setProviders(providersData.data.data || []);
+            setSurveyors(surveyorsData.data.data || []);
             setActivity(activityData.data);
         } catch (error: any) {
             console.error('Error loading admin data:', error);
@@ -236,7 +240,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                             { id: 'users', label: `Users (${users.length})`, icon: '👥' },
                             { id: 'properties', label: `Properties (${properties.length})`, icon: '🏠' },
                             { id: 'leads', label: `Leads (${leads.length})`, icon: '📈' },
-                            { id: 'providers', label: `Providers (${providers.length})`, icon: '🛠️' },
+                            { id: 'providers', label: `Providers (${providers.length + surveyors.length})`, icon: '🛠️' },
                             { id: 'activity', label: 'Activity Logs', icon: '📋' },
                             { id: 'settings', label: 'Settings', icon: '⚙️' },
                         ].map((tab) => (
@@ -575,105 +579,198 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                 {/* Providers Tab */}
                 {activeTab === 'providers' && (
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in">
-                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Provider Management</h3>
-                                <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all service providers across the platform</p>
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Provider Management</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 mt-1">Manage all service providers and surveyors across the platform</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsAddProviderModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Provider
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setIsAddProviderModalOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                </svg>
-                                Add Provider
-                            </button>
+                            {/* Filter Tabs */}
+                            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 p-1 rounded-lg w-fit">
+                                <button
+                                    onClick={() => setProviderFilter('all')}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        providerFilter === 'all'
+                                            ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    All ({providers.length + surveyors.length})
+                                </button>
+                                <button
+                                    onClick={() => setProviderFilter('providers')}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        providerFilter === 'providers'
+                                            ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    Service Providers ({providers.length})
+                                </button>
+                                <button
+                                    onClick={() => setProviderFilter('surveyors')}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        providerFilter === 'surveyors'
+                                            ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                                >
+                                    Surveyors ({surveyors.length})
+                                </button>
+                            </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 dark:bg-gray-700/50">
                                     <tr>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Type</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Name</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Specialty</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Contact</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Experience</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Rating</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Availability</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Added By</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                    {providers.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <svg className="w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                    </svg>
-                                                    <div>
-                                                        <p className="font-medium">No service providers found</p>
-                                                        <p className="text-sm mt-1">Click "Add Provider" to add your first service provider</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        providers.map((provider: ServiceProvider) => (
-                                            <tr key={provider._id || provider.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div>
-                                                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{provider.name}</div>
-                                                        {provider.companyName && (
-                                                            <div className="text-xs text-gray-500 dark:text-gray-400">{provider.companyName}</div>
+                                    {(() => {
+                                        const filteredProviders = providerFilter === 'surveyors' ? [] :
+                                            providerFilter === 'all' ? providers : providers;
+                                        const filteredSurveyors = providerFilter === 'providers' ? [] :
+                                            providerFilter === 'all' ? surveyors : surveyors;
+                                        const totalFiltered = filteredProviders.length + filteredSurveyors.length;
+
+                                        if (totalFiltered === 0) {
+                                            return (
+                                                <tr>
+                                                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                                        <div className="flex flex-col items-center gap-3">
+                                                            <svg className="w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                            </svg>
+                                                            <div>
+                                                                <p className="font-medium">No {providerFilter === 'surveyors' ? 'surveyors' : providerFilter === 'providers' ? 'service providers' : 'providers'} found</p>
+                                                                <p className="text-sm mt-1">
+                                                                    {providerFilter === 'surveyors'
+                                                                        ? 'Go to Settings to create a surveyor account'
+                                                                        : 'Click "Add Provider" to add your first service provider'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        }
+
+                                        const allItems: Array<{type: 'provider' | 'surveyor', data: any}> = [
+                                            ...filteredProviders.map((p: any) => ({type: 'provider' as const, data: p})),
+                                            ...filteredSurveyors.map((s: any) => ({type: 'surveyor' as const, data: s}))
+                                        ];
+
+                                        return allItems.map((item) => {
+                                            const isProvider = item.type === 'provider';
+                                            const data = item.data;
+                                            const profile = isProvider ? data : data.surveyorProfile;
+
+                                            return (
+                                                <tr key={data._id || data.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                            isProvider
+                                                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                                                : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                                                        }`}>
+                                                            {isProvider ? 'Provider' : 'Surveyor'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-gray-900 dark:text-white">{data.name}</div>
+                                                            {isProvider && data.companyName && (
+                                                                <div className="text-xs text-gray-500 dark:text-gray-400">{data.companyName}</div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {isProvider ? (
+                                                            <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-xs font-medium">
+                                                                {data.specialty}
+                                                            </span>
+                                                        ) : (
+                                                            <div className="flex flex-wrap gap-1">
+                                                                {profile?.specializations?.slice(0, 2).map((spec: string, idx: number) => (
+                                                                    <span key={idx} className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-xs">
+                                                                        {spec}
+                                                                    </span>
+                                                                )) || <span className="text-gray-400 text-xs">N/A</span>}
+                                                                {(profile?.specializations?.length || 0) > 2 && (
+                                                                    <span className="text-xs text-gray-500">+{profile.specializations.length - 2}</span>
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 rounded-full text-xs font-medium">
-                                                        {provider.specialty}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                                    <div>{provider.email}</div>
-                                                    <div className="text-xs">{provider.phone}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                                    {provider.yearsOfExperience} years
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                                    {provider.rating.toFixed(1)} ⭐
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <select
-                                                        value={provider.availability}
-                                                        onChange={(e) => handleUpdateProviderStatus(provider._id || provider.id || '', e.target.value)}
-                                                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                            provider.availability === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                                                            provider.availability === 'Busy' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                                                        }`}
-                                                    >
-                                                        <option value="Available">Available</option>
-                                                        <option value="Busy">Busy</option>
-                                                        <option value="Inactive">Inactive</option>
-                                                    </select>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                                    {typeof provider.addedBy === 'object' ? (provider.addedBy as any)?.name || 'N/A' : 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <button
-                                                        onClick={() => handleDeleteProvider(provider._id || provider.id || '', provider.name)}
-                                                        className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                                        <div>{data.email}</div>
+                                                        <div className="text-xs">{data.phone || 'N/A'}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                        {isProvider ? data.yearsOfExperience : (profile?.yearsOfExperience || 0)} years
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                        {isProvider ? data.rating.toFixed(1) : (profile?.rating?.toFixed(1) || 'N/A')} {(isProvider || profile?.rating) ? '⭐' : ''}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {isProvider ? (
+                                                            <select
+                                                                value={data.availability}
+                                                                onChange={(e) => handleUpdateProviderStatus(data._id || data.id || '', e.target.value)}
+                                                                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                                    data.availability === 'Available' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                                                    data.availability === 'Busy' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                                                                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                                }`}
+                                                            >
+                                                                <option value="Available">Available</option>
+                                                                <option value="Busy">Busy</option>
+                                                                <option value="Inactive">Inactive</option>
+                                                            </select>
+                                                        ) : (
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                                profile?.availability === 'available' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
+                                                                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                                            }`}>
+                                                                {profile?.availability || 'N/A'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                                        {isProvider && (
+                                                            <button
+                                                                onClick={() => handleDeleteProvider(data._id || data.id || '', data.name)}
+                                                                className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
+                                                        {!isProvider && (
+                                                            <span className="text-gray-500 text-xs italic">Managed via Users</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        });
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
