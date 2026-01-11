@@ -3,6 +3,7 @@ const SurveyReport = require('../models/SurveyReport');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const emailService = require('../services/emailService');
+const twilioService = require('../services/twilioService');
 
 // ==================== SURVEYOR REGISTRATION ====================
 
@@ -164,7 +165,28 @@ exports.acceptTask = asyncHandler(async (req, res) => {
 
     const updatedTask = await SurveyTask.findById(task._id)
         .populate('propertyId', 'title location')
-        .populate('requestedBy', 'name email');
+        .populate('requestedBy', 'name email phone')
+        .populate('assignedTo', 'name email phone');
+
+    // Notify requester that a surveyor has accepted the task
+    if (updatedTask.requestedBy && updatedTask.requestedBy.phone) {
+        try {
+            const requester = updatedTask.requestedBy;
+            const surveyor = updatedTask.assignedTo;
+            const property = updatedTask.propertyId;
+
+            const message = `✅ Surveyor Assigned!\n\nYour survey request for ${property ? property.title : 'your property'} has been accepted.\n\nSurveyor: ${surveyor.name}\n${surveyor.phone ? `Contact: ${surveyor.phone}` : ''}\n\nThey will begin the survey soon.\n\nMyGF AI`;
+
+            await twilioService.sendSMS({
+                to: requester.phone,
+                message: message
+            });
+
+            console.log(`📧 Surveyor assignment notification sent to requester ${requester.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send surveyor assignment notification:', notificationError);
+        }
+    }
 
     res.status(200).json({ success: true, data: updatedTask });
 });
@@ -259,6 +281,45 @@ exports.uploadReport = asyncHandler(async (req, res) => {
     task.completedDate = Date.now();
     await task.save();
 
+    // Notify requester that survey is completed
+    const populatedTask = await SurveyTask.findById(taskId)
+        .populate('requestedBy', 'name email phone')
+        .populate('propertyId', 'title location')
+        .populate('assignedTo', 'name email');
+
+    if (populatedTask.requestedBy && populatedTask.requestedBy.phone) {
+        try {
+            const requester = populatedTask.requestedBy;
+            const property = populatedTask.propertyId;
+            const surveyor = populatedTask.assignedTo;
+
+            const smsMessage = `✅ Survey Completed!\n\nThe survey for ${property ? property.title : 'your property'} has been completed.\n\nSurveyor: ${surveyor ? surveyor.name : 'Assigned'}\n\nYour detailed report is now available.\n\nMyGF AI`;
+
+            // Send multi-channel notification
+            await twilioService.sendMultiChannelNotification({
+                phone: requester.phone,
+                email: requester.email,
+                message: smsMessage,
+                subject: `Survey Completed - ${property ? property.title : 'Your Property'}`,
+                htmlEmail: `
+                    <h2>Survey Completed! ✅</h2>
+                    <p>Great news! The survey for <strong>${property ? property.title : 'your property'}</strong> has been completed.</p>
+                    ${property ? `<p><strong>Location:</strong> ${property.location}</p>` : ''}
+                    <p><strong>Surveyor:</strong> ${surveyor ? surveyor.name : 'Assigned'}</p>
+                    ${surveyor && surveyor.email ? `<p><strong>Email:</strong> ${surveyor.email}</p>` : ''}
+                    <p><strong>Findings:</strong> ${findings.substring(0, 200)}${findings.length > 200 ? '...' : ''}</p>
+                    ${recommendations ? `<p><strong>Recommendations:</strong> ${recommendations.substring(0, 200)}${recommendations.length > 200 ? '...' : ''}</p>` : ''}
+                    <p>Your detailed report with GPS-verified location and images is now available in your dashboard.</p>
+                    <p>Thank you for using MyGF AI!</p>
+                `
+            });
+
+            console.log(`📧 Survey completion notification sent to requester ${requester.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send survey completion notification:', notificationError);
+        }
+    }
+
     res.status(201).json({ success: true, data: report });
 });
 
@@ -309,7 +370,41 @@ exports.createSurveyRequest = asyncHandler(async (req, res) => {
 
     const populatedTask = await SurveyTask.findById(task._id)
         .populate('propertyId', 'title location imageUrls')
-        .populate('requestedBy', 'name email');
+        .populate('requestedBy', 'name email phone');
+
+    // Optional: Notify available surveyors about new task
+    // This could be enhanced to find surveyors in the area and notify them
+    try {
+        // Find available surveyors (could be filtered by location/specialization)
+        const availableSurveyors = await User.find({
+            role: 'Surveyor',
+            'surveyorProfile.availability': 'Available'
+        }).select('name phone email').limit(5);
+
+        if (availableSurveyors.length > 0) {
+            const property = populatedTask.propertyId;
+            const message = `🆕 New Survey Task Available!\n\nProperty: ${property.title}\nLocation: ${property.location}\nPriority: ${populatedTask.priority}\n\nLog in to accept this task.`;
+
+            // Send notifications to available surveyors (limit to prevent spam)
+            for (const surveyor of availableSurveyors.slice(0, 3)) {
+                if (surveyor.phone) {
+                    try {
+                        await twilioService.sendSMS({
+                            to: surveyor.phone,
+                            message: message
+                        });
+                    } catch (err) {
+                        console.error(`Failed to notify surveyor ${surveyor.phone}:`, err);
+                    }
+                }
+            }
+
+            console.log(`📧 Notified ${Math.min(3, availableSurveyors.length)} available surveyors about new task`);
+        }
+    } catch (notificationError) {
+        console.error('Failed to notify surveyors:', notificationError);
+        // Don't fail the request if notifications fail
+    }
 
     res.status(201).json({ success: true, data: populatedTask });
 });

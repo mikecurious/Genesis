@@ -2,6 +2,7 @@
 const MaintenanceRequest = require('../models/MaintenanceRequest');
 const User = require('../models/User');
 const maintenanceAIService = require('../services/maintenanceAIService');
+const twilioService = require('../services/twilioService');
 const asyncHandler = require('express-async-handler');
 
 // @desc    Get all maintenance requests for the logged-in user (tenant or landlord)
@@ -54,9 +55,31 @@ exports.createRequest = asyncHandler(async (req, res, next) => {
 
     // Populate tenant name for the response
     const populatedRequest = await MaintenanceRequest.findById(request._id)
-        .populate('tenant', 'name email')
+        .populate('tenant', 'name email phone')
         .populate('property', 'title location')
-        .populate('landlord', 'name email');
+        .populate('landlord', 'name email phone');
+
+    // Send notification to landlord (if specified)
+    if (populatedRequest.landlord && populatedRequest.landlord.phone) {
+        try {
+            const landlord = populatedRequest.landlord;
+            const tenant = populatedRequest.tenant;
+            const propertyInfo = populatedRequest.property
+                ? `Property: ${populatedRequest.property.title} (${populatedRequest.property.location})`
+                : 'Property not specified';
+
+            const message = `🔧 New Maintenance Request\n\nFrom: ${tenant.name}\n${propertyInfo}\n\nIssue: ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}\n\nReview and assign a technician.`;
+
+            await twilioService.sendSMS({
+                to: landlord.phone,
+                message: message
+            });
+
+            console.log(`📧 Maintenance request notification sent to landlord ${landlord.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send landlord notification:', notificationError);
+        }
+    }
 
     res.status(201).json({
         success: true,
@@ -76,11 +99,41 @@ exports.updateRequestStatus = asyncHandler(async (req, res, next) => {
         return res.status(404).json({ success: false, message: 'Request not found' });
     }
 
+    const oldStatus = request.status;
+
     request = await MaintenanceRequest.findByIdAndUpdate(
         req.params.id,
         { status },
         { new: true, runValidators: true }
-    ).populate('tenant', 'name');
+    ).populate('tenant', 'name email phone')
+     .populate('property', 'title location');
+
+    // Send notification to tenant about status change
+    if (request.tenant && request.tenant.phone && oldStatus !== status) {
+        try {
+            const statusEmoji = {
+                'Pending': '⏳',
+                'In Progress': '🔧',
+                'Completed': '✅',
+                'Cancelled': '❌'
+            };
+
+            const propertyInfo = request.property
+                ? ` for ${request.property.title}`
+                : '';
+
+            const message = `${statusEmoji[status] || '📋'} Maintenance Update\n\nYour maintenance request${propertyInfo} is now: ${status}\n\n${status === 'Completed' ? 'Issue has been resolved! Thank you for your patience.' : 'We\'ll keep you updated on progress.'}\n\nMyGF AI`;
+
+            await twilioService.sendSMS({
+                to: request.tenant.phone,
+                message: message
+            });
+
+            console.log(`📧 Status update notification sent to tenant ${request.tenant.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send tenant notification:', notificationError);
+        }
+    }
 
     res.status(200).json({ success: true, data: request });
 });
@@ -150,9 +203,46 @@ exports.assignTechnician = asyncHandler(async (req, res, next) => {
     await request.save();
 
     const updatedRequest = await MaintenanceRequest.findById(req.params.id)
-        .populate('tenant', 'name email')
+        .populate('tenant', 'name email phone')
         .populate('property', 'title location')
-        .populate('assignedTechnician');
+        .populate('assignedTechnician', 'name email phone specialty');
+
+    // Send notification to technician
+    if (updatedRequest.assignedTechnician && updatedRequest.assignedTechnician.phone) {
+        try {
+            const technician = updatedRequest.assignedTechnician;
+            const tenant = updatedRequest.tenant;
+            const property = updatedRequest.property;
+
+            const technicianMessage = `🔧 New Job Assignment\n\n${property ? `Property: ${property.title}\nLocation: ${property.location}` : 'Property details pending'}\n\nIssue: ${request.description.substring(0, 150)}${request.description.length > 150 ? '...' : ''}\n\nClient: ${tenant.name}\nContact: ${tenant.phone || tenant.email}\n\nPriority: ${request.aiAnalysis?.priority || 'Normal'}\n\nPlease review and contact the client.`;
+
+            await twilioService.sendSMS({
+                to: technician.phone,
+                message: technicianMessage
+            });
+
+            console.log(`📧 Job assignment notification sent to technician ${technician.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send technician notification:', notificationError);
+        }
+    }
+
+    // Send notification to tenant
+    if (updatedRequest.tenant && updatedRequest.tenant.phone) {
+        try {
+            const technician = updatedRequest.assignedTechnician;
+            const tenantMessage = `✅ Technician Assigned\n\nYour maintenance request is now being handled!\n\nTechnician: ${technician ? technician.name : 'Assigned'}\n${technician && technician.specialty ? `Specialty: ${technician.specialty}` : ''}\n\nThey will contact you shortly to schedule a visit.\n\nMyGF AI`;
+
+            await twilioService.sendSMS({
+                to: updatedRequest.tenant.phone,
+                message: tenantMessage
+            });
+
+            console.log(`📧 Technician assignment notification sent to tenant ${updatedRequest.tenant.phone}`);
+        } catch (notificationError) {
+            console.error('Failed to send tenant notification:', notificationError);
+        }
+    }
 
     res.status(200).json({ success: true, data: updatedRequest });
 });

@@ -2,11 +2,119 @@ const Payment = require('../models/Payment');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const mpesaService = require('../services/mpesaService');
+const twilioService = require('../services/twilioService');
 
 const planPrices = {
     'Basic': 1,
     'MyGF 1.3': 1,
     'MyGF 3.2': 1
+};
+
+// Helper function to generate payment receipt HTML
+const generatePaymentReceiptHTML = (payment, user) => {
+    const formattedDate = payment.transactionDate
+        ? new Date(payment.transactionDate).toLocaleString('en-KE', {
+            dateStyle: 'full',
+            timeStyle: 'short'
+          })
+        : new Date().toLocaleString('en-KE', {
+            dateStyle: 'full',
+            timeStyle: 'short'
+          });
+
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                .receipt-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                .receipt-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+                .receipt-row:last-child { border-bottom: none; }
+                .label { font-weight: 600; color: #666; }
+                .value { color: #333; }
+                .amount { font-size: 24px; color: #667eea; font-weight: bold; }
+                .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                .footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎉 Payment Successful!</h1>
+                    <p>Thank you for your payment</p>
+                </div>
+                <div class="content">
+                    <div class="success">
+                        ✅ Your payment has been processed successfully
+                    </div>
+
+                    <div class="receipt-box">
+                        <h2 style="margin-top: 0; color: #667eea;">Payment Receipt</h2>
+
+                        <div class="receipt-row">
+                            <span class="label">Receipt Number:</span>
+                            <span class="value"><strong>${payment.mpesaReceiptNumber || 'N/A'}</strong></span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="label">Transaction ID:</span>
+                            <span class="value">${payment._id}</span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="label">Date & Time:</span>
+                            <span class="value">${formattedDate}</span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="label">Amount Paid:</span>
+                            <span class="value amount">KSh ${payment.amount.toLocaleString()}</span>
+                        </div>
+
+                        ${payment.plan ? `
+                        <div class="receipt-row">
+                            <span class="label">Subscription Plan:</span>
+                            <span class="value"><strong>${payment.plan}</strong></span>
+                        </div>
+                        ` : ''}
+
+                        <div class="receipt-row">
+                            <span class="label">Payment Method:</span>
+                            <span class="value">M-Pesa (${payment.mpesaMode || 'paybill'})</span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="label">Phone Number:</span>
+                            <span class="value">${payment.phoneNumber}</span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="label">Status:</span>
+                            <span class="value" style="color: #28a745; font-weight: bold;">✓ COMPLETED</span>
+                        </div>
+                    </div>
+
+                    ${payment.paymentType === 'subscription' && payment.plan ? `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <strong>🚀 Your ${payment.plan} subscription is now active!</strong>
+                        <p style="margin: 10px 0 0 0;">Enjoy all premium features. Valid until: ${new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString('en-KE', { dateStyle: 'long' })}</p>
+                    </div>
+                    ` : ''}
+
+                    <p style="margin-top: 30px;">If you have any questions, please contact our support team.</p>
+                </div>
+                <div class="footer">
+                    <p><strong>MyGF AI</strong> - Your Smart Real Estate Platform</p>
+                    <p>This is an automated receipt. Please keep for your records.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
 };
 
 // @desc    Get available M-Pesa payment methods
@@ -153,11 +261,53 @@ exports.mpesaCallback = asyncHandler(async (req, res, next) => {
             }
 
             console.log(`✅ Payment completed: ${callbackResult.mpesaReceiptNumber}`);
+
+            // Send multi-channel payment confirmation
+            try {
+                const user = payment.user;
+
+                // Prepare confirmation message
+                const smsMessage = `✅ Payment received!\n\nAmount: KSh ${payment.amount}\nReceipt: ${payment.mpesaReceiptNumber}\n${payment.paymentType === 'subscription' ? `\n🚀 ${payment.plan} subscription activated!` : ''}\n\nThank you for using MyGF AI!`;
+
+                const whatsappMessage = `*✅ Payment Successful!*\n\n💰 *Amount:* KSh ${payment.amount.toLocaleString()}\n📝 *Receipt:* ${payment.mpesaReceiptNumber}\n📅 *Date:* ${new Date().toLocaleDateString('en-KE')}\n${payment.paymentType === 'subscription' ? `\n🚀 *${payment.plan} subscription* is now active!` : ''}\n\nThank you for choosing MyGF AI! 🏠`;
+
+                // Send multi-channel notification (WhatsApp → SMS → Email fallback)
+                await twilioService.sendMultiChannelNotification({
+                    phone: user.phone,
+                    email: user.email,
+                    message: smsMessage,
+                    whatsappMessage: whatsappMessage,
+                    subject: `Payment Confirmation - KSh ${payment.amount}`,
+                    htmlEmail: generatePaymentReceiptHTML(payment, user)
+                });
+
+                console.log(`📧 Payment confirmation sent to ${user.email} (${user.phone})`);
+            } catch (notificationError) {
+                console.error('Failed to send payment confirmation:', notificationError);
+                // Don't fail the payment if notification fails
+            }
         } else {
             // Payment failed
             payment.status = 'failed';
             await payment.save();
             console.log(`❌ Payment failed: ${callbackResult.resultDesc}`);
+
+            // Send payment failure notification
+            try {
+                const user = payment.user;
+
+                const failureMessage = `❌ Payment Failed\n\nAmount: KSh ${payment.amount}\nReason: ${callbackResult.resultDesc}\n\nPlease try again or contact support if issue persists.\n\nMyGF AI`;
+
+                // Send SMS notification for failed payment
+                await twilioService.sendSMS({
+                    to: user.phone,
+                    message: failureMessage
+                });
+
+                console.log(`📧 Payment failure notification sent to ${user.phone}`);
+            } catch (notificationError) {
+                console.error('Failed to send payment failure notification:', notificationError);
+            }
         }
     } catch (error) {
         console.error('Callback processing error:', error);
@@ -213,6 +363,23 @@ exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
                 payment.resultDesc = queryResult.resultDesc;
                 await payment.save();
                 console.log(`✅ Payment completed via query: ${payment._id}`);
+
+                // Send payment confirmation (since callback might have been missed)
+                try {
+                    const user = await User.findById(payment.user);
+                    if (user) {
+                        const smsMessage = `✅ Payment confirmed!\n\nAmount: KSh ${payment.amount}\nTransaction ID: ${payment._id}\n${payment.paymentType === 'subscription' ? `\n🚀 ${payment.plan} subscription activated!` : ''}\n\nThank you!`;
+
+                        await twilioService.sendSMS({
+                            to: user.phone,
+                            message: smsMessage
+                        });
+
+                        console.log(`📧 Late payment confirmation sent to ${user.phone}`);
+                    }
+                } catch (notificationError) {
+                    console.error('Failed to send late payment confirmation:', notificationError);
+                }
             } else if (queryResult.resultCode !== '0' && queryResult.resultCode !== '1032') {
                 // 1032 = Request cancelled by user, keep as processing
                 payment.status = 'failed';
@@ -220,6 +387,23 @@ exports.queryPaymentStatus = asyncHandler(async (req, res, next) => {
                 payment.resultDesc = queryResult.resultDesc;
                 await payment.save();
                 console.log(`❌ Payment failed via query: ${payment._id} - ${queryResult.resultDesc}`);
+
+                // Send failure notification
+                try {
+                    const user = await User.findById(payment.user);
+                    if (user) {
+                        const failureMessage = `❌ Payment Failed\n\nAmount: KSh ${payment.amount}\nReason: ${queryResult.resultDesc}\n\nPlease try again.`;
+
+                        await twilioService.sendSMS({
+                            to: user.phone,
+                            message: failureMessage
+                        });
+
+                        console.log(`📧 Payment failure notification sent to ${user.phone}`);
+                    }
+                } catch (notificationError) {
+                    console.error('Failed to send payment failure notification:', notificationError);
+                }
             } else {
                 console.log(`⏳ Payment still pending (code ${queryResult.resultCode}), continuing to wait...`);
             }
