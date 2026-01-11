@@ -4,6 +4,7 @@ const Property = require('../models/Property');
 const User = require('../models/User');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const emailService = require('./emailService');
+const twilioService = require('./twilioService');
 
 class ViewingSchedulerService {
     constructor() {
@@ -246,17 +247,56 @@ Return ONLY a JSON object:
                 .populate('property')
                 .populate('scheduledBy');
 
+            const dateStr = new Date(viewing.scheduledDate).toLocaleString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+
+            let invitationsSent = 0;
+
             for (const attendee of viewing.attendees) {
-                if (attendee.email) {
-                    await emailService.sendEmail({
-                        to: attendee.email,
-                        subject: `Property Viewing Scheduled - ${populatedViewing.property.title}`,
-                        html: this.generateViewingInvitationEmail(populatedViewing, attendee)
-                    });
+                // Prepare SMS message
+                const smsMessage = `🏠 Property Viewing Scheduled\n\n${populatedViewing.property.title}\n📍 ${viewing.location}\n📅 ${dateStr}\n⏱️ ${viewing.duration} min\n\nPlease confirm your attendance.`;
+
+                // Prepare WhatsApp message
+                const whatsappMessage = `*🏠 Property Viewing Scheduled!*\n\nHi ${attendee.name}! 👋\n\nA viewing has been scheduled for:\n\n🏠 *Property:* ${populatedViewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n💰 *Price:* ${populatedViewing.property.currency} ${populatedViewing.property.price.toLocaleString()}\n\nPlease confirm your attendance as soon as possible.\n\nLooking forward to seeing you! 🎉\n\n_Genesis Real Estate_`;
+
+                // Send multi-channel invitation (WhatsApp → SMS → Email)
+                if (attendee.phone || attendee.email) {
+                    try {
+                        await twilioService.sendMultiChannelNotification({
+                            phone: attendee.phone,
+                            email: attendee.email,
+                            message: smsMessage,
+                            whatsappMessage: whatsappMessage,
+                            subject: `Property Viewing Scheduled - ${populatedViewing.property.title}`,
+                            htmlEmail: this.generateViewingInvitationEmail(populatedViewing, attendee)
+                        });
+                        invitationsSent++;
+                        console.log(`✅ Viewing invitation sent to ${attendee.name}`);
+                    } catch (notificationError) {
+                        console.error(`Failed to send invitation to ${attendee.name}:`, notificationError);
+                        // Fallback to email only
+                        if (attendee.email) {
+                            try {
+                                await emailService.sendEmail({
+                                    to: attendee.email,
+                                    subject: `Property Viewing Scheduled - ${populatedViewing.property.title}`,
+                                    html: this.generateViewingInvitationEmail(populatedViewing, attendee)
+                                });
+                                invitationsSent++;
+                            } catch (emailError) {
+                                console.error('Email fallback also failed:', emailError);
+                            }
+                        }
+                    }
                 }
             }
 
-            return { success: true, emailsSent: viewing.attendees.length };
+            return { success: true, invitationsSent };
 
         } catch (error) {
             console.error('Error sending viewing invitations:', error);
@@ -391,26 +431,75 @@ Return ONLY a JSON object:
             let remindersSent = 0;
 
             for (const viewing of upcomingViewings) {
-                for (const attendee of viewing.attendees) {
-                    if (attendee.email) {
-                        await emailService.sendEmail({
-                            to: attendee.email,
-                            subject: `Reminder: Property Viewing Tomorrow - ${viewing.property.title}`,
-                            html: this.generateReminderEmail(viewing, attendee)
-                        });
+                const dateStr = new Date(viewing.scheduledDate).toLocaleString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
 
-                        viewing.reminders.push({
-                            sentAt: new Date(),
-                            type: 'email',
-                            status: 'sent'
-                        });
-                        remindersSent++;
+                for (const attendee of viewing.attendees) {
+                    // Prepare SMS/WhatsApp message
+                    const smsMessage = `⏰ Viewing Reminder\n\n${viewing.property.title}\n📍 ${viewing.location}\n📅 Tomorrow: ${dateStr}\n\nSee you there! 🏠`;
+
+                    const whatsappMessage = `*⏰ Viewing Reminder*\n\nHi ${attendee.name}! 👋\n\nDon't forget your property viewing tomorrow:\n\n🏠 *Property:* ${viewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n\nWe look forward to seeing you!\n\n_Genesis Real Estate_`;
+
+                    // Send multi-channel reminder (WhatsApp → SMS → Email)
+                    if (attendee.phone || attendee.email) {
+                        try {
+                            const reminderResult = await twilioService.sendMultiChannelNotification({
+                                phone: attendee.phone,
+                                email: attendee.email,
+                                message: smsMessage,
+                                whatsappMessage: whatsappMessage,
+                                subject: `Reminder: Property Viewing Tomorrow - ${viewing.property.title}`,
+                                htmlEmail: this.generateReminderEmail(viewing, attendee)
+                            });
+
+                            // Track which channel was successful
+                            const successfulChannel = reminderResult.whatsapp?.success ? 'whatsapp' :
+                                                    reminderResult.sms?.success ? 'sms' :
+                                                    reminderResult.email?.success ? 'email' : 'failed';
+
+                            if (successfulChannel !== 'failed') {
+                                viewing.reminders.push({
+                                    sentAt: new Date(),
+                                    type: successfulChannel,
+                                    status: 'sent'
+                                });
+                                remindersSent++;
+                                console.log(`✅ Viewing reminder sent to ${attendee.name} via ${successfulChannel}`);
+                            } else {
+                                console.log(`⚠️ Failed to send reminder to ${attendee.name} on any channel`);
+                            }
+                        } catch (notificationError) {
+                            console.error(`Failed to send reminder to ${attendee.name}:`, notificationError);
+                            // Still try to send email fallback
+                            if (attendee.email) {
+                                try {
+                                    await emailService.sendEmail({
+                                        to: attendee.email,
+                                        subject: `Reminder: Property Viewing Tomorrow - ${viewing.property.title}`,
+                                        html: this.generateReminderEmail(viewing, attendee)
+                                    });
+                                    viewing.reminders.push({
+                                        sentAt: new Date(),
+                                        type: 'email',
+                                        status: 'sent'
+                                    });
+                                    remindersSent++;
+                                } catch (emailError) {
+                                    console.error('Email fallback also failed:', emailError);
+                                }
+                            }
+                        }
                     }
                 }
                 await viewing.save();
             }
 
-            console.log(`✅ Sent ${remindersSent} viewing reminders`);
+            console.log(`✅ Sent ${remindersSent} viewing reminders across all channels`);
             return { success: true, remindersSent };
 
         } catch (error) {
