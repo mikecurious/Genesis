@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Twilio Credentials - MyGF AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .response.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .response.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .api-url {
+            margin-bottom: 30px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .api-url label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .api-url input {
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #004085;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .health-status {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .health-status .label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .health-status .value {
+            font-weight: 600;
+        }
+
+        .health-status .value.healthy {
+            color: #28a745;
+        }
+
+        .health-status .value.unhealthy {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Twilio Credentials</h1>
+        <p class="subtitle">Verify your SMS and WhatsApp integration</p>
+
+        <!-- API URL Configuration -->
+        <div class="api-url">
+            <label for="apiUrl">API URL:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000" placeholder="http://localhost:5000 or https://your-app.onrender.com">
+        </div>
+
+        <div class="info-box">
+            <strong>ℹ️ Testing Instructions:</strong><br>
+            1. First, check health status to verify credentials are loaded<br>
+            2. Test SMS to your phone number<br>
+            3. Test WhatsApp (if you joined Twilio sandbox)<br>
+            4. All tests send a simple test message
+        </div>
+
+        <!-- Health Check Section -->
+        <div class="test-section">
+            <h3>1. Health Check</h3>
+            <p style="margin-bottom: 15px; font-size: 14px; color: #666;">Check if Twilio credentials are configured correctly</p>
+
+            <button onclick="checkHealth()">🔍 Check Configuration</button>
+
+            <div id="healthResponse" class="response"></div>
+        </div>
+
+        <!-- SMS Test Section -->
+        <div class="test-section">
+            <h3>2. Test SMS</h3>
+
+            <div class="form-group">
+                <label for="smsPhone">Your Phone Number</label>
+                <input type="tel" id="smsPhone" value="+254758930908" placeholder="+254758930908" required>
+            </div>
+
+            <button onclick="testSMS()">📤 Send Test SMS</button>
+
+            <div id="smsResponse" class="response"></div>
+        </div>
+
+        <!-- WhatsApp Test Section -->
+        <div class="test-section">
+            <h3>3. Test WhatsApp</h3>
+
+            <div class="form-group">
+                <label for="whatsappPhone">Your Phone Number</label>
+                <input type="tel" id="whatsappPhone" value="+254758930908" placeholder="+254758930908" required>
+            </div>
+
+            <p style="margin-bottom: 15px; font-size: 13px; color: #856404; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                <strong>⚠️ WhatsApp Note:</strong> You must first join the Twilio Sandbox by sending "join &lt;code&gt;" to your Twilio WhatsApp number.
+            </p>
+
+            <button onclick="testWhatsApp()">📤 Send Test WhatsApp</button>
+
+            <div id="whatsappResponse" class="response"></div>
+        </div>
+
+        <!-- Multi-Channel Test -->
+        <div class="test-section">
+            <h3>4. Test Multi-Channel Fallback</h3>
+
+            <div class="form-group">
+                <label for="multiPhone">Your Phone Number</label>
+                <input type="tel" id="multiPhone" value="+254758930908" placeholder="+254758930908">
+            </div>
+
+            <p style="margin-bottom: 15px; font-size: 13px; color: #0c5460; background: #d1ecf1; padding: 10px; border-radius: 5px;">
+                <strong>💡 This tests:</strong> WhatsApp → SMS → Email fallback chain
+            </p>
+
+            <button onclick="testMultiChannel()">📤 Test Multi-Channel</button>
+
+            <div id="multiResponse" class="response"></div>
+        </div>
+    </div>
+
+    <script>
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value || 'http://localhost:5000';
+        }
+
+        function showResponse(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `response ${type}`;
+            element.innerHTML = message;
+            element.style.whiteSpace = 'pre-line';
+        }
+
+        async function checkHealth() {
+            const healthResponse = document.getElementById('healthResponse');
+
+            showResponse('healthResponse', 'info', 'Checking configuration...');
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/twilio/health`);
+                const data = await response.json();
+
+                if (data.success) {
+                    let message = '✅ Configuration Status:\n\n';
+
+                    if (data.twilio) {
+                        message += `📱 Twilio: ${data.twilio.configured ? '✅ Configured' : '❌ Not Configured'}\n`;
+                        if (data.twilio.sms) message += `  SMS: ${data.twilio.sms.configured ? '✅' : '❌'}\n`;
+                        if (data.twilio.whatsapp) message += `  WhatsApp: ${data.twilio.whatsapp.configured ? '✅' : '❌'}\n`;
+                    }
+
+                    if (data.sendgrid) {
+                        message += `\n📧 SendGrid: ${data.sendgrid.configured ? '✅ Configured' : '❌ Not Configured'}\n`;
+                    }
+
+                    message += '\n\nFull Response:\n' + JSON.stringify(data, null, 2);
+
+                    showResponse('healthResponse', 'success', message);
+                } else {
+                    showResponse('healthResponse', 'error', '❌ Health check failed:\n\n' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                showResponse('healthResponse', 'error', `❌ Network error: ${error.message}\n\nMake sure your backend is running and API URL is correct.`);
+            }
+        }
+
+        async function testSMS() {
+            const phone = document.getElementById('smsPhone').value;
+            const smsResponse = document.getElementById('smsResponse');
+
+            if (!phone) {
+                showResponse('smsResponse', 'error', 'Please enter a phone number');
+                return;
+            }
+
+            showResponse('smsResponse', 'info', 'Sending SMS...');
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/twilio/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        channel: 'sms'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.result && data.result.success) {
+                    showResponse('smsResponse', 'success', `✅ SMS sent successfully!\n\nMessage SID: ${data.result.messageSid || 'N/A'}\n\n📱 Check your phone for the test message!`);
+                } else {
+                    showResponse('smsResponse', 'error', `❌ Failed to send SMS:\n\n${data.result?.error || data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showResponse('smsResponse', 'error', `❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function testWhatsApp() {
+            const phone = document.getElementById('whatsappPhone').value;
+            const whatsappResponse = document.getElementById('whatsappResponse');
+
+            if (!phone) {
+                showResponse('whatsappResponse', 'error', 'Please enter a phone number');
+                return;
+            }
+
+            showResponse('whatsappResponse', 'info', 'Sending WhatsApp message...');
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/twilio/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        channel: 'whatsapp'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.result && data.result.success) {
+                    showResponse('whatsappResponse', 'success', `✅ WhatsApp message sent successfully!\n\nMessage SID: ${data.result.messageSid || 'N/A'}\n\n📱 Check WhatsApp for the test message!`);
+                } else {
+                    showResponse('whatsappResponse', 'error', `❌ Failed to send WhatsApp:\n\n${data.result?.error || data.error || 'Unknown error'}\n\nNote: You may need to join the Twilio WhatsApp Sandbox first.`);
+                }
+            } catch (error) {
+                showResponse('whatsappResponse', 'error', `❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function testMultiChannel() {
+            const phone = document.getElementById('multiPhone').value;
+            const multiResponse = document.getElementById('multiResponse');
+
+            if (!phone) {
+                showResponse('multiResponse', 'error', 'Please enter a phone number');
+                return;
+            }
+
+            showResponse('multiResponse', 'info', 'Testing multi-channel fallback...');
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/twilio/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        channel: 'multi'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.result) {
+                    let message = '✅ Multi-channel test completed!\n\n';
+
+                    if (data.result.whatsapp) {
+                        message += `WhatsApp: ${data.result.whatsapp.success ? '✅ Sent' : '❌ Failed'}\n`;
+                    }
+                    if (data.result.sms) {
+                        message += `SMS: ${data.result.sms.success ? '✅ Sent' : '❌ Failed'}\n`;
+                    }
+                    if (data.result.email) {
+                        message += `Email: ${data.result.email.success ? '✅ Sent' : '❌ Failed'}\n`;
+                    }
+
+                    message += '\n📱 Check your phone for the message!';
+
+                    showResponse('multiResponse', 'success', message);
+                } else {
+                    showResponse('multiResponse', 'error', `❌ Multi-channel test failed:\n\n${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                showResponse('multiResponse', 'error', `❌ Network error: ${error.message}`);
+            }
+        }
+
+        // Auto-check health on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkHealth, 500);
+        });
+    </script>
+</body>
+</html>
