@@ -143,7 +143,6 @@ async function sendVerificationEmail(user, name, email, verificationToken) {
         // Don't throw error, registration should still succeed
     }
 }
-});
 
 // @desc    Verify user account
 // @route   POST /api/auth/verify
