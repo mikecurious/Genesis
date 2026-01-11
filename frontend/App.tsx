@@ -80,6 +80,72 @@ type View =
   | "resetPassword";
 type Theme = "light" | "dark";
 
+/**
+ * Helper function to extract user-friendly error messages from API errors
+ */
+const getErrorMessage = (error: any): string => {
+  // Handle axios error responses
+  if (error.response) {
+    const { status, data } = error.response;
+
+    // Handle 401 Unauthorized
+    if (status === 401) {
+      if (typeof data === 'object' && data.message) {
+        return data.message;
+      }
+      if (typeof data === 'string') {
+        return data;
+      }
+      return 'Invalid email or password. Please check your credentials and try again.';
+    }
+
+    // Handle 404 Not Found
+    if (status === 404) {
+      return 'Account not found. Please check your email or sign up for a new account.';
+    }
+
+    // Handle 403 Forbidden
+    if (status === 403) {
+      if (typeof data === 'object' && data.message) {
+        return data.message;
+      }
+      return 'Access denied. You do not have permission to access this resource.';
+    }
+
+    // Handle 400 Bad Request
+    if (status === 400) {
+      if (typeof data === 'object' && data.message) {
+        return data.message;
+      }
+      return 'Invalid request. Please check your input and try again.';
+    }
+
+    // Handle 500 Internal Server Error
+    if (status >= 500) {
+      return 'Server error. Please try again later or contact support if the problem persists.';
+    }
+
+    // Extract message from data if available
+    if (typeof data === 'object' && data.message) {
+      return data.message;
+    }
+    if (typeof data === 'object' && data.error) {
+      return data.error;
+    }
+    if (typeof data === 'string') {
+      return data;
+    }
+  }
+
+  // Handle network errors
+  if (error.message === 'Network Error' || !error.response) {
+    return 'Network error. Please check your internet connection and try again.';
+  }
+
+  // Fallback to error message or generic message
+  return error.message || 'An unexpected error occurred. Please try again.';
+};
+
 const App: React.FC = () => {
   const applyThemeClass = (mode: "light" | "dark") => {
     const root = document.documentElement;
@@ -754,7 +820,8 @@ const App: React.FC = () => {
         handleSetView("dashboard");
       }
     } catch (error: any) {
-      setAuthError(error.message || "Invalid email or password.");
+      console.error('Sign in error:', error);
+      setAuthError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -779,7 +846,8 @@ const App: React.FC = () => {
       setIsUserLoggedIn(true);
       handleSetView("dashboard");
     } catch (error: any) {
-      setAuthError(error.response?.data?.message || error.message || "Invalid email or password.");
+      console.error('Tenant sign in error:', error);
+      setAuthError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -800,7 +868,8 @@ const App: React.FC = () => {
         setIsUserLoggedIn(true);
         handleSetView("dashboard");
     } catch (error: any) {
-      setAuthError(error.response?.data?.message || error.message || "Invalid email or password.");
+      console.error('Surveyor sign in error:', error);
+      setAuthError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -814,7 +883,8 @@ const App: React.FC = () => {
       // After registration, prompt login
       handleSetView("surveyorSignIn");
     } catch (error: any) {
-      setAuthError(error.response?.data?.message || error.message || "Failed to create surveyor account.");
+      console.error('Surveyor signup error:', error);
+      setAuthError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
