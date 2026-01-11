@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test OTP - MyGF AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .verify-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            display: none;
+        }
+
+        .verify-section.active {
+            display: block;
+        }
+
+        .response {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .response.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .response.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .otp-display {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            letter-spacing: 4px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .api-url {
+            margin-top: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .api-url label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .api-url input {
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 OTP Test</h1>
+        <p class="subtitle">Test OTP delivery to your phone</p>
+
+        <!-- API URL Configuration -->
+        <div class="api-url">
+            <label for="apiUrl">API URL:</label>
+            <input type="text" id="apiUrl" value="http://localhost:5000" placeholder="http://localhost:5000 or https://your-app.onrender.com">
+        </div>
+
+        <!-- Send OTP Section -->
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" value="+254758930908" placeholder="+254758930908" required>
+        </div>
+
+        <div class="form-group">
+            <label for="channel">Channel</label>
+            <select id="channel">
+                <option value="sms">SMS</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="multi">Multi-Channel (WhatsApp → SMS)</option>
+            </select>
+        </div>
+
+        <button id="sendBtn" onclick="sendOTP()">
+            📤 Send OTP
+        </button>
+
+        <div id="sendResponse" class="response"></div>
+
+        <!-- Verify OTP Section -->
+        <div id="verifySection" class="verify-section">
+            <h3 style="margin-bottom: 20px; color: #333;">Verify OTP</h3>
+
+            <div class="form-group">
+                <label for="otp">Enter OTP Code</label>
+                <input type="text" id="otp" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+            </div>
+
+            <button id="verifyBtn" onclick="verifyOTP()">
+                ✅ Verify OTP
+            </button>
+
+            <button id="resendBtn" onclick="resendOTP()" style="background: #6c757d;">
+                🔄 Resend OTP
+            </button>
+
+            <div id="verifyResponse" class="response"></div>
+        </div>
+
+        <div class="note">
+            <strong>⚠️ Note:</strong> If using Twilio trial account, make sure +254758930908 is verified in your Twilio Console under "Verified Caller IDs".
+        </div>
+    </div>
+
+    <script>
+        let currentPhone = '';
+        let generatedOTP = '';
+
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value || 'http://localhost:5000';
+        }
+
+        async function sendOTP() {
+            const phone = document.getElementById('phone').value;
+            const channel = document.getElementById('channel').value;
+            const sendBtn = document.getElementById('sendBtn');
+            const sendResponse = document.getElementById('sendResponse');
+
+            if (!phone) {
+                showResponse(sendResponse, 'error', 'Please enter a phone number');
+                return;
+            }
+
+            currentPhone = phone;
+
+            // Show loading
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+            sendResponse.className = 'response';
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/otp/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone, channel })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    generatedOTP = data.otp || '';
+                    let message = `✅ ${data.message}\n\n📱 Check your phone for the OTP!`;
+
+                    if (generatedOTP) {
+                        message += `\n\n🔑 Generated OTP (dev mode): ${generatedOTP}`;
+                    }
+
+                    showResponse(sendResponse, 'success', message);
+                    document.getElementById('verifySection').classList.add('active');
+
+                    // Auto-fill OTP in dev mode
+                    if (generatedOTP) {
+                        setTimeout(() => {
+                            document.getElementById('otp').value = generatedOTP;
+                        }, 500);
+                    }
+                } else {
+                    showResponse(sendResponse, 'error', `❌ ${data.error || 'Failed to send OTP'}`);
+                }
+            } catch (error) {
+                showResponse(sendResponse, 'error', `❌ Network error: ${error.message}\n\nMake sure your backend is running and API URL is correct.`);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '📤 Send OTP';
+            }
+        }
+
+        async function verifyOTP() {
+            const phone = currentPhone || document.getElementById('phone').value;
+            const otp = document.getElementById('otp').value;
+            const verifyBtn = document.getElementById('verifyBtn');
+            const verifyResponse = document.getElementById('verifyResponse');
+
+            if (!otp) {
+                showResponse(verifyResponse, 'error', 'Please enter the OTP');
+                return;
+            }
+
+            // Show loading
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+            verifyResponse.className = 'response';
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/otp/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone, otp })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResponse(verifyResponse, 'success', `✅ ${data.message}\n\nOTP verification successful! 🎉`);
+                    document.getElementById('otp').value = '';
+                } else {
+                    showResponse(verifyResponse, 'error', `❌ ${data.error}`);
+                }
+            } catch (error) {
+                showResponse(verifyResponse, 'error', `❌ Network error: ${error.message}`);
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '✅ Verify OTP';
+            }
+        }
+
+        async function resendOTP() {
+            const phone = currentPhone || document.getElementById('phone').value;
+            const resendBtn = document.getElementById('resendBtn');
+            const verifyResponse = document.getElementById('verifyResponse');
+
+            // Show loading
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<span class="spinner"></span> Resending...';
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/otp/resend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    generatedOTP = data.otp || '';
+                    showResponse(verifyResponse, 'info', `📤 ${data.message}\n\n📱 Check your phone for the new OTP!`);
+
+                    // Auto-fill in dev mode
+                    if (generatedOTP) {
+                        setTimeout(() => {
+                            document.getElementById('otp').value = generatedOTP;
+                        }, 500);
+                    }
+                } else {
+                    showResponse(verifyResponse, 'error', `❌ ${data.error}`);
+                }
+            } catch (error) {
+                showResponse(verifyResponse, 'error', `❌ Network error: ${error.message}`);
+            } finally {
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = '🔄 Resend OTP';
+            }
+        }
+
+        function showResponse(element, type, message) {
+            element.className = `response ${type}`;
+            element.textContent = message;
+            element.style.whiteSpace = 'pre-line';
+        }
+
+        // Allow Enter key to send/verify
+        document.getElementById('phone').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendOTP();
+        });
+
+        document.getElementById('otp').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyOTP();
+        });
+    </script>
+</body>
+</html>
