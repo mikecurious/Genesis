@@ -40,13 +40,18 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      await authService.register({
+      const response = await authService.register({
         name: data.fullName,
         email: data.email,
         password: data.password,
         phone: data.phone ? `${data.countryCode}${data.phone}` : undefined,
       });
-      setRegistrationData(data);
+
+      // Store full phone number with country code
+      const fullPhone = data.phone ? `${data.countryCode}${data.phone}` : undefined;
+      setRegistrationData({ ...data, phone: fullPhone });
+
+      console.log('Registration response:', response.data);
       setStep("verify");
     } catch (err: any) {
       // Extract specific error message from backend response
@@ -61,18 +66,27 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
   };
 
   const handleVerification = async (otp: string) => {
-    if (!registrationData?.email) return;
+    if (!registrationData?.email && !registrationData?.phone) return;
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authService.verify({
-        email: registrationData.email,
+      // Prefer phone verification if available
+      const verificationData: any = {
         otp,
-      });
+      };
+
+      if (registrationData.phone) {
+        verificationData.phone = registrationData.phone;
+      } else {
+        verificationData.email = registrationData.email;
+      }
+
+      const response = await authService.verify(verificationData);
       setTempAuthToken(response.data.token);
       setStep("setup");
     } catch (err: any) {
       setError(
+        err.response?.data?.message ||
         err.message ||
         "Verification failed. Please check the code and try again."
       );
@@ -151,6 +165,7 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
         return (
           <VerificationScreen
             email={registrationData?.email || ""}
+            phone={registrationData?.phone || ""}
             onVerify={handleVerification}
             isLoading={isLoading}
             error={error}

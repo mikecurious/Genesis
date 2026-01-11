@@ -4,12 +4,13 @@ import { SpinnerIcon } from '../icons/SpinnerIcon';
 
 interface VerificationScreenProps {
     email: string;
+    phone?: string;
     onVerify: (otp: string) => void;
     isLoading: boolean;
     error: string | null;
 }
 
-export const VerificationScreen: React.FC<VerificationScreenProps> = ({ email, onVerify, isLoading, error }) => {
+export const VerificationScreen: React.FC<VerificationScreenProps> = ({ email, phone, onVerify, isLoading, error }) => {
     const [otp, setOtp] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -18,12 +19,29 @@ export const VerificationScreen: React.FC<VerificationScreenProps> = ({ email, o
             onVerify(otp);
         }
     };
-    
+
+    // Determine what message to display based on verification method
+    const getVerificationMessage = () => {
+        if (phone) {
+            return (
+                <>
+                    We've sent a verification code to your phone number: <strong className="text-gray-900 dark:text-white">{phone}</strong>. Please enter the code below to continue.
+                </>
+            );
+        } else {
+            return (
+                <>
+                    We've sent a verification code to your email address: <strong className="text-gray-900 dark:text-white">{email}</strong>. Please enter the code below to continue.
+                </>
+            );
+        }
+    };
+
     return (
         <div className="text-center animate-fade-in-up">
             <h2 className="text-2xl font-semibold mb-2">Verify Your Account</h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-                We've sent a verification code to your email address: <strong className="text-gray-900 dark:text-white">{email}</strong>. Please enter the code below to continue.
+                {getVerificationMessage()}
             </p>
             
             <form onSubmit={handleSubmit} className="max-w-xs mx-auto">
