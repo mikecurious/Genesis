@@ -2,6 +2,7 @@ const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
+const twilioService = require('../services/twilioService');
 
 // @desc    Register a new user (and start verification)
 // @route   POST /api/auth/register
@@ -47,7 +48,62 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     await user.save();
 
-    // Send verification email
+    // Prefer SMS verification if phone number is provided, otherwise use email
+    if (phone && phone.trim()) {
+        // Send verification code via SMS
+        try {
+            const smsMessage = `Welcome to MyGF AI! 🏠\n\nYour verification code is: ${verificationToken}\n\nThis code will expire in 1 hour.\n\nIf you didn't sign up, please ignore this message.`;
+
+            const result = await twilioService.sendSMS({
+                to: phone,
+                message: smsMessage
+            });
+
+            if (result.success) {
+                console.log(`✅ Verification SMS sent to ${phone}`);
+
+                res.status(201).json({
+                    success: true,
+                    message: 'Registration successful. Please check your phone for a verification code.',
+                    verificationType: 'sms',
+                    phone: phone
+                });
+            } else {
+                // SMS failed, fall back to email
+                console.error('SMS sending failed, falling back to email:', result.error);
+                await sendVerificationEmail(user, name, email, verificationToken);
+
+                res.status(201).json({
+                    success: true,
+                    message: 'Registration successful. Please check your email for a verification code.',
+                    verificationType: 'email'
+                });
+            }
+        } catch (smsError) {
+            console.error('SMS error, falling back to email:', smsError);
+            // Fall back to email if SMS fails
+            await sendVerificationEmail(user, name, email, verificationToken);
+
+            res.status(201).json({
+                success: true,
+                message: 'Registration successful. Please check your email for a verification code.',
+                verificationType: 'email'
+            });
+        }
+    } else {
+        // No phone number provided, use email verification
+        await sendVerificationEmail(user, name, email, verificationToken);
+
+        res.status(201).json({
+            success: true,
+            message: 'Registration successful. Please check your email for a verification code.',
+            verificationType: 'email'
+        });
+    }
+});
+
+// Helper function to send verification email
+async function sendVerificationEmail(user, name, email, verificationToken) {
     const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #4F46E5;">Welcome to MyGF AI!</h2>
@@ -65,7 +121,6 @@ exports.register = asyncHandler(async (req, res, next) => {
         </div>
     `;
 
-    // Send email with timeout to prevent hanging
     const sendEmailWithTimeout = async (emailOptions, timeoutMs = 15000) => {
         const sendEmail = require('../config/email');
         return Promise.race([
@@ -82,32 +137,23 @@ exports.register = asyncHandler(async (req, res, next) => {
             subject: 'Verify Your Account - MyGF AI',
             html
         });
-
         console.log(`✅ Verification email sent to ${email}`);
-
-        res.status(201).json({
-            success: true,
-            message: 'Registration successful. Please check your email for a verification code.'
-        });
     } catch (error) {
         console.error('Email sending error:', error.message);
-        // Still allow registration even if email fails
-        // SECURITY: Never expose OTP in response or logs
-
-        res.status(201).json({
-            success: true,
-            message: 'Registration successful. Please check your email for a verification code. If you did not receive the email, please contact support.'
-        });
+        // Don't throw error, registration should still succeed
     }
+}
 });
 
 // @desc    Verify user account
 // @route   POST /api/auth/verify
 // @access  Public
 exports.verifyAccount = asyncHandler(async (req, res, next) => {
-    const { email, otp } = req.body;
-    if (!email || !otp) {
-        return res.status(400).json({ success: false, message: 'Please provide email and OTP' });
+    const { email, phone, otp } = req.body;
+
+    // Must provide either email or phone, and OTP
+    if ((!email && !phone) || !otp) {
+        return res.status(400).json({ success: false, message: 'Please provide email or phone number and OTP' });
     }
 
     // Hash the incoming OTP to compare with the one in the DB
@@ -116,11 +162,19 @@ exports.verifyAccount = asyncHandler(async (req, res, next) => {
         .update(otp)
         .digest('hex');
 
-    const user = await User.findOne({
-        email,
+    // Find user by email or phone
+    const query = {
         verificationToken: hashedToken,
         verificationTokenExpires: { $gt: Date.now() }
-    });
+    };
+
+    if (phone) {
+        query.phone = phone;
+    } else {
+        query.email = email;
+    }
+
+    const user = await User.findOne(query);
 
     if (!user) {
         return res.status(400).json({ success: false, message: 'Invalid or expired verification code.' });
@@ -130,6 +184,8 @@ exports.verifyAccount = asyncHandler(async (req, res, next) => {
     user.verificationToken = undefined;
     user.verificationTokenExpires = undefined;
     await user.save();
+
+    console.log(`✅ User verified: ${user.email} (${user.phone || 'no phone'})`);
 
     sendTokenResponse(user, 200, res);
 });
