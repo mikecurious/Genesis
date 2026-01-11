@@ -196,6 +196,7 @@ app.use('/api/providers', require('./routes/serviceProvider')); // Service provi
 app.use('/api/africastalking', require('./routes/africastalking')); // Africa's Talking webhooks
 app.use('/api/emails', require('./routes/email')); // Email sending routes
 app.use('/api/twilio', require('./routes/twilio')); // Twilio SMS, WhatsApp, Email integration
+app.use('/api/otp', require('./routes/otp')); // OTP verification routes
 
 // Custom Error Handler Middleware
 app.use(errorHandler);
