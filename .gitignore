@@ -58,3 +58,6 @@ backend/uploads/
 .env.backup
 .env
 *.env
+.env.backup
+.env
+*.env
