@@ -1,13 +1,20 @@
 const twilio = require('twilio');
 const sgMail = require('@sendgrid/mail');
+const celcomAfricaService = require('./celcomAfricaService');
 
 /**
- * Comprehensive Twilio Service for SMS, WhatsApp, Voice, and Email (SendGrid)
+ * Comprehensive Communication Service for SMS, WhatsApp, and Email
+ *
+ * SMS: Now handled by Celcom Africa (celcomAfricaService)
+ * WhatsApp: Handled by Twilio
+ * Email: Handled by SendGrid (Twilio Email)
  *
  * Required Environment Variables:
- * - TWILIO_ACCOUNT_SID
- * - TWILIO_AUTH_TOKEN
- * - TWILIO_PHONE_NUMBER (for SMS)
+ * - CELCOM_AFRICA_API_KEY (for SMS via Celcom Africa)
+ * - CELCOM_AFRICA_PARTNER_ID (for SMS via Celcom Africa)
+ * - CELCOM_AFRICA_SHORTCODE (for SMS sender ID)
+ * - TWILIO_ACCOUNT_SID (for WhatsApp)
+ * - TWILIO_AUTH_TOKEN (for WhatsApp)
  * - TWILIO_WHATSAPP_NUMBER (for WhatsApp)
  * - SENDGRID_API_KEY (for Email via SendGrid)
  * - SENDGRID_FROM_EMAIL (verified sender email)
@@ -80,38 +87,31 @@ class TwilioService {
     }
 
     /**
-     * Send SMS message
+     * Send SMS message (via Celcom Africa)
+     * Note: Now uses Celcom Africa for SMS instead of Twilio
      */
     async sendSMS({ to, message, from }) {
-        if (!this.isConfigured()) {
-            console.log('📱 SMS not sent: Twilio not configured');
-            return { success: false, error: 'Twilio not configured' };
-        }
-
-        const fromNumber = from || process.env.TWILIO_PHONE_NUMBER;
-        if (!fromNumber) {
-            return { success: false, error: 'SMS sender number not configured' };
-        }
-
+        // Use Celcom Africa service for SMS
         try {
-            const toNumber = this.formatSMSNumber(to);
-            if (!toNumber) {
-                return { success: false, error: 'Invalid phone number' };
+            const result = await celcomAfricaService.sendSMS({ to, message });
+
+            if (result.success) {
+                console.log(`✅ SMS sent to ${to} via Celcom Africa`);
+                return {
+                    success: true,
+                    messageSid: result.messageIds?.[0] || 'celcom-' + Date.now(),
+                    status: 'sent',
+                    channel: 'sms',
+                    provider: 'celcomafrica'
+                };
+            } else {
+                console.error(`❌ SMS send failed to ${to}:`, result.error);
+                return {
+                    success: false,
+                    error: result.error,
+                    channel: 'sms'
+                };
             }
-
-            const result = await this.twilioClient.messages.create({
-                from: fromNumber,
-                to: toNumber,
-                body: message
-            });
-
-            console.log(`✅ SMS sent to ${to}. SID: ${result.sid}`);
-            return {
-                success: true,
-                messageSid: result.sid,
-                status: result.status,
-                channel: 'sms'
-            };
         } catch (error) {
             console.error(`❌ SMS send failed to ${to}:`, error.message);
             return {

@@ -46,11 +46,11 @@ exports.inviteTenant = asyncHandler(async (req, res, next) => {
     try {
         const transporter = require('../config/email');
         await transporter.sendMail({
-            from: `"Genesis Real Estate" <${process.env.EMAIL_USER}>`,
+            from: `"My Genesis Fortune Real Estate" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: 'Welcome to Genesis - Your Tenant Account',
+            subject: 'Welcome to My Genesis Fortune - Your Tenant Account',
             html: `
-                <h2>Welcome to Genesis Real Estate Platform!</h2>
+                <h2>Welcome to My Genesis Fortune Real Estate Platform!</h2>
                 <p>Hi ${name},</p>
                 <p>You have been added as a tenant by your landlord.</p>
                 <p><strong>Your login credentials:</strong></p>
@@ -59,7 +59,7 @@ exports.inviteTenant = asyncHandler(async (req, res, next) => {
                 <p><strong>Please change your password after logging in.</strong></p>
                 <p>Unit: ${unit}</p>
                 <br>
-                <p>Best regards,<br>Genesis Real Estate Team</p>
+                <p>Best regards,<br>My Genesis Fortune Real Estate Team</p>
             `
         });
         console.log(`Welcome email sent to ${email} with temporary password`);

@@ -193,10 +193,11 @@ app.use('/api/feature-settings', require('./routes/featureSettings')); // Featur
 app.use('/api/surveyor-chat', require('./routes/surveyorChat')); // Chat-based surveyor request and matching
 app.use('/api/sales-automation', require('./routes/salesAutomation')); // AI sales & deal closure engine
 app.use('/api/providers', require('./routes/serviceProvider')); // Service provider management routes
-app.use('/api/africastalking', require('./routes/africastalking')); // Africa's Talking webhooks
+app.use('/api/celcomafrica', require('./routes/celcomafrica')); // Celcom Africa SMS integration
 app.use('/api/emails', require('./routes/email')); // Email sending routes
 app.use('/api/twilio', require('./routes/twilio')); // Twilio SMS, WhatsApp, Email integration
 app.use('/api/otp', require('./routes/otp')); // OTP verification routes
+app.use('/api/sms-notifications', require('./routes/smsNotifications')); // SMS notification testing routes
 
 // Custom Error Handler Middleware
 app.use(errorHandler);

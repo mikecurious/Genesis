@@ -262,7 +262,7 @@ Return ONLY a JSON object:
                 const smsMessage = `🏠 Property Viewing Scheduled\n\n${populatedViewing.property.title}\n📍 ${viewing.location}\n📅 ${dateStr}\n⏱️ ${viewing.duration} min\n\nPlease confirm your attendance.`;
 
                 // Prepare WhatsApp message
-                const whatsappMessage = `*🏠 Property Viewing Scheduled!*\n\nHi ${attendee.name}! 👋\n\nA viewing has been scheduled for:\n\n🏠 *Property:* ${populatedViewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n💰 *Price:* ${populatedViewing.property.currency} ${populatedViewing.property.price.toLocaleString()}\n\nPlease confirm your attendance as soon as possible.\n\nLooking forward to seeing you! 🎉\n\n_Genesis Real Estate_`;
+                const whatsappMessage = `*🏠 Property Viewing Scheduled!*\n\nHi ${attendee.name}! 👋\n\nA viewing has been scheduled for:\n\n🏠 *Property:* ${populatedViewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n💰 *Price:* ${populatedViewing.property.currency} ${populatedViewing.property.price.toLocaleString()}\n\nPlease confirm your attendance as soon as possible.\n\nLooking forward to seeing you! 🎉\n\n_My Genesis Fortune Real Estate_`;
 
                 // Send multi-channel invitation (WhatsApp → SMS → Email)
                 if (attendee.phone || attendee.email) {
@@ -338,7 +338,7 @@ Return ONLY a JSON object:
             <p>Please confirm your attendance by clicking the link below:</p>
             <p><a href="${process.env.FRONTEND_URL}/viewings/${viewing._id}/confirm" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Confirm Attendance</a></p>
             <p>If you need to reschedule, please contact us as soon as possible.</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -443,7 +443,7 @@ Return ONLY a JSON object:
                     // Prepare SMS/WhatsApp message
                     const smsMessage = `⏰ Viewing Reminder\n\n${viewing.property.title}\n📍 ${viewing.location}\n📅 Tomorrow: ${dateStr}\n\nSee you there! 🏠`;
 
-                    const whatsappMessage = `*⏰ Viewing Reminder*\n\nHi ${attendee.name}! 👋\n\nDon't forget your property viewing tomorrow:\n\n🏠 *Property:* ${viewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n\nWe look forward to seeing you!\n\n_Genesis Real Estate_`;
+                    const whatsappMessage = `*⏰ Viewing Reminder*\n\nHi ${attendee.name}! 👋\n\nDon't forget your property viewing tomorrow:\n\n🏠 *Property:* ${viewing.property.title}\n📍 *Location:* ${viewing.location}\n📅 *Date & Time:* ${dateStr}\n⏱️ *Duration:* ${viewing.duration} minutes\n\nWe look forward to seeing you!\n\n_My Genesis Fortune Real Estate_`;
 
                     // Send multi-channel reminder (WhatsApp → SMS → Email)
                     if (attendee.phone || attendee.email) {
@@ -531,7 +531,7 @@ Return ONLY a JSON object:
                 <p><strong>📍 Location:</strong> ${viewing.location}</p>
             </div>
             <p>We look forward to seeing you!</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 }
