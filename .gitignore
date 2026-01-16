@@ -55,3 +55,6 @@ backend/uploads/
 
 # Local configuration
 .claude/
+.env.backup
+.env
+*.env
