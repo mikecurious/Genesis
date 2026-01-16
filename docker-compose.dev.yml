@@ -1,0 +1,76 @@
+version: '3.8'
+
+# Development Docker Compose Configuration
+# Use: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: mygenesisfortune-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: devpassword
+      MONGO_INITDB_DATABASE: genesis_dev
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - dev-network
+
+  # Backend API (Development with hot reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: mygenesisfortune-backend-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+      - "9229:9229"  # Node.js debugger port
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGO_URI: mongodb://admin:devpassword@mongodb:27017/genesis_dev?authSource=admin
+      JWT_SECRET: dev_jwt_secret_key
+      JWT_EXPIRE: 7d
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - mongodb
+    networks:
+      - dev-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
+    command: npm run dev
+
+  # Frontend Application (Development with hot reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: mygenesisfortune-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - dev-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  mongodb_dev_data:
+    driver: local
