@@ -718,7 +718,7 @@ Return ONLY a JSON object:
                 ${property.bedrooms ? `<p><strong>Bedrooms:</strong> ${property.bedrooms}</p>` : ''}
             </div>
             <p>Our AI assistant will help you through the process. Would you like to schedule a viewing?</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -730,7 +730,7 @@ Return ONLY a JSON object:
             <p>The listing price is <strong>${lead.property.currency} ${lead.property.price.toLocaleString()}</strong>.</p>
             <p>If you'd like to make an offer, simply reply to this email or contact us directly.</p>
             <p>Our AI negotiation assistant is ready to work with you to find a fair price!</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -742,7 +742,7 @@ Return ONLY a JSON object:
             <p>We'd like to propose a counter offer of <strong>${lead.property.currency} ${counterAmount.toLocaleString()}</strong>.</p>
             <p><em>${reasoning}</em></p>
             <p>Let us know if this works for you!</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -753,7 +753,7 @@ Return ONLY a JSON object:
             <p>Thank you for your offer on ${lead.property.title}.</p>
             <p>${reasoning}</p>
             <p>We'd be happy to discuss other options that might work better.</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -763,7 +763,7 @@ Return ONLY a JSON object:
             <p>Dear ${lead.client.name},</p>
             <p>We wanted to follow up on the counter offer for ${lead.property.title}.</p>
             <p>The property is still available. Are you still interested?</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -774,7 +774,7 @@ Return ONLY a JSON object:
             <p>We wanted to check in about ${property.title}.</p>
             <p>The property is still available at ${property.currency} ${property.price.toLocaleString()}.</p>
             <p>Would you like to schedule a viewing or get more information?</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 
@@ -785,7 +785,7 @@ Return ONLY a JSON object:
             <p><strong>Final Price:</strong> ${lead.property.currency} ${finalPrice.toLocaleString()}</p>
             <p><strong>Buyer:</strong> ${lead.client.name}</p>
             <p>Our team will be in touch with next steps.</p>
-            <p>Best regards,<br>Genesis Team</p>
+            <p>Best regards,<br>My Genesis Fortune Team</p>
         `;
     }
 }
