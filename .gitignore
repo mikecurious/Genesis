@@ -58,6 +58,11 @@ backend/uploads/
 .env.backup
 .env
 *.env
-.env.backup
-.env
-*.env
+
+# Deployment scripts with hardcoded credentials (NEVER commit these!)
+enable-ai-service.sh
+fix-server-env.sh
+quick-enable-ai.sh
+redeploy.sh
+server-fix-commands.sh
+DEPLOYMENT_FIX.md
