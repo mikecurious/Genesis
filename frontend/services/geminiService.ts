@@ -144,7 +144,7 @@ ${JSON.stringify(listings, null, 2)}
     Respond with ONLY your message to the client.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
+            model: 'gemini-1.5-pro',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -223,7 +223,7 @@ export const generateSurveyorResponse = async (
 export async function* generateGroundedResponseStream(prompt: string): AsyncGenerator<GenerateContentResponse> {
     try {
         const responseStream = await ai.models.generateContentStream({
-            model: "gemini-2.5-flash",
+            model: "gemini-1.5-flash",
             contents: `You are a helpful real estate assistant for MyGF AI. Answer the user's question based on your knowledge and the provided search results. Keep your answers concise and friendly. User's question: "${prompt}"`,
             config: {
                 tools: [{ googleSearch: {} }],
@@ -275,7 +275,7 @@ export const generateInitialPitch = async (property: Listing): Promise<Message> 
     Respond with ONLY the pitch text.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents: modelPrompt,
     });
 
@@ -337,7 +337,7 @@ export const generateInteractionResponse = async (prompt: string, property: List
     Respond with ONLY your message to the client.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents: modelPrompt,
     });
 
@@ -411,7 +411,7 @@ export const generateDashboardInsights = async (listings: Listing[]): Promise<st
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             contents: modelPrompt,
         });
         return response.text.trim();
@@ -477,7 +477,7 @@ export const generateTenantChatResponse = async (prompt: string, tenant: Tenant,
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             contents: modelPrompt,
         });
         return response.text.trim();
@@ -550,7 +550,7 @@ export const generatePropertyDescription = async (details: { title: string; loca
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             contents: modelPrompt,
         });
         return response.text.trim();
