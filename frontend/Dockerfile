@@ -5,9 +5,13 @@ WORKDIR /app
 
 # Accept build argument
 ARG VITE_API_URL=https://api.mygf.life
+ARG VITE_GEMINI_API_KEY
+ARG VITE_API_KEY
 
 # Set as environment variable for the build
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+ENV VITE_API_KEY=$VITE_API_KEY
 
 # Copy package files
 COPY package*.json ./
