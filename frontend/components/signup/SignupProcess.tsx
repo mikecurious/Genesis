@@ -104,8 +104,8 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
   const handlePayment = async () => {
     if (!selectedRole || !selectedPlan || !tempAuthToken) return;
 
-    // Surveyors (and any role with plan None) skip payment and finalize immediately
-    if (selectedPlan === PlanName.None) {
+    // Free plan and Surveyors (and any role with plan None) skip payment and finalize immediately
+    if (selectedPlan === PlanName.None || selectedPlan === PlanName.Free) {
       try {
         setIsLoading(true);
         const response = await authService.setupAccount(
@@ -121,6 +121,8 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
       return;
     }
 
+    // Store temp token in localStorage so payment API can access it
+    localStorage.setItem('token', tempAuthToken);
     setIsPaymentModalOpen(true);
   };
 

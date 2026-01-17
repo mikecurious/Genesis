@@ -204,7 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+        <div className="h-screen overflow-y-auto bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
             {/* Header */}
             <div className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700">
                 <div className="max-w-[1600px] mx-auto px-6 py-6">
@@ -367,8 +367,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                     {users.map((u: any) => (
                                         <tr key={u._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">{u.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{u.email}</td>
+                                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white max-w-[200px] truncate">{u.name}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[250px] break-words">{u.email}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-semibold">
                                                     {u.role || 'None'}
@@ -461,10 +461,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                     {properties.map((p: any) => (
                                         <tr key={p._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white max-w-xs">{p.title}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{p.location}</td>
+                                            <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white max-w-[250px] truncate" title={p.title}>{p.title}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate" title={p.location}>{p.location}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{p.price}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{p.createdBy?.name || 'N/A'}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[150px] truncate" title={p.createdBy?.name}>{p.createdBy?.name || 'N/A'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                                                     p.status === 'active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
@@ -549,10 +549,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                     ) : (
                                         leads.map((lead: any) => (
                                             <tr key={lead._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">{lead.client?.name || 'N/A'}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{lead.client?.email || 'N/A'}</td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{lead.client?.phone || 'N/A'}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">{lead.property?.title || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white max-w-[150px] truncate" title={lead.client?.name}>{lead.client?.name || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] break-words">{lead.client?.email || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[130px] truncate">{lead.client?.phone || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate" title={lead.property?.title}>{lead.property?.title || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 capitalize">{lead.dealType || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -694,11 +694,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                                             {isProvider ? 'Provider' : 'Surveyor'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div>
-                                                            <div className="text-sm font-semibold text-gray-900 dark:text-white">{data.name}</div>
+                                                    <td className="px-6 py-4">
+                                                        <div className="max-w-[180px]">
+                                                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate" title={data.name}>{data.name}</div>
                                                             {isProvider && data.companyName && (
-                                                                <div className="text-xs text-gray-500 dark:text-gray-400">{data.companyName}</div>
+                                                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={data.companyName}>{data.companyName}</div>
                                                             )}
                                                         </div>
                                                     </td>
@@ -720,9 +720,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                                             </div>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                                        <div>{data.email}</div>
-                                                        <div className="text-xs">{data.phone || 'N/A'}</div>
+                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[200px]">
+                                                        <div className="truncate" title={data.email}>{data.email}</div>
+                                                        <div className="text-xs truncate">{data.phone || 'N/A'}</div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                                                         {isProvider ? data.yearsOfExperience : (profile?.yearsOfExperience || 0)} years

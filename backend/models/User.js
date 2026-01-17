@@ -130,8 +130,8 @@ const UserSchema = new mongoose.Schema({
     subscription: {
         plan: {
             type: String,
-            enum: ['Basic', 'MyGF 1.3', 'MyGF 3.2', 'None'],
-            default: 'None',
+            enum: ['Free', 'Basic', 'MyGF 1.3', 'MyGF 3.2', 'None'],
+            default: 'Free',
         },
         status: {
             type: String,

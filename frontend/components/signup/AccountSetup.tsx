@@ -11,10 +11,11 @@ const roles = [
     { name: UserRole.Agent, description: 'Full features: Sell and rent properties, manage tenants.' },
     { name: UserRole.Landlord, description: 'Landlord / Property Owner: manage units, rent collection, maintenance.' },
     { name: UserRole.PropertyOwner, description: 'Property Owner: oversight of your own properties and service providers.' },
-    { name: UserRole.Surveyor, description: 'Surveyor: accept survey tasks, upload reports, and earn from property surveys (no plan required).' },
+    // { name: UserRole.Surveyor, description: 'Surveyor: accept survey tasks, upload reports, and earn from property surveys (no plan required).' },
 ];
 
 const plans: SubscriptionPlan[] = [
+    { name: PlanName.Free, price: 'Free', features: ['Unlimited Listings', 'Full AI Features', 'Property Management', 'Tenant Management', 'All System Features'] },
     { name: PlanName.Basic, price: '1,000 KSh', features: ['5 Active Listings', 'Basic Analytics', 'Standard Support'] },
     { name: PlanName.MyGF1_3, price: '2,500 KSh', features: ['20 Active Listings', 'Advanced Analytics', 'AI Listing Enhancement'] },
     { name: PlanName.MyGF3_2, price: '5,000 KSh', features: ['Unlimited Listings', 'Full AI Insights Suite', 'Dedicated Account Manager'] }
@@ -22,13 +23,13 @@ const plans: SubscriptionPlan[] = [
 
 // Default plan suggestions per role
 const roleDefaultPlan: Record<UserRole, PlanName> = {
-    [UserRole.Agent]: PlanName.MyGF1_3,
-    [UserRole.Landlord]: PlanName.Basic,
-    [UserRole.PropertyOwner]: PlanName.Basic,
-    [UserRole.PropertySeller]: PlanName.Basic,
+    [UserRole.Agent]: PlanName.Free,
+    [UserRole.Landlord]: PlanName.Free,
+    [UserRole.PropertyOwner]: PlanName.Free,
+    [UserRole.PropertySeller]: PlanName.Free,
     [UserRole.Surveyor]: PlanName.None,
     [UserRole.Tenant]: PlanName.None,
-    [UserRole.Admin]: PlanName.MyGF3_2,
+    [UserRole.Admin]: PlanName.Free,
 };
 
 const RoleCard: React.FC<{ role: typeof roles[0]; isSelected: boolean; onSelect: () => void }> = ({ role, isSelected, onSelect }) => (
@@ -113,7 +114,7 @@ export const AccountSetup: React.FC<AccountSetupProps> = ({ onSetupComplete }) =
                 {selectedRole && selectedRole !== UserRole.Surveyor && (
                     <div className={`transition-opacity duration-500 ${selectedRole ? 'opacity-100' : 'opacity-20 pointer-events-none'}`}>
                         <h3 className="text-lg font-semibold mb-3 text-center md:text-left">2. Select Your Plan</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {plans.map(plan => (
                                 <PlanCard
                                     key={plan.name}
