@@ -1,5 +1,6 @@
 # Build stage
 FROM node:20-alpine AS builder
+<<<<<<< HEAD
 WORKDIR /app
 
 # Accept build argument
@@ -8,6 +9,11 @@ ARG VITE_API_URL=https://api.mygf.life
 # Set as environment variable for the build
 ENV VITE_API_URL=$VITE_API_URL
 
+=======
+
+WORKDIR /app
+
+>>>>>>> 10d02261375d219e08536f62462b5b07b03f9316
 # Copy package files
 COPY package*.json ./
 
@@ -17,8 +23,13 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+<<<<<<< HEAD
 # Build the application (VITE_API_URL will be baked in)
 RUN echo "Building with VITE_API_URL=$VITE_API_URL" && npm run build
+=======
+# Build the application
+RUN npm run build
+>>>>>>> 10d02261375d219e08536f62462b5b07b03f9316
 
 # Production stage
 FROM nginx:alpine
