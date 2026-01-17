@@ -97,6 +97,7 @@ export interface Message {
   isSystemMessage?: boolean; // For messages like "Agent has joined"
   groundingMetadata?: any; // For Google Search/Maps grounding results
   metadata?: MessageMetadata; // For deal closure detection
+  suggestions?: string[]; // Auto-generated reply suggestions
 }
 
 // New type for storing conversations
