@@ -249,9 +249,34 @@ exports.setupAccount = asyncHandler(async (req, res, next) => {
 
     user.role = role;
     user.subscription.plan = plan;
-    // In a real app, payment status would be pending until webhook confirmation
-    user.subscription.status = 'active';
-    user.subscription.expiresAt = new Date(new Date().setMonth(new Date().getMonth() + 1));
+
+    // Free and None plans don't require payment
+    if (plan === 'Free' || plan === 'None') {
+        user.subscription.status = 'active';
+
+        // Free plan gets lifetime access and all features enabled
+        if (plan === 'Free') {
+            user.subscription.expiresAt = new Date('2099-12-31'); // Effectively never expires
+
+            // Enable all premium features for Free plan users
+            user.featureFlags.aiManager.enabled = true;
+            user.featureFlags.aiManager.automationLevel = 'high';
+            user.featureFlags.rentReminders.enabled = true;
+            user.featureFlags.rentReminders.channels.whatsapp = true;
+            user.featureFlags.leadScoring.enabled = true;
+            user.featureFlags.leadScoring.autoFollowUp = true;
+            user.featureFlags.maintenanceAI.enabled = true;
+            user.featureFlags.maintenanceAI.autoAnalysis = true;
+            user.featureFlags.maintenanceAI.imageAnalysis = true;
+            user.featureFlags.financialReports.enabled = true;
+            user.featureFlags.financialReports.autoGenerate = true;
+            user.featureFlags.aiVoice.enabled = true;
+        }
+    } else {
+        // Paid plans require payment confirmation
+        user.subscription.status = 'pending';
+        user.subscription.expiresAt = new Date(new Date().setMonth(new Date().getMonth() + 1));
+    }
 
     await user.save();
 

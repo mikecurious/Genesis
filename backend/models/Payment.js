@@ -18,7 +18,7 @@ const PaymentSchema = new mongoose.Schema({
     },
     plan: {
         type: String,
-        enum: ['Basic', 'MyGF 1.3', 'MyGF 3.2', 'None', null],  // Allow null in enum
+        enum: ['Free', 'Basic', 'MyGF 1.3', 'MyGF 3.2', 'None', null],  // Allow null in enum
         default: null,
         required: false,
     },
