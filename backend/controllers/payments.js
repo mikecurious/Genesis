@@ -5,9 +5,10 @@ const mpesaService = require('../services/mpesaService');
 const twilioService = require('../services/twilioService');
 
 const planPrices = {
-    'Basic': 1,
-    'MyGF 1.3': 1,
-    'MyGF 3.2': 1
+    'Free': 0,
+    'Basic': 1000,
+    'MyGF 1.3': 2500,
+    'MyGF 3.2': 5000
 };
 
 // Helper function to generate payment receipt HTML

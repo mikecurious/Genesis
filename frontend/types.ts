@@ -180,6 +180,7 @@ export interface ChatUser {
 }
 
 export enum PlanName {
+  Free = 'Free',
   Basic = 'Basic',
   MyGF1_3 = 'MyGF 1.3',
   MyGF3_2 = 'MyGF 3.2',

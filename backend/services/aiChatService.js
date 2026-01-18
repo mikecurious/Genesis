@@ -384,6 +384,40 @@ class AIChatService {
             return 'valuation';
         } else if (messageLower.includes('inspection') || messageLower.includes('inspect')) {
             return 'inspection';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
         } else if (messageLower.includes('compliance') || messageLower.includes('regulatory')) {
             return 'compliance';
         }
