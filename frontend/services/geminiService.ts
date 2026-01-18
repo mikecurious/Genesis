@@ -144,7 +144,7 @@ ${JSON.stringify(listings, null, 2)}
     Respond with ONLY your message to the client.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-pro',
+            model: 'gemini-1.5-pro-latest',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -245,7 +245,7 @@ export const generateChatTitle = async (prompt: string): Promise<string> => {
         const modelPrompt = `Generate a very short, concise title (4-5 words max) for a new chat conversation that starts with the following user message. Respond with only the title text, nothing else.\n\nUser Message: "${prompt}"`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-flash-lite-latest',
+            model: 'gemini-1.5-flash',
             contents: modelPrompt,
         });
 
@@ -363,7 +363,7 @@ export const generateInteractionResponse = async (prompt: string, property: List
 
     try {
         const closureResponse = await ai.models.generateContent({
-            model: 'gemini-flash-lite-latest',
+            model: 'gemini-1.5-flash-latest',
             contents: dealClosurePrompt,
             config: {
                 responseMimeType: "application/json",
@@ -515,7 +515,7 @@ ${recentMessages}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-flash-lite-latest',
+            model: 'gemini-1.5-flash',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
