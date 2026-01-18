@@ -131,11 +131,7 @@ const UserSchema = new mongoose.Schema({
         plan: {
             type: String,
             enum: ['Free', 'Basic', 'MyGF 1.3', 'MyGF 3.2', 'None'],
-<<<<<<< HEAD
-            default: 'Free',
-=======
             default: 'None',
->>>>>>> ee4d20d9eedb8071ebde3e5ad905030c855b26db
         },
         status: {
             type: String,

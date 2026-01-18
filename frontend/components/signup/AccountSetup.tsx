@@ -15,11 +15,7 @@ const roles = [
 ];
 
 const plans: SubscriptionPlan[] = [
-<<<<<<< HEAD
-    { name: PlanName.Free, price: 'Free', features: ['Unlimited Listings', 'Full AI Features', 'Property Management', 'Tenant Management', 'All System Features'] },
-=======
     { name: PlanName.Free, price: 'Free', features: ['Unlimited Listings', 'Full AI Insights Suite', 'Advanced Analytics', 'AI Listing Enhancement', 'Dedicated Account Manager', 'Priority Support', 'All Premium Features'] },
->>>>>>> ee4d20d9eedb8071ebde3e5ad905030c855b26db
     { name: PlanName.Basic, price: '1,000 KSh', features: ['5 Active Listings', 'Basic Analytics', 'Standard Support'] },
     { name: PlanName.MyGF1_3, price: '2,500 KSh', features: ['20 Active Listings', 'Advanced Analytics', 'AI Listing Enhancement'] },
     { name: PlanName.MyGF3_2, price: '5,000 KSh', features: ['Unlimited Listings', 'Full AI Insights Suite', 'Dedicated Account Manager'] }

@@ -107,13 +107,8 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
   const handlePayment = async () => {
     if (!selectedRole || !selectedPlan || !tempAuthToken) return;
 
-<<<<<<< HEAD
-    // Free plan and Surveyors (and any role with plan None) skip payment and finalize immediately
-    if (selectedPlan === PlanName.None || selectedPlan === PlanName.Free) {
-=======
     // Free and None plans skip payment and finalize immediately
     if (selectedPlan === PlanName.Free || selectedPlan === PlanName.None) {
->>>>>>> ee4d20d9eedb8071ebde3e5ad905030c855b26db
       try {
         setIsLoading(true);
         const response = await authService.setupAccount(
