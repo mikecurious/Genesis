@@ -68,6 +68,8 @@ const LeadSchema = new mongoose.Schema({
         budgetMatch: { type: Number, default: 0 },
         urgency: { type: Number, default: 0 },
         contactQuality: { type: Number, default: 0 },
+        interactionQuality: { type: Number, default: 0 },  // Based on interaction type and source
+        intentSignals: { type: Number, default: 0 }  // Email inquiry = high intent
     },
     buyingIntent: {
         type: String,
@@ -183,8 +185,32 @@ const LeadSchema = new mongoose.Schema({
             timestamp: Date,
             success: Boolean,
             reasoning: String,
-            outcome: String
+            outcome: String,
+            // Enhanced interaction tracking
+            interactionType: {
+                type: String,
+                enum: ['connect_now', 'email_inquiry', 'chat_message', 'viewing_request', 'phone_call', 'whatsapp_message']
+            },
+            interactionSource: {
+                type: String,
+                enum: ['property_explorer', 'chat_interface', 'email', 'direct_call', 'whatsapp']
+            },
+            metadata: {
+                propertyViewed: Boolean,
+                conversationLength: Number,
+                responseTime: Number,  // milliseconds from inquiry to lead creation
+                userAgent: String,
+                referrer: String
+            }
         }],
+        // Aggregated interaction metrics
+        interactionMetrics: {
+            totalConnectNowClicks: { type: Number, default: 0 },
+            totalEmailInquiries: { type: Number, default: 0 },
+            totalChatMessages: { type: Number, default: 0 },
+            lastInteractionAt: Date,
+            firstInteractionAt: Date
+        },
         nextScheduledAction: {
             action: String,
             scheduledFor: Date,

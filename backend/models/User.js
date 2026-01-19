@@ -304,6 +304,80 @@ const UserSchema = new mongoose.Schema({
         companyCertification: {
             type: String,
             default: null
+        },
+        // Granular notification preferences for multi-channel alerts
+        notificationPreferences: {
+            channels: {
+                sms: {
+                    enabled: { type: Boolean, default: true },
+                    phoneNumber: String  // Falls back to user.phone if not set
+                },
+                whatsapp: {
+                    enabled: { type: Boolean, default: true },
+                    phoneNumber: String  // Falls back to user.whatsappNumber if not set
+                },
+                email: {
+                    enabled: { type: Boolean, default: true },
+                    emailAddress: String  // Falls back to user.email if not set
+                },
+                inApp: {
+                    enabled: { type: Boolean, default: true }
+                }
+            },
+            // Event-specific routing
+            interactionTypes: {
+                leadCaptured: {
+                    enabled: { type: Boolean, default: true },
+                    priority: {
+                        type: String,
+                        enum: ['low', 'medium', 'high', 'urgent'],
+                        default: 'high'
+                    },
+                    channels: {
+                        type: [String],
+                        enum: ['sms', 'whatsapp', 'email', 'inApp'],
+                        default: ['whatsapp', 'inApp']
+                    }
+                },
+                emailInquiry: {
+                    enabled: { type: Boolean, default: true },
+                    priority: {
+                        type: String,
+                        enum: ['low', 'medium', 'high', 'urgent'],
+                        default: 'high'
+                    },
+                    channels: {
+                        type: [String],
+                        enum: ['sms', 'whatsapp', 'email', 'inApp'],
+                        default: ['email', 'inApp']
+                    }
+                },
+                highScoreLead: {
+                    enabled: { type: Boolean, default: true },
+                    priority: {
+                        type: String,
+                        enum: ['low', 'medium', 'high', 'urgent'],
+                        default: 'urgent'
+                    },
+                    scoreThreshold: { type: Number, default: 75 },
+                    channels: {
+                        type: [String],
+                        enum: ['sms', 'whatsapp', 'email', 'inApp'],
+                        default: ['sms', 'whatsapp', 'inApp']
+                    }
+                }
+            },
+            // Rate limiting to prevent spam and control costs
+            rateLimits: {
+                sms: {
+                    maxPerHour: { type: Number, default: 10 },
+                    maxPerDay: { type: Number, default: 50 }
+                },
+                whatsapp: {
+                    maxPerHour: { type: Number, default: 20 },
+                    maxPerDay: { type: Number, default: 100 }
+                }
+            }
         }
     },
     // Role Intelligence - AI-powered role detection and optimization

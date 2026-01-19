@@ -12,6 +12,7 @@ import { LeadViewer } from '../LeadViewer';
 import { ProfileSettings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
+import { NotificationPreferences } from '../NotificationPreferences';
 import { AIPropertyManager } from '../combined/AIPropertyManager';
 import { VerificationCenter } from '../verification/VerificationCenter';
 import { propertyService, tenantService } from '../../../services/apiService';
@@ -167,6 +168,8 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
                 );
             case 'notifications':
                 return <NotificationPanel />;
+            case 'notification-settings':
+                return <NotificationPreferences standalone={true} />;
             case 'chat':
                 return (
                     <AgentClientChat

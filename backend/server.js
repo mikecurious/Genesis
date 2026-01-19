@@ -39,10 +39,37 @@ websocketService.initialize(server);
 const rentReminderService = require('./services/rentReminderService');
 const leadScoringService = require('./services/leadScoringService');
 const emailService = require('./services/emailService');
+const gmailService = require('./services/gmailService');
+const emailInquiryService = require('./services/emailInquiryService');
+const cron = require('node-cron');
 
 // Initialize email service
 emailService.initialize().catch(err => {
     logger.warn('Email service initialization failed:', err.message);
+});
+
+// Initialize Gmail service
+gmailService.initialize().then(success => {
+    if (success) {
+        logger.info('✅ Gmail API initialized successfully');
+
+        // Set up Gmail polling cron job (every 5 minutes)
+        // This polls for new emails and processes them
+        cron.schedule('*/5 * * * *', async () => {
+            try {
+                logger.info('🔄 Running Gmail email poll...');
+                await emailInquiryService.pollGmailForNewEmails();
+            } catch (error) {
+                logger.error('Gmail polling error:', error);
+            }
+        });
+
+        logger.info('✅ Gmail polling cron job started (runs every 5 minutes)');
+    } else {
+        logger.warn('⚠️ Gmail API not configured - email inquiry tracking via Gmail disabled');
+    }
+}).catch(err => {
+    logger.warn('Gmail API initialization failed:', err.message);
 });
 
 // Start cron jobs
@@ -184,6 +211,7 @@ app.use('/api/verification', require('./routes/verification')); // Verification 
 app.use('/api/surveyor', require('./routes/surveyor')); // Surveyor routes
 app.use('/api/survey-requests', require('./routes/surveyRequests')); // Survey request routes
 app.use('/api/agent', require('./routes/agent')); // Agent profile routes
+app.use('/api/agent-notifications', require('./routes/agentNotifications')); // Agent notification preferences routes
 app.use('/api/ai-chat', require('./routes/aiChat')); // AI Chat routes for property search
 app.use('/api/features', require('./routes/newFeatures')); // New features routes (lead scoring, rent reminders, financial reports, surveyor requests)
 app.use('/api/tenants', require('./routes/tenants')); // Tenant management routes

@@ -4,6 +4,8 @@ const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const whatsappService = require('../services/whatsappService');
 const { createNotification } = require('./notifications');
+const agentNotificationService = require('../services/agentNotificationService');
+const leadScoringService = require('../services/leadScoringService');
 
 // @desc    Create a new lead
 // @route   POST /api/leads
@@ -42,33 +44,60 @@ exports.createLead = asyncHandler(async (req, res) => {
     // Populate property details
     await lead.populate('property');
 
-    // Send WhatsApp notification to property owner if enabled
-    const owner = property.createdBy;
-    if (owner.whatsappNumber && owner.notificationPreferences?.whatsapp) {
-        const whatsappResult = await whatsappService.sendLeadNotification(
-            owner.whatsappNumber,
-            { client, dealType },
-            property.title
-        );
+    // Track interaction metadata
+    lead.aiEngagement = lead.aiEngagement || {
+        totalInteractions: 0,
+        aiActions: [],
+        interactionMetrics: {}
+    };
 
-        if (whatsappResult.success) {
-            console.log(`✅ WhatsApp notification sent to owner for lead ${lead._id}`);
-        } else {
-            console.error(`❌ Failed to send WhatsApp notification: ${whatsappResult.error}`);
+    lead.aiEngagement.aiActions.push({
+        action: 'lead_captured',
+        timestamp: new Date(),
+        success: true,
+        reasoning: 'User clicked Connect Now',
+        outcome: 'Lead successfully created',
+        interactionType: 'connect_now',
+        interactionSource: req.body.source || 'property_explorer',
+        metadata: {
+            propertyViewed: true,
+            conversationLength: conversationHistory?.length || 0,
+            responseTime: Date.now() - (req.body.sessionStartTime || Date.now()),
+            userAgent: req.headers['user-agent'],
+            referrer: req.headers.referer
         }
+    });
+
+    lead.aiEngagement.interactionMetrics = lead.aiEngagement.interactionMetrics || {};
+    lead.aiEngagement.interactionMetrics.totalConnectNowClicks =
+        (lead.aiEngagement.interactionMetrics.totalConnectNowClicks || 0) + 1;
+    lead.aiEngagement.interactionMetrics.firstInteractionAt = new Date();
+    lead.aiEngagement.interactionMetrics.lastInteractionAt = new Date();
+    lead.aiEngagement.totalInteractions = (lead.aiEngagement.totalInteractions || 0) + 1;
+
+    await lead.save();
+
+    // Calculate initial lead score with enhanced factors
+    try {
+        const scoringResult = await leadScoringService.calculateLeadScore(lead, property);
+        lead.score = scoringResult.score;
+        lead.scoreBreakdown = scoringResult.scoreBreakdown;
+        lead.buyingIntent = scoringResult.buyingIntent;
+        await lead.save();
+    } catch (scoringError) {
+        console.error('Failed to calculate lead score:', scoringError);
     }
 
-    // Create in-app notification for property owner
+    // Send multi-channel notifications via agentNotificationService
     try {
-        await createNotification({
-            userId: property.createdBy._id,
-            title: 'New Lead Captured',
-            message: `New ${dealType} lead for ${property.title}`,
-            type: 'lead',
-            relatedId: lead._id
-        });
+        const notificationResult = await agentNotificationService.notifyLeadCaptured(lead._id);
+        if (notificationResult.success) {
+            console.log(`✅ Notifications sent for lead ${lead._id}`);
+        } else {
+            console.error(`❌ Failed to send notifications: ${notificationResult.error}`);
+        }
     } catch (notificationError) {
-        console.error('Failed to create notification:', notificationError);
+        console.error('Failed to send agent notifications:', notificationError);
     }
 
     res.status(201).json({

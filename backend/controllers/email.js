@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const nodemailer = require('nodemailer');
 const twilioService = require('../services/twilioService');
+const emailInquiryService = require('../services/emailInquiryService');
+const gmailService = require('../services/gmailService');
 
 // @desc    Send email through the platform
 // @route   POST /api/emails/send
@@ -159,5 +161,118 @@ exports.sendEmail = asyncHandler(async (req, res) => {
         console.error('Email send error:', error);
         res.status(500);
         throw new Error('Failed to send email. Please try again later.');
+    }
+});
+
+// @desc    Handle inbound email webhook from SendGrid
+// @route   POST /api/emails/inbound-webhook
+// @access  Public (webhook)
+exports.handleInboundEmailWebhook = asyncHandler(async (req, res) => {
+    try {
+        console.log('Received inbound email webhook');
+
+        // Parse SendGrid webhook payload
+        const emailData = emailInquiryService.parseSendGridInbound(req.body);
+
+        if (!emailData.from || !emailData.subject) {
+            res.status(400);
+            throw new Error('Invalid webhook payload');
+        }
+
+        // Process the inbound email
+        const result = await emailInquiryService.handleInboundEmail(emailData);
+
+        if (!result.success) {
+            console.error('Failed to process inbound email:', result.error);
+            // Still return 200 to SendGrid to avoid retries for unrecoverable errors
+            return res.status(200).json({
+                success: false,
+                message: 'Email received but processing failed',
+                error: result.error
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Email processed successfully',
+            leadId: result.leadId
+        });
+    } catch (error) {
+        console.error('Webhook processing error:', error);
+        // Return 200 to prevent SendGrid from retrying
+        res.status(200).json({
+            success: false,
+            message: 'Webhook received but failed to process',
+            error: error.message
+        });
+    }
+});
+
+// @desc    Handle Gmail push notification webhook
+// @route   POST /api/emails/gmail-webhook
+// @access  Public (webhook)
+exports.handleGmailWebhook = asyncHandler(async (req, res) => {
+    try {
+        console.log('Received Gmail push notification');
+
+        // Gmail sends push notifications via Google Cloud Pub/Sub
+        // The notification contains a message ID that we need to fetch
+        const notification = req.body;
+
+        if (!notification || !notification.message) {
+            res.status(400);
+            throw new Error('Invalid Gmail webhook payload');
+        }
+
+        // Decode the base64 data
+        const data = Buffer.from(notification.message.data, 'base64').toString('utf-8');
+        const emailData = JSON.parse(data);
+
+        console.log('Gmail notification data:', emailData);
+
+        // Fetch the actual email using the history ID
+        // This is more efficient than fetching all messages
+        // We'll process new messages in the next poll cycle
+
+        // Acknowledge receipt immediately to Google
+        res.status(200).json({ success: true, message: 'Notification received' });
+
+        // Trigger polling in background (non-blocking)
+        setImmediate(async () => {
+            try {
+                await emailInquiryService.pollGmailForNewEmails();
+            } catch (error) {
+                console.error('Error processing Gmail webhook:', error);
+            }
+        });
+    } catch (error) {
+        console.error('Gmail webhook error:', error);
+        // Still return 200 to prevent Google from retrying
+        res.status(200).json({
+            success: false,
+            message: 'Webhook received but processing failed',
+            error: error.message
+        });
+    }
+});
+
+// @desc    Manually trigger Gmail polling (for testing)
+// @route   POST /api/emails/gmail-poll
+// @access  Private (admin only)
+exports.pollGmail = asyncHandler(async (req, res) => {
+    try {
+        console.log('Manual Gmail poll triggered');
+
+        const results = await emailInquiryService.pollGmailForNewEmails();
+
+        res.status(200).json({
+            success: true,
+            message: `Processed ${results.length} emails`,
+            data: results
+        });
+    } catch (error) {
+        console.error('Gmail poll error:', error);
+        res.status(500);
+        throw new Error('Failed to poll Gmail');
     }
 });

@@ -9,6 +9,7 @@ import { AIPropertyManager } from '../combined/AIPropertyManager';
 import { Settings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
+import { NotificationPreferences } from '../NotificationPreferences';
 import { DashboardSidebar, type DashboardSection } from '../DashboardSidebar';
 import { LeadViewer } from '../LeadViewer';
 import { AutomationDashboard } from '../../AutomationDashboard';
@@ -125,6 +126,8 @@ export const LandlordDashboard: React.FC<LandlordDashboardProps> = ({
                 return <AutomationDashboard user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Landlord' } as User} automationEnabled={false} voiceFeatureEnabled={false} />;
             case 'notifications':
                 return <NotificationPanel />;
+            case 'notification-settings':
+                return <NotificationPreferences standalone={true} />;
             case 'settings':
                 return user ? (
                     <Settings user={user} onUpdate={(updatedUser) => {

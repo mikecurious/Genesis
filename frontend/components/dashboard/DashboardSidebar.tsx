@@ -11,6 +11,7 @@ export type DashboardSection =
     | 'leads'
     | 'ai-settings'
     | 'notifications'
+    | 'notification-settings' // NEW: Agent Notification Preferences
     | 'settings'
     | 'profile' // Added profile
     | 'verification'; // NEW: Verification Center
@@ -78,6 +79,7 @@ const allSections = [
     { id: 'ai-settings' as DashboardSection, label: 'AI Settings', icon: AiIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'analytics' as DashboardSection, label: 'Analytics', icon: AnalyticsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
     { id: 'notifications' as DashboardSection, label: 'Notifications', icon: NotificationIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
+    { id: 'notification-settings' as DashboardSection, label: 'Notification Settings', icon: SettingsIcon, roles: ['Agent', 'Landlord', 'Property Seller'] },
     { id: 'settings' as DashboardSection, label: 'Settings', icon: SettingsIcon, roles: ['Agent', 'Landlord', 'Property Seller', 'Property Owner'] },
 ];
 

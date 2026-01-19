@@ -41,7 +41,9 @@ class LeadScoringService {
                 engagement: 0,
                 budgetMatch: 0,
                 urgency: 0,
-                contactQuality: 0
+                contactQuality: 0,
+                interactionQuality: 0,
+                intentSignals: 0
             };
 
             // 1. Response Time Score (max 20 points)
@@ -92,17 +94,40 @@ class LeadScoringService {
             if (lead.client?.address) contactQuality += 2;
             scores.contactQuality = contactQuality;
 
-            // Calculate total score
+            // 6. Interaction Quality Score (max 15 points)
+            const interactionTypes = lead.aiEngagement?.aiActions?.map(a => a.interactionType).filter(Boolean) || [];
+            let interactionQuality = 0;
+
+            // Email inquiry = high intent (10 points)
+            if (interactionTypes.includes('email_inquiry')) interactionQuality += 10;
+            // Connect Now = medium intent (5 points)
+            if (interactionTypes.includes('connect_now')) interactionQuality += 5;
+            // Multiple touchpoints = engaged (up to 5 points)
+            interactionQuality += Math.min(5, interactionTypes.length);
+
+            scores.interactionQuality = Math.min(15, interactionQuality);
+
+            // 7. Intent Signals (max 10 points)
+            // Analyze conversation history for buying signals
+            const intentKeywords = ['buy', 'purchase', 'viewing', 'schedule', 'available', 'budget', 'move in', 'when can', 'interested', 'serious'];
+            const conversationText = lead.conversationHistory?.join(' ').toLowerCase() || '';
+            const intentSignals = intentKeywords.filter(kw => conversationText.includes(kw)).length;
+            scores.intentSignals = Math.min(10, intentSignals * 2);
+
+            // Calculate total score (max 125 points from all factors)
             const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
 
-            // Determine buying intent based on score
+            // Normalize to 100-point scale
+            const normalizedScore = Math.min(100, Math.round((totalScore / 125) * 100));
+
+            // Determine buying intent based on normalized score
             let buyingIntent = 'low';
-            if (totalScore >= 80) buyingIntent = 'very-high';
-            else if (totalScore >= 60) buyingIntent = 'high';
-            else if (totalScore >= 40) buyingIntent = 'medium';
+            if (normalizedScore >= 80) buyingIntent = 'very-high';
+            else if (normalizedScore >= 60) buyingIntent = 'high';
+            else if (normalizedScore >= 40) buyingIntent = 'medium';
 
             return {
-                score: totalScore,
+                score: normalizedScore,
                 scoreBreakdown: scores,
                 buyingIntent
             };
@@ -115,7 +140,9 @@ class LeadScoringService {
                     engagement: 0,
                     budgetMatch: 0,
                     urgency: 0,
-                    contactQuality: 0
+                    contactQuality: 0,
+                    interactionQuality: 0,
+                    intentSignals: 0
                 },
                 buyingIntent: 'low'
             };

@@ -8,6 +8,7 @@ import { ListingForm } from '../ListingForm';
 import { Settings } from '../ProfileSettings';
 import { NotificationBadge } from '../NotificationBadge';
 import { NotificationPanel } from '../NotificationPanel';
+import { NotificationPreferences } from '../NotificationPreferences';
 import { DashboardSidebar, DashboardSection } from '../DashboardSidebar';
 import { MenuIcon } from '../../icons/MenuIcon';
 import { LeadViewer } from '../LeadViewer';
@@ -88,6 +89,8 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 return <AutomationDashboard user={user || { id: 'demo', name: 'Demo User', email: 'demo@example.com', role: 'Property Seller' } as User} automationEnabled={false} voiceFeatureEnabled={false} />;
             case 'notifications':
                 return <NotificationPanel />;
+            case 'notification-settings':
+                return <NotificationPreferences standalone={true} />;
             case 'verification':
                 return <VerificationCenter userId={user?.id || user?._id || ''} userProperties={userListings} />;
             case 'settings':
