@@ -86,16 +86,16 @@ docker-compose logs -f frontend
 docker-compose ps
 
 # Test backend API
-curl https://api.mygf.life/api/health
+curl https://api.mygenesisfortune.com/api/health
 
 # Access frontend
-# Open https://mygf.life in your browser
+# Open https://mygenesisfortune.com in your browser
 ```
 
 ## Service Ports
 
-- **Frontend**: https://mygf.life
-- **Backend API**: https://api.mygf.life
+- **Frontend**: https://mygenesisfortune.com
+- **Backend API**: https://api.mygenesisfortune.com
 - **MongoDB**: localhost:27017
 
 ## Common Commands
@@ -131,9 +131,9 @@ docker-compose up -d --scale backend=3
 ```bash
 # Update .env for production
 NODE_ENV=production
-FRONTEND_URL=https://mygf.life
-VITE_API_URL=https://api.mygf.life
-MPESA_CALLBACK_URL=https://api.mygf.life/api/payments/mpesa/callback
+FRONTEND_URL=https://mygenesisfortune.com
+VITE_API_URL=https://api.mygenesisfortune.com
+MPESA_CALLBACK_URL=https://api.mygenesisfortune.com/api/payments/mpesa/callback
 ```
 
 ### 2. Security Hardening
@@ -153,7 +153,7 @@ Create `/etc/nginx/sites-available/mygenesisfortune`:
 ```nginx
 server {
     listen 80;
-    server_name mygf.life www.mygf.life;
+    server_name mygenesisfortune.com www.mygenesisfortune.com;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -170,7 +170,7 @@ server {
 
 server {
     listen 80;
-    server_name api.mygf.life;
+    server_name api.mygenesisfortune.com;
 
     location / {
         proxy_pass http://localhost:5000;
@@ -194,7 +194,7 @@ sudo apt-get update
 sudo apt-get install certbot python3-certbot-nginx
 
 # Obtain SSL certificates
-sudo certbot --nginx -d mygf.life -d www.mygf.life -d api.mygf.life
+sudo certbot --nginx -d mygenesisfortune.com -d www.mygenesisfortune.com -d api.mygenesisfortune.com
 
 # Auto-renewal is configured automatically
 ```
@@ -205,7 +205,7 @@ sudo certbot --nginx -d mygf.life -d www.mygf.life -d api.mygf.life
 
 ```bash
 # Backend health
-curl https://api.mygf.life/api/health
+curl https://api.mygenesisfortune.com/api/health
 
 # MongoDB health
 docker-compose exec mongodb mongosh --eval "db.adminCommand('ping')"

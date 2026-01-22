@@ -1,8 +1,8 @@
 # My Genesis Fortune - Quick Deployment Guide
 
 ## Your Domains
-- **Frontend**: https://mygf.life
-- **Backend API**: https://api.mygf.life
+- **Frontend**: https://mygenesisfortune.com
+- **Backend API**: https://api.mygenesisfortune.com
 
 ## Prerequisites on Server
 
@@ -48,11 +48,11 @@ JWT_SECRET=$(openssl rand -base64 64)
 MONGO_ROOT_PASSWORD=$(openssl rand -base64 32)
 
 # Domains
-FRONTEND_URL=https://mygf.life
-VITE_API_URL=https://api.mygf.life
+FRONTEND_URL=https://mygenesisfortune.com
+VITE_API_URL=https://api.mygenesisfortune.com
 
 # M-Pesa
-MPESA_CALLBACK_URL=https://api.mygf.life/api/payments/mpesa/callback
+MPESA_CALLBACK_URL=https://api.mygenesisfortune.com/api/payments/mpesa/callback
 
 # Add all your other API keys for:
 # - Email (Gmail/SendGrid)
@@ -67,9 +67,9 @@ MPESA_CALLBACK_URL=https://api.mygf.life/api/payments/mpesa/callback
 Point your domains to your server IP:
 
 ```
-A Record:     mygf.life        →  YOUR_SERVER_IP
-A Record:     www.mygf.life    →  YOUR_SERVER_IP
-A Record:     api.mygf.life    →  YOUR_SERVER_IP
+A Record:     mygenesisfortune.com        →  YOUR_SERVER_IP
+A Record:     www.mygenesisfortune.com    →  YOUR_SERVER_IP
+A Record:     api.mygenesisfortune.com    →  YOUR_SERVER_IP
 ```
 
 ## Step 3: Configure Nginx Reverse Proxy
@@ -79,7 +79,7 @@ Create `/etc/nginx/sites-available/mygenesisfortune`:
 ```nginx
 server {
     listen 80;
-    server_name mygf.life www.mygf.life;
+    server_name mygenesisfortune.com www.mygenesisfortune.com;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -96,7 +96,7 @@ server {
 
 server {
     listen 80;
-    server_name api.mygf.life;
+    server_name api.mygenesisfortune.com;
 
     location / {
         proxy_pass http://localhost:5000;
@@ -123,7 +123,7 @@ sudo systemctl restart nginx
 ## Step 4: Get SSL Certificates
 
 ```bash
-sudo certbot --nginx -d mygf.life -d www.mygf.life -d api.mygf.life
+sudo certbot --nginx -d mygenesisfortune.com -d www.mygenesisfortune.com -d api.mygenesisfortune.com
 ```
 
 Follow the prompts. Certbot will automatically configure HTTPS and set up auto-renewal.
@@ -152,10 +152,10 @@ docker-compose logs -f
 docker-compose ps
 
 # Check health
-curl https://api.mygf.life/api/health
+curl https://api.mygenesisfortune.com/api/health
 
 # Visit your site
-# Open https://mygf.life in browser
+# Open https://mygenesisfortune.com in browser
 ```
 
 ## Common Management Commands
@@ -288,8 +288,8 @@ sudo netstat -tulpn | grep -E ':(80|443|5000|3000|27017)'
 
 | Service | URL | Container Port | Host Port |
 |---------|-----|----------------|-----------|
-| Frontend | https://mygf.life | 80 | 3000 |
-| Backend | https://api.mygf.life | 5000 | 5000 |
+| Frontend | https://mygenesisfortune.com | 80 | 3000 |
+| Backend | https://api.mygenesisfortune.com | 5000 | 5000 |
 | MongoDB | Internal only | 27017 | 27017 |
 
 **Note**: The Nginx reverse proxy handles HTTPS (443) and forwards to the container ports listed above.

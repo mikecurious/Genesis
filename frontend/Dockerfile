@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Accept build argument
-ARG VITE_API_URL=https://api.mygf.life
+ARG VITE_API_URL=https://api.mygenesisfortune.com
 ARG VITE_GEMINI_API_KEY
 ARG VITE_API_KEY
 

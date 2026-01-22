@@ -6,13 +6,40 @@ class EmailService {
         this.isInitialized = false;
     }
 
+    hasOAuthConfig() {
+        return Boolean(
+            process.env.EMAIL_USER
+            && process.env.EMAIL_OAUTH_CLIENT_ID
+            && process.env.EMAIL_OAUTH_CLIENT_SECRET
+            && process.env.EMAIL_OAUTH_REFRESH_TOKEN
+        );
+    }
+
+    buildAuthConfig() {
+        if (this.hasOAuthConfig()) {
+            return {
+                type: 'OAuth2',
+                user: process.env.EMAIL_USER,
+                clientId: process.env.EMAIL_OAUTH_CLIENT_ID,
+                clientSecret: process.env.EMAIL_OAUTH_CLIENT_SECRET,
+                refreshToken: process.env.EMAIL_OAUTH_REFRESH_TOKEN
+            };
+        }
+
+        return {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        };
+    }
+
     /**
      * Initialize email transporter
      */
     async initialize() {
         try {
             // Validate required environment variables
-            if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+            const hasOAuth = this.hasOAuthConfig();
+            if (!process.env.EMAIL_USER || (!hasOAuth && !process.env.EMAIL_PASSWORD)) {
                 console.warn('⚠️  Email credentials not configured');
                 return;
             }
@@ -21,10 +48,7 @@ class EmailService {
                 host: process.env.EMAIL_HOST || 'smtp.gmail.com',
                 port: parseInt(process.env.EMAIL_PORT || '587'),
                 secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASSWORD
-                },
+                auth: this.buildAuthConfig(),
                 pool: true, // use pooled connection
                 maxConnections: 5,
                 maxMessages: 100,

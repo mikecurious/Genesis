@@ -1,5 +1,29 @@
 const nodemailer = require('nodemailer');
 
+const hasOAuthConfig = () => Boolean(
+    process.env.EMAIL_USER
+    && process.env.EMAIL_OAUTH_CLIENT_ID
+    && process.env.EMAIL_OAUTH_CLIENT_SECRET
+    && process.env.EMAIL_OAUTH_REFRESH_TOKEN
+);
+
+const buildAuthConfig = () => {
+    if (hasOAuthConfig()) {
+        return {
+            type: 'OAuth2',
+            user: process.env.EMAIL_USER,
+            clientId: process.env.EMAIL_OAUTH_CLIENT_ID,
+            clientSecret: process.env.EMAIL_OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.EMAIL_OAUTH_REFRESH_TOKEN
+        };
+    }
+
+    return {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    };
+};
+
 // Create reusable transporter
 const createTransporter = () => {
     // For development: Use console logging (Ethereal Email for testing)
@@ -11,10 +35,7 @@ const createTransporter = () => {
             host: process.env.EMAIL_HOST,
             port: process.env.EMAIL_PORT || 587,
             secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASSWORD,
-            },
+            auth: buildAuthConfig(),
             connectionTimeout: 10000, // 10 seconds
             greetingTimeout: 10000,
             socketTimeout: 10000,

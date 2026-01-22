@@ -48,9 +48,10 @@ exports.register = asyncHandler(async (req, res, next) => {
 
     await user.save();
 
-    // Prefer SMS verification if phone number is provided, otherwise use email
+    const emailSent = await sendVerificationEmail(user, name, email, verificationToken);
+    let smsSent = false;
+
     if (phone && phone.trim()) {
-        // Send verification code via SMS
         try {
             const smsMessage = `Welcome to MyGF AI! 🏠\n\nYour verification code is: ${verificationToken}\n\nThis code will expire in 1 hour.\n\nIf you didn't sign up, please ignore this message.`;
 
@@ -60,46 +61,36 @@ exports.register = asyncHandler(async (req, res, next) => {
             });
 
             if (result.success) {
+                smsSent = true;
                 console.log(`✅ Verification SMS sent to ${phone}`);
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Registration successful. Please check your phone for a verification code.',
-                    verificationType: 'sms',
-                    phone: phone
-                });
             } else {
-                // SMS failed, fall back to email
-                console.error('SMS sending failed, falling back to email:', result.error);
-                await sendVerificationEmail(user, name, email, verificationToken);
-
-                res.status(201).json({
-                    success: true,
-                    message: 'Registration successful. Please check your email for a verification code.',
-                    verificationType: 'email'
-                });
+                console.error('SMS sending failed:', result.error);
             }
         } catch (smsError) {
-            console.error('SMS error, falling back to email:', smsError);
-            // Fall back to email if SMS fails
-            await sendVerificationEmail(user, name, email, verificationToken);
-
-            res.status(201).json({
-                success: true,
-                message: 'Registration successful. Please check your email for a verification code.',
-                verificationType: 'email'
-            });
+            console.error('SMS error:', smsError);
         }
-    } else {
-        // No phone number provided, use email verification
-        await sendVerificationEmail(user, name, email, verificationToken);
-
-        res.status(201).json({
-            success: true,
-            message: 'Registration successful. Please check your email for a verification code.',
-            verificationType: 'email'
-        });
     }
+
+    const notificationTargets = [];
+    if (smsSent) {
+        notificationTargets.push('phone');
+    }
+    if (emailSent) {
+        notificationTargets.push('email');
+    }
+
+    const message = notificationTargets.length
+        ? `Registration successful. Please check your ${notificationTargets.join(' and ')} for a verification code.`
+        : 'Registration successful, but we could not send a verification code. Please contact support.';
+
+    const verificationType = smsSent && emailSent ? 'sms_email' : smsSent ? 'sms' : emailSent ? 'email' : 'none';
+
+    res.status(201).json({
+        success: true,
+        message,
+        verificationType,
+        phone: phone
+    });
 });
 
 // Helper function to send verification email
@@ -138,9 +129,11 @@ async function sendVerificationEmail(user, name, email, verificationToken) {
             html
         });
         console.log(`✅ Verification email sent to ${email}`);
+        return true;
     } catch (error) {
         console.error('Email sending error:', error.message);
         // Don't throw error, registration should still succeed
+        return false;
     }
 }
 
