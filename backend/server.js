@@ -81,11 +81,28 @@ logger.info('✅ Automated services initialized (rent reminders, lead scoring)')
 // Middleware
 // CORS configuration - allow frontend URL from environment or default to localhost
 const allowedOrigins = process.env.FRONTEND_URL
-    ? [process.env.FRONTEND_URL]
+    ? [
+        process.env.FRONTEND_URL,
+        process.env.FRONTEND_URL.replace('https://', 'http://'), // Allow http version
+        'https://mygenesisfortune.com',
+        'http://mygenesisfortune.com',
+        'https://www.mygenesisfortune.com',
+        'http://www.mygenesisfortune.com'
+    ]
     : ["http://localhost:3000", "http://localhost:3001"];
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, Postman, curl)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            logger.warn(`CORS blocked request from origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(helmet()); // Set security headers
