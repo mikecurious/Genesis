@@ -36,6 +36,26 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
+  const handleGoogleSignIn = async (credential: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authService.googleSignIn(credential);
+      const { token, user } = response.data;
+
+      // Google users are already verified and don't need account setup for basic usage
+      // Directly sign them in
+      onSignupSuccess(token, user);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message ||
+        err.message ||
+        "Google Sign-In failed. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleRegistrationSubmit = async (data: RegistrationFormData) => {
     setIsLoading(true);
     setError(null);
@@ -162,6 +182,7 @@ export const SignupProcess: React.FC<SignupProcessProps> = ({
         return (
           <RegistrationForm
             onSubmit={handleRegistrationSubmit}
+            onGoogleSignIn={handleGoogleSignIn}
             isLoading={isLoading}
             error={error}
           />

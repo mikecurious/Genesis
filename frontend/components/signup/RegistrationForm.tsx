@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 export interface RegistrationFormData {
     fullName: string;
@@ -11,6 +12,7 @@ export interface RegistrationFormData {
 
 interface RegistrationFormProps {
     onSubmit: (data: RegistrationFormData) => void;
+    onGoogleSignIn?: (credential: string) => void;
     isLoading: boolean;
     error: string | null;
 }
@@ -22,7 +24,7 @@ const countryCodes = [
     { name: 'Rwanda', code: '+250' },
 ];
 
-export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, isLoading, error: apiError }) => {
+export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, onGoogleSignIn, isLoading, error: apiError }) => {
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
@@ -33,6 +35,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isFormValid, setIsFormValid] = useState(false);
+
+    const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
+        if (credentialResponse.credential && onGoogleSignIn) {
+            onGoogleSignIn(credentialResponse.credential);
+        }
+    };
+
+    const handleGoogleError = () => {
+        console.error('Google Sign-In failed');
+        alert('Google Sign-In failed. Please try again.');
+    };
 
     const validateField = (name: string, value: string) => {
         let error = '';
@@ -93,6 +106,35 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit, is
     return (
         <div className="animate-fade-in-up">
             <h2 className="text-2xl font-semibold text-center mb-6">Create Your Account</h2>
+
+            {/* Google Sign-In Option */}
+            {onGoogleSignIn && import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+                <div className="max-w-lg mx-auto mb-6">
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            useOneTap={false}
+                            theme="outline"
+                            size="large"
+                            text="signup_with"
+                            shape="rectangular"
+                        />
+                    </div>
+
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                                Or register with email
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-3 max-w-lg mx-auto">
                 <div>
                     <label htmlFor="fullName" className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Full Name / Company Name</label>

@@ -628,10 +628,10 @@ const App: React.FC = () => {
           }));
         }
 
-        // Temporarily disabled Google OAuth modal
-        // if (messages.length <= 1 && !isUserLoggedIn && !chatUser) {
-        //   setIsSignInModalVisible(true);
-        // }
+        // Show Google Sign-In modal for users after first message
+        if (messages.length <= 1 && !isUserLoggedIn && !chatUser) {
+          setIsSignInModalVisible(true);
+        }
       } catch (error) {
         console.error("Error getting response from Gemini:", error);
         const errorMessage: Message = {
@@ -1498,13 +1498,13 @@ const App: React.FC = () => {
           onClose={() => setIsViewerOpen(false)}
         />
       )}
-      {/* Temporarily disabled Google OAuth modal */}
-      {/* {isSignInModalVisible && (
+      {/* Google OAuth Sign-In Modal */}
+      {isSignInModalVisible && (
         <GoogleSignInModal
           onSignIn={handleGoogleSignIn}
           onSkip={() => setIsSignInModalVisible(false)}
         />
-      )} */}
+      )}
       {isPaymentModalOpen && (
         <FeaturePaymentModal
           isOpen={isPaymentModalOpen}
