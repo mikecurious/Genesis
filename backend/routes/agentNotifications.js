@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 const { protect } = require('../middleware/auth');
-const { authorize } = require('../middleware/roleAuth');
+const { authorize } = require('../middleware/authorize');
 
 // All routes require authentication and specific roles
 router.use(protect);
