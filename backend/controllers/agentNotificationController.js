@@ -1,4 +1,4 @@
-const asyncHandler = require('../middleware/async');
+const asyncHandler = require('express-async-handler');
 const ErrorResponse = require('../utils/errorResponse');
 const User = require('../models/User');
 const agentNotificationService = require('../services/agentNotificationService');
