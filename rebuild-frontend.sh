@@ -10,11 +10,17 @@ echo "  Rebuilding Frontend for Google OAuth"
 echo "========================================="
 echo ""
 
-# Check if docker-compose is available
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Error: docker-compose is not installed or not in PATH"
+# Detect docker-compose command (v1 vs v2)
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif command -v docker &> /dev/null && docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "❌ Error: Neither 'docker-compose' nor 'docker compose' is available"
     exit 1
 fi
+
+echo "✓ Using: $DOCKER_COMPOSE"
 
 # Check if .env file exists
 if [ ! -f ".env" ]; then
@@ -33,25 +39,25 @@ echo ""
 
 # Stop the frontend container
 echo "🛑 Stopping frontend container..."
-docker-compose stop frontend
+$DOCKER_COMPOSE stop frontend
 echo "✓ Frontend stopped"
 echo ""
 
 # Remove the old frontend image to force rebuild
 echo "🗑️  Removing old frontend image..."
-docker-compose rm -f frontend
+$DOCKER_COMPOSE rm -f frontend
 echo "✓ Old image removed"
 echo ""
 
 # Rebuild the frontend without cache
 echo "🔨 Rebuilding frontend (this may take a few minutes)..."
-docker-compose build --no-cache frontend
+$DOCKER_COMPOSE build --no-cache frontend
 echo "✓ Frontend rebuilt successfully"
 echo ""
 
 # Start the frontend
 echo "🚀 Starting frontend container..."
-docker-compose up -d frontend
+$DOCKER_COMPOSE up -d frontend
 echo "✓ Frontend started"
 echo ""
 
@@ -60,7 +66,7 @@ echo "⏳ Waiting for container to initialize..."
 sleep 5
 
 # Check if the container is running
-if [ "$(docker-compose ps -q frontend)" ]; then
+if [ "$($DOCKER_COMPOSE ps -q frontend)" ]; then
     echo "✓ Frontend container is running"
     echo ""
     echo "========================================="
@@ -68,20 +74,20 @@ if [ "$(docker-compose ps -q frontend)" ]; then
     echo "========================================="
     echo ""
     echo "📋 Container Status:"
-    docker-compose ps frontend
+    $DOCKER_COMPOSE ps frontend
     echo ""
     echo "📝 Recent Logs:"
-    docker-compose logs --tail=20 frontend
+    $DOCKER_COMPOSE logs --tail=20 frontend
     echo ""
     echo "✅ Google OAuth should now be working on:"
     echo "   - https://mygenesisfortune.com"
     echo "   - https://www.mygenesisfortune.com"
     echo ""
     echo "💡 To view live logs, run:"
-    echo "   docker-compose logs -f frontend"
+    echo "   $DOCKER_COMPOSE logs -f frontend"
 else
     echo "❌ Error: Frontend container failed to start"
     echo "📝 Checking logs..."
-    docker-compose logs --tail=50 frontend
+    $DOCKER_COMPOSE logs --tail=50 frontend
     exit 1
 fi
