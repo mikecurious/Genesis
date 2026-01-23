@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Nginx Reverse Proxy
+  nginx-proxy:
+    image: jwilder/nginx-proxy:latest
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx-certs:/etc/nginx/certs:ro
+      - nginx-vhost:/etc/nginx/vhost.d
+      - nginx-html:/usr/share/nginx/html
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/my_proxy.conf:ro
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+    networks:
+      - app-network
+    environment:
+      - DEFAULT_HOST=mygenesisfortune.com
+
+  # Let's Encrypt SSL Certificate Manager
+  acme-companion:
+    image: nginxproxy/acme-companion:latest
+    container_name: nginx-proxy-acme
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx-certs:/etc/nginx/certs:rw
+      - nginx-vhost:/etc/nginx/vhost.d
+      - nginx-html:/usr/share/nginx/html
+      - acme-state:/etc/acme.sh
+    environment:
+      - DEFAULT_EMAIL=mikkohbrayoh@gmail.com
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+
+volumes:
+  nginx-certs:
+    driver: local
+  nginx-vhost:
+    driver: local
+  nginx-html:
+    driver: local
+  acme-state:
+    driver: local
