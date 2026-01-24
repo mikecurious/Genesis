@@ -144,11 +144,13 @@ ${JSON.stringify(listings, null, 2)}
     Respond with ONLY your message to the client.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
+                temperature: 1.0, // Gemini 3 optimized default
+                thinkingLevel: 'medium', // Balanced reasoning speed
             },
         });
 
@@ -223,10 +225,12 @@ export const generateSurveyorResponse = async (
 export async function* generateGroundedResponseStream(prompt: string): AsyncGenerator<GenerateContentResponse> {
     try {
         const responseStream = await ai.models.generateContentStream({
-            model: "gemini-2.5-flash",
+            model: "gemini-3-flash-preview",
             contents: `You are a helpful real estate assistant for MyGF AI. Answer the user's question based on your knowledge and the provided search results. Keep your answers concise and friendly. User's question: "${prompt}"`,
             config: {
                 tools: [{ googleSearch: {} }],
+                temperature: 1.0, // Gemini 3 optimized default
+                thinkingLevel: 'low', // Minimal latency for streaming
             },
         });
 
@@ -245,8 +249,12 @@ export const generateChatTitle = async (prompt: string): Promise<string> => {
         const modelPrompt = `Generate a very short, concise title (4-5 words max) for a new chat conversation that starts with the following user message. Respond with only the title text, nothing else.\n\nUser Message: "${prompt}"`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
+            config: {
+                temperature: 1.0,
+                thinkingLevel: 'low', // Fast title generation
+            },
         });
 
         const title = response.text.trim().replace(/["']/g, ""); // Remove quotes
@@ -275,8 +283,12 @@ export const generateInitialPitch = async (property: Listing): Promise<Message> 
     Respond with ONLY the pitch text.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: modelPrompt,
+        config: {
+            temperature: 1.0,
+            thinkingLevel: 'medium', // Balanced for creative pitches
+        },
     });
 
     return {
@@ -337,8 +349,12 @@ export const generateInteractionResponse = async (prompt: string, property: List
     Respond with ONLY your message to the client.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: modelPrompt,
+        config: {
+            temperature: 1.0,
+            thinkingLevel: 'high', // Maximum reasoning for sales conversations
+        },
     });
 
     const responseText = response.text.trim();
@@ -363,10 +379,12 @@ export const generateInteractionResponse = async (prompt: string, property: List
 
     try {
         const closureResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: dealClosurePrompt,
             config: {
                 responseMimeType: "application/json",
+                temperature: 1.0,
+                thinkingLevel: 'medium', // Balanced analysis
             },
         });
 
@@ -411,8 +429,12 @@ export const generateDashboardInsights = async (listings: Listing[]): Promise<st
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
+            config: {
+                temperature: 1.0,
+                thinkingLevel: 'high', // Complex analysis requires deep thinking
+            },
         });
         return response.text.trim();
     } catch (error) {
@@ -477,8 +499,12 @@ export const generateTenantChatResponse = async (prompt: string, tenant: Tenant,
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
+            config: {
+                temperature: 1.0,
+                thinkingLevel: 'medium', // Balanced for tenant interactions
+            },
         });
         return response.text.trim();
     } catch (error) {
@@ -515,10 +541,12 @@ ${recentMessages}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
+                temperature: 1.0,
+                thinkingLevel: 'high', // Deep analysis for deal detection
             },
         });
 
@@ -550,8 +578,12 @@ export const generatePropertyDescription = async (details: { title: string; loca
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-flash-preview',
             contents: modelPrompt,
+            config: {
+                temperature: 1.0,
+                thinkingLevel: 'medium', // Creative but efficient
+            },
         });
         return response.text.trim();
     } catch (error) {

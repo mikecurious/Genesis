@@ -383,41 +383,7 @@ class AIChatService {
         if (messageLower.includes('valuation') || messageLower.includes('value') || messageLower.includes('appraisal')) {
             return 'valuation';
         } else if (messageLower.includes('inspection') || messageLower.includes('inspect')) {
-            return 'inspection';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+            return 'inspection';    
         } else if (messageLower.includes('compliance') || messageLower.includes('regulatory')) {
             return 'compliance';
         }

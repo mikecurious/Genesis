@@ -6,8 +6,8 @@ const Notification = require('../models/Notification');
 class MaintenanceAIService {
     constructor() {
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-        this.visionModel = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+        this.model = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+        this.visionModel = this.genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
     }
 
     /**
