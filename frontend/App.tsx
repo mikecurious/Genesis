@@ -402,6 +402,25 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Show Google Sign-In modal automatically for non-logged-in users
+  useEffect(() => {
+    // Only show if user is not logged in and on chat view
+    if (!isUserLoggedIn && !chatUser && currentView === 'chat') {
+      // Check if user has dismissed the modal before
+      const hasSeenModal = sessionStorage.getItem('googleSignInModalShown');
+
+      if (!hasSeenModal) {
+        // Show modal after 3 seconds to let users see the page first
+        const timer = setTimeout(() => {
+          setIsSignInModalVisible(true);
+          sessionStorage.setItem('googleSignInModalShown', 'true');
+        }, 3000);
+
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isUserLoggedIn, chatUser, currentView]);
+
   useEffect(() => {
     if (currentView === "chat" && chatContainerRef.current) {
       // Add a small delay to ensure DOM is updated, then smooth scroll
@@ -627,11 +646,6 @@ const App: React.FC = () => {
             },
           }));
         }
-
-        // Show Google Sign-In modal for users after first message
-        if (messages.length <= 1 && !isUserLoggedIn && !chatUser) {
-          setIsSignInModalVisible(true);
-        }
       } catch (error) {
         console.error("Error getting response from Gemini:", error);
         const errorMessage: Message = {
@@ -649,10 +663,6 @@ const App: React.FC = () => {
         }));
       } finally {
         setIsLoading(false);
-        // Trigger modal for new users after their first message - Temporarily disabled
-        // if (messages.length === 0 && !isUserLoggedIn && !chatUser) {
-        //   setIsSignInModalVisible(true);
-        // }
       }
     },
     [
