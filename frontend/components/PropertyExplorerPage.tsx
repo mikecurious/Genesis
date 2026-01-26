@@ -13,6 +13,8 @@ import { ScheduleViewingPanel } from './propertyActions/ScheduleViewingPanel';
 import { notificationService } from '../services/notificationService';
 import { SurveyorProfileModal } from './surveyor/SurveyorProfileModal';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 interface PropertyExplorerPageProps {
     property: Listing;
     onBack: () => void;
@@ -157,7 +159,7 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
 
     const handleLeadSubmit = async (leadData: any) => {
         try {
-            const response = await fetch('/api/leads', {
+            const response = await fetch(`${API_BASE_URL}/api/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -168,7 +170,10 @@ export const PropertyExplorerPage: React.FC<PropertyExplorerPageProps> = ({
                 }),
             });
 
-            if (!response.ok) throw new Error('Failed to submit lead');
+            const responseBody = await response.json().catch(() => null);
+            if (!response.ok) {
+                throw new Error(responseBody?.message || responseBody?.error || 'Failed to submit lead');
+            }
 
             const successMessage: Message = {
                 id: `success_${Date.now()}`,
