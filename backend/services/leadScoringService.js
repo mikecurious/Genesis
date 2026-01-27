@@ -229,7 +229,7 @@ class LeadScoringService {
 
             // Send via WhatsApp if available
             if (lead.client?.whatsappNumber) {
-                await whatsappService.sendMessage(
+                await whatsappService.sendNotification(
                     lead.client.whatsappNumber,
                     `Hi ${lead.client.name}, ${message}`
                 );

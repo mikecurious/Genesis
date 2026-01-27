@@ -334,7 +334,7 @@ Property: ${property.title}
 Score: ${lead.score}/100 (${lead.buyingIntent} intent)
 Type: ${lead.dealType}
 
-Contact: ${lead.client.phone}
+Contact: ${lead.client.contact}
 View: ${dashboardLink}
 
 - MyGF AI`;
@@ -347,7 +347,7 @@ Type: ${lead.dealType}
 Score: ${lead.score}/100
 Intent: ${lead.buyingIntent}
 
-Contact: ${lead.client.phone}
+Contact: ${lead.client.contact}
 View: ${dashboardLink}
 
 - MyGF AI`;
