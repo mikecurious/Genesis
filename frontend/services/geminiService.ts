@@ -144,7 +144,7 @@ ${JSON.stringify(listings, null, 2)}
     Respond with ONLY your message to the client.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -224,7 +224,7 @@ export const generateSurveyorResponse = async (
 export async function* generateGroundedResponseStream(prompt: string): AsyncGenerator<GenerateContentResponse> {
     try {
         const responseStream = await ai.models.generateContentStream({
-            model: "gemini-2.0-flash-exp",
+            model: "gemini-2.0-flash",
             contents: `You are a helpful real estate assistant for MyGF AI. Answer the user's question based on your knowledge and the provided search results. Keep your answers concise and friendly. User's question: "${prompt}"`,
             config: {
                 tools: [{ googleSearch: {} }],
@@ -247,7 +247,7 @@ export const generateChatTitle = async (prompt: string): Promise<string> => {
         const modelPrompt = `Generate a very short, concise title (4-5 words max) for a new chat conversation that starts with the following user message. Respond with only the title text, nothing else.\n\nUser Message: "${prompt}"`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 temperature: 1.0,
@@ -280,7 +280,7 @@ export const generateInitialPitch = async (property: Listing): Promise<Message> 
     Respond with ONLY the pitch text.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.0-flash',
         contents: modelPrompt,
         config: {
             temperature: 1.0,
@@ -345,7 +345,7 @@ export const generateInteractionResponse = async (prompt: string, property: List
     Respond with ONLY your message to the client.`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.0-flash',
         contents: modelPrompt,
         config: {
             temperature: 1.0,
@@ -374,7 +374,7 @@ export const generateInteractionResponse = async (prompt: string, property: List
 
     try {
         const closureResponse = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: dealClosurePrompt,
             config: {
                 responseMimeType: "application/json",
@@ -423,7 +423,7 @@ export const generateDashboardInsights = async (listings: Listing[]): Promise<st
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 temperature: 1.0,
@@ -492,7 +492,7 @@ export const generateTenantChatResponse = async (prompt: string, tenant: Tenant,
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 temperature: 1.0,
@@ -533,7 +533,7 @@ ${recentMessages}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -569,7 +569,7 @@ export const generatePropertyDescription = async (details: { title: string; loca
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: modelPrompt,
             config: {
                 temperature: 1.0,
