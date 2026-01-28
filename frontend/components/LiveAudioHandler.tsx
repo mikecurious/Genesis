@@ -40,7 +40,7 @@ export const LiveAudioHandler: React.FC<LiveAudioHandlerProps> = ({ onTranscript
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
         sessionPromiseRef.current = ai.live.connect({
-          model: 'gemini-2.0-flash-exp',
+          model: 'gemini-2.0-flash',
           callbacks: {
             onopen: async () => {
               console.log('Live session opened.');
