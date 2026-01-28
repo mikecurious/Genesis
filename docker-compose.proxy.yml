@@ -36,7 +36,7 @@ services:
       - nginx-html:/usr/share/nginx/html
       - acme-state:/etc/acme.sh
     environment:
-      - DEFAULT_EMAIL=mikkohbrayoh@gmail.com
+      - DEFAULT_EMAIL=admin@mygenesisfortune.com
       - NGINX_PROXY_CONTAINER=nginx-proxy
     networks:
       - app-network

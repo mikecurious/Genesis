@@ -81,6 +81,6 @@ The hook will block commits if secrets are detected.
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability, please email: mikkohbrayoh@gmail.com
+If you discover a security vulnerability, please email: admin@mygenesisfortune.com
 
 Do not create public GitHub issues for security vulnerabilities.

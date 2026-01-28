@@ -218,7 +218,7 @@ Private - All rights reserved
 For issues or questions:
 - Check `backend/docs/` folder for documentation
 - Open an issue on GitHub
-- Email: mikkohbrayoh@gmail.com
+- Email: admin@mygenesisfortune.com
 
 ## 🎉 Acknowledgments
 
