@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const twilioService = require('../services/twilioService');
+const whatsappInboundService = require('../services/whatsappInboundService');
 
 /**
  * Twilio Webhook for SMS/WhatsApp Status Callbacks
@@ -41,6 +42,40 @@ router.post('/status', (req, res) => {
         console.error('Error processing Twilio status callback:', error);
         res.status(500).send('Error processing callback');
     }
+});
+
+/**
+ * Twilio Webhook for Incoming WhatsApp Messages
+ * @route POST /api/twilio/inbound
+ * @desc Receive inbound WhatsApp messages and attach to leads
+ * @access Public
+ */
+router.post('/inbound', async (req, res) => {
+    try {
+        const result = await whatsappInboundService.handleInboundMessage(req.body);
+        if (!result.success) {
+            console.warn('WhatsApp inbound processing failed:', result.error);
+        }
+
+        res.type('text/xml');
+        res.status(200).send('<Response></Response>');
+    } catch (error) {
+        console.error('Error processing WhatsApp inbound webhook:', error);
+        res.type('text/xml');
+        res.status(200).send('<Response></Response>');
+    }
+});
+
+/**
+ * Twilio Webhook Fallback for Incoming Messages
+ * @route POST /api/twilio/inbound-fallback
+ * @desc Fallback endpoint when inbound webhook fails
+ * @access Public
+ */
+router.post('/inbound-fallback', (req, res) => {
+    console.warn('Twilio inbound fallback hit:', req.body?.From || req.body?.from || 'unknown sender');
+    res.type('text/xml');
+    res.status(200).send('<Response></Response>');
 });
 
 /**

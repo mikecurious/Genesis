@@ -6,6 +6,8 @@ const whatsappService = require('../services/whatsappService');
 const { createNotification } = require('./notifications');
 const agentNotificationService = require('../services/agentNotificationService');
 const leadScoringService = require('../services/leadScoringService');
+const PendingWhatsApp = require('../models/PendingWhatsApp');
+const { normalizePhoneNumber } = require('../utils/phone');
 
 // @desc    Create a new lead
 // @route   POST /api/leads
@@ -31,10 +33,18 @@ exports.createLead = asyncHandler(async (req, res) => {
         });
     }
 
+    const normalizedContact = normalizePhoneNumber(client?.contact);
+    const normalizedWhatsapp = normalizePhoneNumber(client?.whatsappNumber);
+    const normalizedClient = {
+        ...client,
+        contact: normalizedContact || client?.contact,
+        whatsappNumber: normalizedWhatsapp || client?.whatsappNumber
+    };
+
     // Create lead
     const lead = await Lead.create({
         property: propertyId,
-        client,
+        client: normalizedClient,
         dealType,
         conversationHistory: conversationHistory || [],
         createdBy: property.createdBy._id,
@@ -74,6 +84,36 @@ exports.createLead = asyncHandler(async (req, res) => {
     lead.aiEngagement.interactionMetrics.firstInteractionAt = new Date();
     lead.aiEngagement.interactionMetrics.lastInteractionAt = new Date();
     lead.aiEngagement.totalInteractions = (lead.aiEngagement.totalInteractions || 0) + 1;
+
+    // Attach any pending WhatsApp messages for this client
+    const normalizedWhatsapp = normalizePhoneNumber(normalizedClient?.whatsappNumber || normalizedClient?.contact);
+    if (normalizedWhatsapp) {
+        const pending = await PendingWhatsApp.findOne({ phoneNumber: normalizedWhatsapp });
+        if (pending?.messages?.length) {
+            lead.conversationHistory = [
+                ...pending.messages,
+                ...(lead.conversationHistory || [])
+            ];
+
+            lead.aiEngagement.aiActions.push({
+                action: 'whatsapp_messages_imported',
+                timestamp: new Date(),
+                success: true,
+                reasoning: 'Attached pending WhatsApp messages to new lead',
+                outcome: `Imported ${pending.messages.length} WhatsApp messages`,
+                interactionType: 'whatsapp_message',
+                interactionSource: 'whatsapp',
+                metadata: {
+                    messageCount: pending.messages.length
+                }
+            });
+
+            lead.aiEngagement.interactionMetrics.totalChatMessages =
+                (lead.aiEngagement.interactionMetrics.totalChatMessages || 0) + pending.messages.length;
+
+            await pending.deleteOne();
+        }
+    }
 
     await lead.save();
 

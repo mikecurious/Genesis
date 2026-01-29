@@ -110,7 +110,18 @@ class LeadScoringService {
             // 7. Intent Signals (max 10 points)
             // Analyze conversation history for buying signals
             const intentKeywords = ['buy', 'purchase', 'viewing', 'schedule', 'available', 'budget', 'move in', 'when can', 'interested', 'serious'];
-            const conversationText = lead.conversationHistory?.join(' ').toLowerCase() || '';
+            const conversationText = Array.isArray(lead.conversationHistory)
+                ? lead.conversationHistory
+                    .map(entry => {
+                        if (!entry) return '';
+                        if (typeof entry === 'string') return entry;
+                        if (typeof entry.text === 'string') return entry.text;
+                        if (typeof entry.message === 'string') return entry.message;
+                        return '';
+                    })
+                    .join(' ')
+                    .toLowerCase()
+                : '';
             const intentSignals = intentKeywords.filter(kw => conversationText.includes(kw)).length;
             scores.intentSignals = Math.min(10, intentSignals * 2);
 
