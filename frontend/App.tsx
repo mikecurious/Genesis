@@ -25,6 +25,9 @@ import { InteractionPage } from "./components/interaction/InteractionPage";
 import { PropertyExplorerPage } from "./components/PropertyExplorerPage";
 import { PropertyAgentPage } from "./components/PropertyAgentPage";
 import { SurveyorDetailPage } from "./components/SurveyorDetailPage";
+import { PrivacyPolicyPage } from "./components/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./components/TermsOfServicePage";
+import { Footer } from "./components/Footer";
 import type { SurveyorData } from "./components/SurveyorCard";
 import { AIPropertySearch } from "./components/AIPropertySearch";
 import { FeaturePaymentModal } from "./components/modals/FeaturePaymentModal";
@@ -77,7 +80,9 @@ type View =
   | "surveyorSignIn"
   | "surveyorSignup"
   | "forgotPassword"
-  | "resetPassword";
+  | "resetPassword"
+  | "privacyPolicy"
+  | "termsOfService";
 type Theme = "light" | "dark";
 
 /**
@@ -1339,6 +1344,10 @@ const App: React.FC = () => {
         );
       case "aiPropertySearch":
         return <AIPropertySearch />;
+      case "privacyPolicy":
+        return <PrivacyPolicyPage onBack={() => handleSetView("chat")} />;
+      case "termsOfService":
+        return <TermsOfServicePage onBack={() => handleSetView("chat")} />;
       case "dashboard":
         if (!isUserLoggedIn || !currentUser) {
           handleSetView(
@@ -1498,7 +1507,16 @@ const App: React.FC = () => {
             currentView={currentView}
             onLogout={handleLogout}
           />
-          {renderView()}
+          <div className="flex-1 overflow-auto">
+            {renderView()}
+          </div>
+          {/* Show footer on non-dashboard views */}
+          {currentView !== "dashboard" && currentView !== "interaction" && (
+            <Footer
+              onPrivacyClick={() => handleSetView("privacyPolicy")}
+              onTermsClick={() => handleSetView("termsOfService")}
+            />
+          )}
         </main>
       </div>
       {isViewerOpen && (
