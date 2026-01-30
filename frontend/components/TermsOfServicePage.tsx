@@ -251,7 +251,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({ onBack }
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">11.1 By You</h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                You may terminate your account at any time through your account settings or by contacting us at mikkohbrayoh@gmail.com.
+                You may terminate your account at any time through your account settings or by contacting us at admin@mygenesisfortune.com.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">11.2 By Us</h3>
@@ -281,7 +281,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({ onBack }
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">12.2 Dispute Resolution Process</h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                In the event of any dispute, you agree to first attempt to resolve it informally by contacting us at mikkohbrayoh@gmail.com. If the dispute cannot be resolved within 30 days, either party may pursue formal legal action.
+                In the event of any dispute, you agree to first attempt to resolve it informally by contacting us at admin@mygenesisfortune.com or calling +254759375210. If the dispute cannot be resolved within 30 days, either party may pursue formal legal action.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">12.3 Jurisdiction</h3>
@@ -328,7 +328,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({ onBack }
               </p>
 
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                <p className="text-gray-700 dark:text-gray-300"><strong>Email:</strong> mikkohbrayoh@gmail.com</p>
+                <p className="text-gray-700 dark:text-gray-300"><strong>Email:</strong> admin@mygenesisfortune.com</p>
+                <p className="text-gray-700 dark:text-gray-300"><strong>Phone:</strong> +254759375210</p>
                 <p className="text-gray-700 dark:text-gray-300"><strong>Platform:</strong> Genesis Real Estate Platform</p>
                 <p className="text-gray-700 dark:text-gray-300"><strong>GitHub:</strong> https://github.com/mikecurious/Genesis</p>
               </div>

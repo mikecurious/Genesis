@@ -154,7 +154,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ onBack }) 
               </ul>
 
               <p className="text-gray-700 dark:text-gray-300 mt-4">
-                To exercise these rights, please contact us at mikkohbrayoh@gmail.com.
+                To exercise these rights, please contact us at admin@mygenesisfortune.com.
               </p>
             </section>
 
@@ -204,7 +204,8 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ onBack }) 
               </p>
 
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                <p className="text-gray-700 dark:text-gray-300"><strong>Email:</strong> mikkohbrayoh@gmail.com</p>
+                <p className="text-gray-700 dark:text-gray-300"><strong>Email:</strong> admin@mygenesisfortune.com</p>
+                <p className="text-gray-700 dark:text-gray-300"><strong>Phone:</strong> +254759375210</p>
                 <p className="text-gray-700 dark:text-gray-300"><strong>Platform:</strong> Genesis Real Estate Platform</p>
                 <p className="text-gray-700 dark:text-gray-300"><strong>GitHub:</strong> https://github.com/mikecurious/Genesis</p>
               </div>
@@ -213,7 +214,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ onBack }) 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">14. Data Protection Officer</h2>
               <p className="text-gray-700 dark:text-gray-300">
-                For data protection inquiries specific to Kenya's Data Protection Act, 2019, you may contact our data protection officer at mikkohbrayoh@gmail.com.
+                For data protection inquiries specific to Kenya's Data Protection Act, 2019, you may contact our data protection officer at admin@mygenesisfortune.com or call +254759375210.
               </p>
             </section>
 
