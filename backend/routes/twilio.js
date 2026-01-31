@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const twilioService = require('../services/twilioService');
+const whatsappService = require('../services/whatsappService');
+const whatsappTemplateService = require('../services/whatsappTemplateService');
 const whatsappInboundService = require('../services/whatsappInboundService');
+const whatsappDeepLink = require('../utils/whatsappDeepLink');
 
 /**
  * Twilio Webhook for SMS/WhatsApp Status Callbacks
@@ -228,5 +231,169 @@ If you received this, your integration is working! ✅
         });
     }
 });
+
+/**
+ * Get WhatsApp Statistics
+ * @route GET /api/twilio/whatsapp-stats
+ * @desc Get WhatsApp messaging statistics and limits
+ * @access Public
+ */
+router.get('/whatsapp-stats', (req, res) => {
+    try {
+        const stats = whatsappService.getStats();
+        res.json({
+            success: true,
+            stats
+        });
+    } catch (error) {
+        console.error('Error getting WhatsApp stats:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get WhatsApp Template Status
+ * @route GET /api/twilio/template-status
+ * @desc Get status of configured WhatsApp templates
+ * @access Public
+ */
+router.get('/template-status', (req, res) => {
+    try {
+        const status = whatsappTemplateService.getStatus();
+        res.json({
+            success: true,
+            ...status
+        });
+    } catch (error) {
+        console.error('Error getting template status:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Generate WhatsApp Deep Link
+ * @route GET /api/twilio/deep-link
+ * @desc Generate WhatsApp deep link with optional message
+ * @access Public
+ */
+router.get('/deep-link', (req, res) => {
+    try {
+        const { message, propertyId, type } = req.query;
+
+        let link;
+
+        if (propertyId) {
+            link = whatsappDeepLink.getPropertyReferenceLink(propertyId, message);
+        } else if (type === 'qr') {
+            link = whatsappDeepLink.getQRCodeUrl();
+        } else if (message) {
+            link = whatsappDeepLink.getLinkWithMessage(message);
+        } else {
+            link = whatsappDeepLink.getBasicLink();
+        }
+
+        res.json({
+            success: true,
+            deepLink: link,
+            config: whatsappDeepLink.getDeepLinkConfig()
+        });
+    } catch (error) {
+        console.error('Error generating deep link:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get WhatsApp Configuration
+ * @route GET /api/twilio/whatsapp-config
+ * @desc Get complete WhatsApp configuration and status
+ * @access Public
+ */
+router.get('/whatsapp-config', (req, res) => {
+    try {
+        const stats = whatsappService.getStats();
+        const templateStatus = whatsappTemplateService.getStatus();
+        const deepLinkConfig = whatsappDeepLink.getDeepLinkConfig();
+
+        res.json({
+            success: true,
+            messaging: {
+                stats,
+                dailyLimitWarning: stats.remaining < 50,
+                limitReached: stats.limitReached
+            },
+            templates: {
+                configured: templateStatus.configured,
+                availableCount: templateStatus.templatesLoaded,
+                templates: templateStatus.availableTemplates
+            },
+            deepLink: deepLinkConfig,
+            recommendations: generateRecommendations(stats, templateStatus)
+        });
+    } catch (error) {
+        console.error('Error getting WhatsApp config:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Generate recommendations based on current status
+ */
+function generateRecommendations(stats, templateStatus) {
+    const recommendations = [];
+
+    // Check daily limit usage
+    if (stats.remaining < 50 && stats.remaining > 0) {
+        recommendations.push({
+            type: 'warning',
+            message: `Approaching daily message limit. ${stats.remaining} messages remaining.`,
+            action: 'Consider prioritizing critical notifications only.'
+        });
+    } else if (stats.limitReached) {
+        recommendations.push({
+            type: 'critical',
+            message: 'Daily message limit reached.',
+            action: 'Limit resets at midnight UTC. Consider upgrading to higher tier.'
+        });
+    }
+
+    // Check template configuration
+    if (templateStatus.templatesLoaded === 0) {
+        recommendations.push({
+            type: 'info',
+            message: 'No WhatsApp templates configured.',
+            action: 'Submit templates for Meta approval to send notifications outside 24-hour window.'
+        });
+    } else if (templateStatus.templatesLoaded < 6) {
+        recommendations.push({
+            type: 'info',
+            message: `Only ${templateStatus.templatesLoaded} template(s) configured.`,
+            action: 'Consider submitting more templates for different notification types.'
+        });
+    }
+
+    // Tier upgrade recommendation
+    if (stats.messagesSentToday > 200) {
+        recommendations.push({
+            type: 'info',
+            message: 'High message volume detected.',
+            action: 'Maintain quality rating to upgrade to Tier 1 (1,000 messages/day).'
+        });
+    }
+
+    return recommendations;
+}
 
 module.exports = router;

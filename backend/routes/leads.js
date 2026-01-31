@@ -10,7 +10,8 @@ const {
     deleteLead,
     getLeadStats
 } = require('../controllers/leads');
-const { protect } = require('../middleware/auth');
+const { protect, optionalProtect } = require('../middleware/auth');
+const { checkAgentConnectionLimit } = require('../middleware/usageLimits');
 
 // Rate limiter for public lead submission (prevent spam/DoS)
 // Allow 5 leads per 15 minutes per IP address
@@ -25,8 +26,9 @@ const leadLimiter = rateLimit({
     legacyHeaders: false, // Disable X-RateLimit-* headers
 });
 
-// Public route - client submits lead (with rate limiting)
-router.post('/', leadLimiter, createLead);
+// Public route - client submits lead (with rate limiting and usage limits)
+// Note: optionalProtect allows both authenticated and unauthenticated users
+router.post('/', leadLimiter, optionalProtect, checkAgentConnectionLimit, createLead);
 
 // Protected routes
 router.get('/', protect, getLeads);

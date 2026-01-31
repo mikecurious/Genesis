@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const aiChatService = require('../services/aiChatService');
+const { trackAISearchUsage } = require('../middleware/usageLimits');
 
 // @desc    Chat with AI to search for properties
 // @route   POST /api/ai-chat/search
@@ -16,6 +17,11 @@ exports.chatSearch = asyncHandler(async (req, res) => {
     }
 
     const result = await aiChatService.searchProperties(query, userId);
+
+    // Track AI search usage for authenticated users
+    if (userId) {
+        await trackAISearchUsage(req, query, result.success !== false);
+    }
 
     res.status(200).json(result);
 });
@@ -113,11 +119,23 @@ exports.processMessage = asyncHandler(async (req, res) => {
     if (aiChatService.detectSurveyorIntent(message)) {
         const propertyId = req.body.propertyId || null;
         const result = await aiChatService.processSurveyorRequest(message, userId, propertyId);
+
+        // Track AI search usage for surveyor requests
+        if (userId) {
+            await trackAISearchUsage(req, message, result.success !== false);
+        }
+
         return res.status(200).json(result);
     }
 
     // Otherwise, search for properties
     const result = await aiChatService.searchProperties(message, userId);
+
+    // Track AI search usage for authenticated users
+    if (userId) {
+        await trackAISearchUsage(req, message, result.success !== false);
+    }
+
     res.status(200).json(result);
 });
 

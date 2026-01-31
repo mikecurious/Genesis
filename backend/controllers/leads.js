@@ -8,6 +8,7 @@ const agentNotificationService = require('../services/agentNotificationService')
 const leadScoringService = require('../services/leadScoringService');
 const PendingWhatsApp = require('../models/PendingWhatsApp');
 const { normalizePhoneNumber } = require('../utils/phone');
+const { trackAgentConnectionUsage } = require('../middleware/usageLimits');
 
 // @desc    Create a new lead
 // @route   POST /api/leads
@@ -138,6 +139,16 @@ exports.createLead = asyncHandler(async (req, res) => {
         }
     } catch (notificationError) {
         console.error('Failed to send agent notifications:', notificationError);
+    }
+
+    // Track agent connection usage for authenticated users
+    if (req.user && req.user._id) {
+        await trackAgentConnectionUsage(req, {
+            leadId: lead._id,
+            propertyId: property._id,
+            type: 'connect_now',
+            success: true
+        });
     }
 
     res.status(201).json({

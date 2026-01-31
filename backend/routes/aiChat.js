@@ -9,11 +9,13 @@ const {
     processMessage,
     tenantManagement
 } = require('../controllers/aiChat');
-const { protect } = require('../middleware/auth');
+const { protect, optionalProtect } = require('../middleware/auth');
+const { checkAISearchLimit } = require('../middleware/usageLimits');
 
-// Public routes
-router.post('/search', chatSearch);
-router.post('/message', processMessage);
+// Public routes with usage limits
+// Note: optionalProtect allows both authenticated and unauthenticated users
+router.post('/search', optionalProtect, checkAISearchLimit, chatSearch);
+router.post('/message', optionalProtect, checkAISearchLimit, processMessage);
 router.post('/tenant-management', tenantManagement);
 router.get('/greeting', getGreeting);
 router.get('/property/:id', getPropertyWithAI);
